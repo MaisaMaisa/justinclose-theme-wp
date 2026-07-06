@@ -1,0 +1,197 @@
+/*  mobile-friends */
+@media (max-width: 575.98px) {
+  .mobile-off {
+    display: block !important;
+  }
+  .front-page-content {
+    position: fixed;
+    overflow: hidden;
+    animation: moveTrain 50s linear infinite;
+  }
+  .break-btn-wrapper {
+    width: auto;
+    padding: 10px;
+  }
+  .break-btn-wrapper .break-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .blinking-text {
+    font-size: 25px !important;
+  }
+  @keyframes moveTrain {
+    from {
+      transform: translateX(10%);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  .page-container {
+    padding-left: 1%;
+    padding-right: 1%;
+  }
+  .blog footer,
+  .category footer {
+    display: none;
+  }
+  .collectibles-page,
+  .category-page {
+    padding-top: 60%;
+  }
+  .post-title {
+    width: 100%;
+    font-size: 18px;
+    text-shadow: 0 0 2px #FFFFFF;
+  }
+  .blur-active::after {
+    color: black;
+  }
+  .single {
+    padding-bottom: 50%;
+  }
+  .product-data {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    background: #CFCFCF;
+    box-shadow: 0px -10px 5px 0px rgb(207, 207, 207);
+    -webkit-box-shadow: 0px -10px 5px 0px rgb(207, 207, 207);
+    -moz-box-shadow: 0px -10px 5px 0px rgb(207, 207, 207);
+    z-index: 45678;
+  }
+  .product-data .collapse-btn {
+    display: block;
+  }
+  .product-data ul {
+    width: 100%;
+    margin-top: -2%;
+  }
+  .product-data .material-list {
+    display: flex;
+  }
+  .content-container {
+    padding: 40% 2%;
+    padding-bottom: 10%;
+  }
+  .content-container .custom-slideshow button {
+    padding: 0;
+    width: 50px;
+    height: 50px;
+    font-size: 35px;
+  }
+  .content-container .custom-slideshow button.prev-slide {
+    left: 0;
+  }
+  .content-container .custom-slideshow button.next-slide {
+    right: 0;
+  }
+  .content-container .wp-block-gallery-is-layout-flex {
+    flex-wrap: nowrap;
+  }
+  .exhibition-slideshow {
+    scroll-behavior: auto;
+  }
+  .expo-slide {
+    height: 70vh;
+    scroll-snap-align: none;
+    transition: transform 0.8s ease-in-out;
+    scroll-snap-align: start;
+  }
+  .expo-slide img {
+    width: auto;
+  }
+  .slideshow-arrow {
+    display: none !important;
+    font-size: 100px;
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 0 5px #FFFFFF;
+  }
+  .slideshow-arrow span {
+    font-size: 75px;
+  }
+  .the-rest-meta {
+    display: none;
+  }
+  .short-long {
+    padding: 5px;
+    margin: 0;
+  }
+  .short-long .rest-details {
+    width: 100%;
+  }
+  .short-long .rest-summary h3 {
+    margin: 10px 5px;
+  }
+  .abt-content-container {
+    padding: 30% 12px;
+  }
+  .abt-content-container .wp-block-columns {
+    margin-left: 0;
+    display: flex;
+    flex-wrap: nowrap !important;
+  }
+  .abt-content-container .wp-block-columns .wp-block-column:first-child p {
+    text-align: left;
+    margin-bottom: 0;
+  }
+  .abt-content-container .wp-block-columns .wp-block-column:first-child {
+    min-width: 40px;
+  }
+  .abt-content-container .wp-block-columns:not(.is-not-stacked-on-mobile) > .wp-block-column {
+    flex-basis: auto !important;
+  }
+  .abt-content-container .contact-widget {
+    position: relative;
+    width: 100%;
+    padding: 0;
+    top: inherit;
+    border-left: none;
+  }
+  .copyright {
+    padding: 0;
+    bottom: 0;
+    margin: 7px;
+    font-size: 12px;
+  }
+}
+@media (min-width: 856px) and (max-width: 1024px) {
+  .post-title {
+    font-size: 38px;
+  }
+}
+@media (min-width: 769px) and (max-width: 855px) {
+  .post-title {
+    font-size: 28px;
+  }
+}
+@media (max-width: 768px) {
+  .post-title {
+    font-size: 20px;
+  }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .posts-list {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 210px 60px 10px 60px;
+  }
+}
+@media (max-width: 768px) {
+  .posts-list {
+    display: block;
+    padding: 0;
+  }
+  .posts-list .post-item:first-child {
+    border-top: none;
+  }
+  .posts-list .post-item:first-child .post-thumbnail img {
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 50%);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 50%);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+}/*# sourceMappingURL=queries.css.map */

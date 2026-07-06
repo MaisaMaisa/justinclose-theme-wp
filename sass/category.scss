@@ -1,0 +1,49 @@
+.archive{
+    .top-menu li a,
+    .top-menu li span {
+        font-size: 60px;
+        font-weight: 400;
+        margin: 0;
+        padding: 0;
+    }
+
+    #categories{
+        margin-left: 0;
+        margin-top: 18px;
+    }
+
+    #categories ul{
+        display: flex;
+        list-style: none;
+        padding: 0;
+
+        li a{
+            font-size: 40px;
+        }
+    }
+
+    .break-btn-wrapper{
+        position: fixed;
+    }
+    
+    .copyright{
+        bottom: 1%;
+        left: 0;
+        width: 100%;
+
+        text-align: center;
+
+        margin: 3% 0;
+        padding-bottom: 200px;
+
+        color: #CFCFCF;
+        background: transparent;
+        mix-blend-mode: difference;
+
+        z-index: 0;
+    }
+
+    footer .bottom-menu li a{
+        color: black !important;
+    }
+}

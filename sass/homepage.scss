@@ -1,0 +1,94 @@
+.break-btn-wrapper{
+    position: fixed;
+    display: flex;
+    justify-content: right;
+
+    top: 0;
+    right: 0.5%;
+    margin-top: 0.5%;
+    
+    width: auto;
+
+    z-index: 23456789;
+
+    background-color: transparent;
+    color: #CFCFCF;
+    mix-blend-mode: difference;
+
+    .break-btn{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 50px;
+        height: 50px;
+
+        background-color: transparent;
+        color: #CFCFCF;
+        
+        border: solid;
+        border-radius: 50%;
+        
+        cursor: pointer;
+
+        &:hover{
+            scale: 1.1;
+        }
+    }
+}
+
+.front-page-content {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    top: 0;
+    left: 0;
+    
+    width: max-content;
+    height: 100vh;
+    
+    background-color: #CFCFCF;
+
+    overflow-x: hidden;
+    overflow-y: hidden;
+    z-index: -1;
+    
+    animation: moveTrain 50s linear infinite;
+    animation-play-state: running;
+
+    img {
+        display: inline-block;
+        width: auto;
+        height: 100vh;
+        object-fit: cover;
+    }
+}
+
+.blinking-text{
+    position: fixed;
+    display: none;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 100%;
+
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #CFCFCF;
+
+    z-index: 1000;
+}
+
+@keyframes moveTrain {
+    from {
+        transform: translateX(100vw);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}

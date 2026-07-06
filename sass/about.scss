@@ -1,0 +1,51 @@
+.abt-content-container {
+    padding: 10% 27%;
+
+    .copyright{
+        position: fixed;
+        bottom: 0;
+        left: 0;
+
+        width: 100%;
+        margin: 10px 0;
+        text-align: center;
+        z-index: 0;
+    }
+
+    .contact-widget{
+        position: fixed;
+        
+        top: 50vh;
+        right: 0;
+
+        width: 27%;
+        padding: 0 1%;
+        
+        border-left: solid;
+    }
+
+    .wp-block-columns{
+        margin-bottom: 0;
+        margin-left: -13.7%;
+        gap: 1em;
+
+        .wp-block-column:first-child{
+            text-align: right;
+        }
+    }
+
+    ul{
+        list-style: none;
+        padding: 0;
+
+        li{
+            margin-bottom: 5px;
+        }
+    }
+
+    .maisa-link a{
+        display: inline-block;
+        transform: rotate(-7deg);
+        color: black;
+    }
+}

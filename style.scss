@@ -1,0 +1,1286 @@
+/*
+Theme name: Justin Close Theme
+Text Domain: Justin Close Theme
+Version: 1.0
+Description: made with care
+Tags: lovely stuff
+Author: Maisa Imamović
+Author URI: https://maisaimamovic.eu/
+*/
+
+// @import "sass/header";
+// @import "sass/homepage";
+// @import "sass/collectibles";
+// @import "sass/category";
+// @import "sass/page";
+// @import "sass/about";
+// @import "sass/therest";
+// @import "sass/single";
+// @import "sass/footer";
+// @import "sass/queries";
+
+@font-face {
+    font-family: "Nadia";
+    src: url("assets/fonts/Nadia-Serif/nadia_serif.ttf") format("truetype"),
+        url("assets/fonts/Nadia-Serif/nadia_serif.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    /* improves performance */
+}
+
+.inclusive-sans-bro {
+    font-family: "Inclusive Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+html {
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background-color: #CFCFCF;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Old versions of Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+}
+
+.no-outline {
+    outline: none !important;
+}
+
+.mobile-off {
+    display: none;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --color-light: #FFFFFF;
+    --color-medium: #E6F2B1;
+    --color-bright: #CDE562;
+    --color-dark: #889D45;
+}
+
+@font-face {
+    font-family: 'Bradford';
+    src: url('/BradfordLLWeb-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    background: var(--color-light);
+    color: #000;
+    font-family: Bradford;
+    padding: 10px;
+    padding-top: 0;
+}
+
+#justin-label {
+    position: fixed;
+    left: 10px;
+    top: 50px;
+    font-size: 20px;
+    pointer-events: none;
+    transition: top 0.15s ease;
+    line-height: 1;
+    display: inline-block;
+    white-space: nowrap;
+    z-index: 100;
+}
+
+#bio-label {
+    position: fixed;
+    left: 10px;
+    top: 50px;
+    font-size: 20px;
+    pointer-events: none;
+    transition: top 0.15s ease;
+    line-height: 0;
+    display: none;
+    z-index: 100;
+}
+
+#bio-label span {
+    color: lightgrey;
+}
+
+#page {
+    margin-left: 60px;
+    padding-right: 5px;
+    border-left: solid 0.5px;
+    margin-bottom: 5%;
+}
+
+#nav-line {
+    height: 100%;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    font-size: 20px;
+    right: 0;
+    text-align: right;
+}
+
+#nav-line span.cat {
+    cursor: pointer;
+    padding: 0 15px;
+    font-size: 15px;
+    transition: font-size 0.15s ease;
+    color: black !important;
+}
+
+#nav-line span.cat:hover {
+    /* text-decoration: underline;  */
+    font-size: 20px;
+}
+
+#nav-line span.cat.active {
+    /* text-decoration: underline;  */
+    font-size: 30px;
+    color: black !important;
+}
+
+#list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#list li {
+    margin: 0;
+    padding: 0;
+}
+
+#list summary {
+    font-size: 20px;
+    line-height: 1.45;
+    cursor: pointer;
+    list-style: none;
+    display: block;
+    color: #000;
+    margin-left: 5px;
+    transition: font-size 0.15s ease;
+}
+
+#list summary:hover {
+    font-size: 30px;
+}
+
+#list summary.highlighted {
+    font-size: 30px;
+}
+
+#list summary.is-open {
+    font-size: 30px;
+}
+
+#list li.category-active summary,
+#list summary.category-active {
+    font-size: 30px;
+}
+
+#list li.category-active summary:hover,
+#list summary.category-active:hover {
+    font-size: 34px;
+}
+
+.cat-dot {
+    display: none;
+    margin-left: 4px;
+    color: red;
+}
+
+.cat-dot.visible {
+    display: inline;
+}
+
+/* Empty-project tag: only appears on hover of the list item */
+.empty-tag {
+    display: none;
+    color: #999;
+}
+
+#list li:hover .empty-tag {
+    display: inline;
+}
+
+.detail-body {
+    position: relative;
+    border: solid 0.5px;
+    border-left: none;
+    margin-left: -0.5px;
+}
+
+.project-slideshow {
+    position: relative;
+    background: transparent;
+    color: #fff;
+}
+
+.text-body {
+    font-family: "Nothing You Could Do", cursive;
+    font-size: 30px;
+    line-height: 1.6;
+    padding: 20px;
+    background: white;
+}
+
+.project-slideshow-track {
+    position: relative;
+    width: 100%;
+    height: 620px;
+    padding: 2%;
+    overflow: hidden;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0 5px 5px 0;
+}
+
+.project-slideshow-track img {
+    width: auto;
+    height: 100%;
+    display: block;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.project-slideshow-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: blue;
+    width: 38px;
+    height: 38px;
+    font-size: 100px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.project-slideshow-button.prev {
+    left: 10px;
+}
+
+.project-slideshow-button.next {
+    right: 10px;
+}
+
+.project-slideshow-button.pause {
+    top: 0;
+    right: 10px;
+    transform: none;
+    width: auto;
+    min-width: 74px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.project-slideshow-button.pause:hover {
+    color: blue !important;
+}
+
+.project-slideshow-dots {
+    display: none;
+    gap: 8px;
+    justify-content: center;
+    padding: 10px;
+    background: #ffffff;
+}
+
+.project-slideshow-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 0;
+    background: rgba(255, 255, 255, 0.35);
+    cursor: pointer;
+    padding: 0;
+}
+
+.project-slideshow-dot.active {
+    background: #fff;
+}
+
+.project-slideshow-caption {
+    display: none;
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    margin: 0;
+    padding: 6px 8px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 12px;
+    z-index: 1;
+}
+
+.placeholder-img {
+    width: 100%;
+    height: 620px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #999;
+}
+
+.detail-body p {
+    display: none;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.5;
+    position: absolute;
+    bottom: 0;
+}
+
+.vimeo-embed {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    background: #000;
+}
+
+.vimeo-embed iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+#bio-section {
+    position: fixed;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    color: black;
+    z-index: 200;
+    transform: translateY(calc(100% - 38px));
+    transition: transform 0.35s ease;
+    background: #CDE562;
+    background: linear-gradient(0deg, rgba(205, 229, 98, 1) 0%, rgba(253, 187, 45, 0) 100%);
+}
+
+#bio-section.is-open {
+    transform: translateY(0);
+}
+
+#bio-section .bio-panel {
+    padding: 55px 8px 10px;
+}
+
+#bio-section p {
+    font-size: 20px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+#bio-section .subscribe-block {
+    display: flex !important;
+}
+
+#bio-section .subscribe-block p {
+    margin-bottom: 0.6em;
+}
+
+#bio-section input[type="email"] {
+    font-size: 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid lightgrey;
+    color: black;
+    outline: none;
+    margin-left: 5px;
+    width: 320px;
+    height: 33px;
+}
+
+#bio-section input[type="email"]::placeholder {
+    color: #555;
+}
+
+#bio-section button {
+    font-size: 20px;
+    height: 33px;
+    width: 890px;
+    background: transparent;
+    border: 1px solid lightgrey;
+    color: lightgrey;
+    padding: 4px 16px;
+    margin-left: 12px;
+    cursor: pointer;
+}
+
+#bio-section button:hover {
+    border: black solid 0.5px;
+    color: #000;
+}
+
+#bio-section .subscribe-block button {
+    font-size: 20px;
+    height: 33px;
+    width: 890px;
+    background: transparent;
+    border: 1px solid lightgrey;
+    color: black;
+    padding: 4px 16px;
+    margin-left: 12px;
+    cursor: pointer;
+}
+
+#bio-section .subscribe-block button:hover {
+    background: lightgrey;
+    color: #000;
+}
+
+#bio-toggle {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    border: 1px solid lightgrey;
+    border-radius: 50%;
+    background: transparent;
+    color: lightgrey;
+    font-size: 20px;
+    line-height: 24px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.hscroll-track {
+    display: flex;
+    gap: 8px;
+    overflow-x: hidden;
+    width: 100%;
+    height: 620px;
+    background: white;
+    transition: overflow 0.2s;
+}
+
+.hscroll-track.paused {
+    overflow-x: scroll;
+}
+
+.hscroll-track img {
+    height: 100%;
+    width: auto;
+    flex-shrink: 0;
+    display: block;
+    object-fit: contain;
+}
+
+.hscroll-wrap {
+    position: relative;
+}
+
+.hscroll-pause {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: white;
+    border: 0;
+    cursor: pointer;
+    color: #000;
+    z-index: 4567876;
+}
+
+.split-body {
+    display: flex;
+    flex-direction: column;
+    padding-top: 10%;
+    background: black;
+    height: auto;
+    position: absolute;
+    top: 0;
+    overflow: hidden;
+}
+
+.split-wrapper {
+    display: flex;
+    height: 80%;
+}
+
+.teasers {
+    display: flex;
+    /* justify-content: center; */
+    background-color: black;
+    border: solid yellow;
+    height: 100%;
+
+    img {
+        width: 33%;
+        padding: 10px;
+        filter: blur(3px);
+    }
+}
+
+.split-slideshow {
+    width: 50%;
+    flex-shrink: 0;
+    position: relative;
+    background-color: black;
+}
+
+.split-track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.split-track img {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.split-btn {
+    position: absolute;
+    border: 0;
+    background: transparent;
+    color: blue;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.split-btn.prev {
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 100px;
+    line-height: 1;
+    width: 38px;
+    height: 38px;
+}
+
+.split-btn.next {
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 100px;
+    line-height: 1;
+    width: 38px;
+    height: 38px;
+}
+
+.split-btn.pause {
+    top: 0;
+    right: 0;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.split-text {
+    position: relative;
+    width: 50%;
+    padding: 30px 25px;
+    background: black;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    border-left: 0.5px solid lightgrey;
+}
+
+.split-text button {
+    background-color: black;
+    color: white;
+    border: solid 0.5px white;
+    border-radius: 5px;
+    position: absolute;
+    width: 95%;
+    bottom: 30px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.split-text button:hover {
+    background-color: white;
+    color: black;
+    border: black;
+}
+
+.oops-btn {
+    position: absolute;
+    text-decoration: none;
+    font-size: 50px;
+    padding: 10px;
+    right: 0;
+}
+
+.gallery-block {
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.gallery-img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.popup-caption {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    z-index: 20;
+    display: none;
+}
+
+.popup-caption.visible {
+    display: block;
+}
+
+.gallery-caption-toggle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: yellow;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    display: block;
+}
+
+.gallery-caption-text {
+    display: none;
+    margin-top: 8px;
+    font-size: 20px;
+    line-height: 1.5;
+    color: yellow;
+}
+
+.gallery-caption-text.open {
+    display: block;
+}
+
+.popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.749);
+    /* background: linear-gradient(135deg, rgb(255, 255, 255) 0%, rgba(255, 255, 255, 0.562) 100%); */
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.popup-overlay.open {
+    display: flex;
+}
+
+.popup-window {
+    width: 60vw;
+    height: 80vh;
+    overflow: hidden;
+    /* no longer scrolls itself — just clips */
+    position: relative;
+    background: white;
+    border: solid 0.5px #000;
+}
+
+.popup-scroll {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    /* the scrolling now happens in here */
+}
+
+.popup-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 30;
+    line-height: 1;
+    color: yellow;
+}
+
+.popup-caption {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    z-index: 20;
+    display: none;
+}
+
+.popup-title {
+    font-size: 30px;
+    margin: 16px 16px 12px;
+    position: sticky;
+    top: 5px;
+    z-index: 45678;
+    color: yellow;
+}
+
+.popup-watch-toggle {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    z-index: 25;
+    background: transparent;
+    color: yellow;
+    border: none;
+    padding: 8px 14px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    display: none;
+}
+
+.popup-watch-toggle.visible {
+    display: block;
+}
+
+.popup-overlay {
+    transition: background 0.3s ease;
+}
+
+.popup-overlay.watch-mode {
+    background: #000;
+
+    .popup-window {
+        background: #000;
+    }
+}
+
+@media (max-width: 700px) {
+    .popup-window {
+        width: 92vw;
+        height: 85vh;
+    }
+}
+
+/* ── Lightbox overlay ── */
+.lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    // background: #f2ffba96;
+    display: none;
+    flex-direction: column;
+    background: linear-gradient(0deg, rgba(130, 130, 130, 1) 0%, rgb(242 255 186 / 68%) 50%);
+}
+
+.lightbox-overlay.open {
+    display: flex;
+}
+
+.lightbox-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+#lightbox-stage {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 0;
+}
+
+.lightbox-main img {
+    height: 100%;
+    width: auto;
+    max-width: none;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+.lightbox-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: #000;
+    font-size: 80px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+    width: 60px;
+    padding: 0;
+}
+
+.lightbox-arrow.prev {
+    left: 0;
+}
+
+.lightbox-arrow.next {
+    right: 0;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 28px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.lightbox-thumbs {
+    height: 100px;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 8px 12px;
+    /* background: var(--color-medium, #E6F2B1); */
+    scrollbar-width: none;
+}
+
+.lightbox-thumbs::-webkit-scrollbar {
+    display: none;
+}
+
+.lightbox-thumbs img {
+    height: 100%;
+    width: auto;
+    flex-shrink: 0;
+    cursor: pointer;
+    object-fit: cover;
+    border: 2px solid transparent;
+    transition: border-color 0.15s;
+}
+
+.lightbox-thumbs img.active {
+    border-color: #000;
+}
+
+/* Film entries: extra "watch" tile at the end of the thumbnail strip */
+.lightbox-watch-thumb {
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    color: #fff;
+    cursor: pointer;
+    font-size: 11px;
+    text-align: center;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* Watch mode: overlay goes dark and plays the film */
+.lightbox-overlay.watch-mode {
+    background: #000;
+}
+
+.film-vimeo {
+    width: 80%;
+    max-width: 900px;
+    height: 500px;
+}
+
+.film-resume-btn {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: transparent;
+    color: #fff;
+    border: 1px solid #fff;
+    padding: 8px 18px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    z-index: 5;
+}
+
+.film-resume-btn:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* Painting / Collage entries: thumbnail strip flips to the top and upside down */
+.lightbox-overlay.upside-down #lightbox-thumbs {
+    order: -2;
+    justify-content: start;
+    transform: rotate(180deg);
+}
+
+.lightbox-overlay.upside-down .lightbox-infobar {
+    order: -1;
+    justify-content: end;
+
+    .lightbox-info-toggle {
+        transform: rotate(180deg);
+    }
+}
+
+/* Close (X) button moves to bottom-left for the upside-down effect */
+.lightbox-overlay.upside-down .lightbox-close {
+    top: auto;
+    bottom: 12px;
+    right: auto;
+    left: 16px;
+}
+
+/* Info icon + sliding description panel, between main image and thumbnails */
+.lightbox-infobar {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-start;
+    padding: 2px 12px;
+}
+
+.lightbox-info-toggle {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 30px;
+    line-height: 1;
+    color: white;
+    text-shadow: #FC0 1px 0 10px;
+    padding: 2px 4px;
+}
+
+.lightbox-info-panel {
+    flex-shrink: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+    font-family: Bradford!important;
+    // font-family: "Nothing You Could Do", cursive;
+    font-size: 15px;
+    line-height: 1.4;
+    color: white;
+    text-shadow: #FC0 1px 0 10px;
+    padding: 0 16px;
+
+    p{
+        font-family: Bradford!important;
+    }
+}
+
+.lightbox-info-panel.open {
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 8px 16px 14px;
+}
+
+/* Books category: two-column stage — text/buy button left, image right */
+.book-stage {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 42% 58%;
+    overflow: hidden;
+}
+
+.book-stage .book-text {
+    padding: 40px 30px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #111;
+
+    background: #828282;
+    background: linear-gradient(270deg, rgba(130, 130, 130, 0) 0%, rgba(242, 255, 186, 1) 28%);
+}
+
+.book-stage .book-gallery {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+}
+
+.book-stage .book-text .buy-btn {
+    margin-top: 20px;
+    align-self: flex-start;
+    background: transparent;
+    border: 1px solid #000;
+    color: #000;
+    padding: 8px 20px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+}
+
+.book-stage .book-text .buy-btn:hover {
+    background: #000;
+    color: #fff;
+}
+
+.book-stage .book-images {
+    position: absolute;
+    inset: 0 0 110px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: transparent!important;
+}
+
+.book-stage .book-images img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.book-stage .book-thumb-strip {
+    position: absolute;
+    left: -50vw!important;
+    right: 0;
+    bottom: 0;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 12px;
+    background: transparent!important;
+    flex-shrink: 0;
+}
+
+.book-stage .book-thumb-strip::-webkit-scrollbar {
+    display: none;
+}
+
+.book-stage .book-thumb-strip img {
+    height: 100%;
+    width: auto;
+    flex-shrink: 0;
+    cursor: pointer;
+    object-fit: contain;
+    border: 2px solid transparent;
+}
+
+.book-stage .book-thumb-strip img.active {
+    border-color: #000;
+}
+
+.book-stage .book-thumb-strip img.teaser-thumb {
+    filter: blur(3px);
+}
+
+.book-stage .book-images img.teaser-img {
+    filter: blur(6px);
+}
+
+.lightbox-thumbs img.teaser-thumb {
+    filter: blur(3px);
+}
+
+#bg-hover-img {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+#bg-hover-img.visible {
+    opacity: 1;
+}
+
+/* make sure the list sits above the bg image */
+#page {
+    position: relative;
+    z-index: 1;
+}
+
+.collage-body {
+    position: relative;
+    /* background: #f5f0e8; */
+    min-height: 100%;
+    padding: 40px 30px 80px;
+    overflow: visible;
+}
+
+.collage-item {
+    position: absolute;
+    transform-origin: center center;
+}
+
+.collage-item img {
+    display: block;
+    /* box-shadow: 2px 4px 12px rgba(0,0,0,0.18); */
+    background: none;
+    padding: 6px 6px 22px;
+    /* polaroid style */
+}
+
+.collage-item.text-item {
+    font-family: "Nothing You Could Do", cursive;
+    line-height: 1.2;
+    color: #111;
+    pointer-events: none;
+}
+
+.collage-scroll-outer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.collage-canvas {
+    position: relative;
+    width: 100%;
+    /* height set by JS based on items */
+}
+
+#god-mode-btn {
+    position: fixed;
+    right: 0;
+    cursor: pointer;
+    padding: 0 15px;
+    font-size: 15px;
+    transition: font-size 0.15s ease, z-index 0s;
+    color: black !important;
+    z-index: 456785678;
+    text-decoration: none;
+}
+
+#god-mode-btn:hover {
+    color: red !important;
+}
+
+/* When a popup/lightbox is open, GOD MODE sits behind it like the rest of the page */
+#god-mode-btn.behind-popup {
+    z-index: 1;
+}
+
+#god-mode-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+}
+
+#god-mode-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#god-mode-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.6s ease;
+}
+
+/* When a Painting/Collage popup is open: background list flips upside-down
+       in place (staying on the right, since nav moves to the left), category
+       nav flips upside-down and moves to the left. */
+body.lb-upside-down #page {
+    transform: rotate(180deg);
+    transform-origin: center center;
+}
+
+body.lb-upside-down #justin-label {
+    display: none !important;
+}
+
+body.lb-upside-down #nav-line {
+    display: none !important;
+    right: auto;
+    left: 0;
+    text-align: left;
+    transform: rotate(180deg);
+}

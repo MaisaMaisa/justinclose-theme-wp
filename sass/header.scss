@@ -1,0 +1,328 @@
+// DESKTOP BASE
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    
+    background: transparent;
+    mix-blend-mode: difference;
+    z-index: 10;
+}
+
+.slogan {
+    display: flex;
+    padding-left: 0.5%;
+
+    h1 {
+        position: relative;
+        margin: 0;
+        font-size: 50px;
+        font-weight: 400;
+        color: #CFCFCF !important;
+        z-index: 101;
+    }
+
+    a {
+        font-size: 50px;
+        text-decoration: none;
+        color: #CFCFCF !important;
+    }
+
+    .home-btn:hover {
+        font-style: italic;
+    }
+
+    .ig {
+        a {
+            font-size: 20px;
+            text-decoration: none;
+
+            &:hover {
+                text-transform: uppercase;
+            }
+        }
+    }
+}
+
+.nav-wrapper {
+    position: fixed;
+    z-index: 100;
+}
+
+.top-menu {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    font-size: 40px;
+    list-style: none;
+
+    li {
+        margin: 0;
+        padding: 0;
+        padding-left: 0.5vw;
+        font-size: 60px;
+        font-weight: 400;
+
+        a, span {
+            text-decoration: none;
+            color: #CFCFCF !important;
+        }
+
+        a:hover {
+            font-style: italic;
+        }
+    }
+}
+
+#categories {
+    display: flex;
+    align-items: end;
+    margin-top: 35px;
+    margin-left: 10px;
+    color: #CFCFCF;
+
+    .category-item {
+        margin-right: 10px;
+    }
+
+    .mobile-only {
+        display: none;
+    }
+}
+
+// 1024px
+@media (min-width: 856px) and (max-width: 1024px) {
+
+    .slogan {
+        h1 { font-size: 40px; }
+        a { font-size: 40px; }
+        .ig a { font-size: 18px; }
+    }
+
+    .top-menu li {
+        font-size: 48px;
+        padding-left: 0.4vw;
+    }
+
+
+    .blog .top-menu li a, 
+    .blog .top-menu li span,
+    .archive .top-menu li a, 
+    .archive .top-menu li span,
+    .single .top-menu li a, 
+    .single .top-menu li span,
+    .product-info .product-name{
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin-top: 0;
+        font-size: 42px!important;
+        // padding: 10px!important;
+    }
+
+    .product-info .product-name{
+        line-height: 1.4;
+    }
+
+    .blog #categories ul li a,
+    .archive #categories ul li a {
+        font-size: 38px!important;
+    }
+}
+
+// 855px
+@media (min-width: 769px) and (max-width: 855px) {
+
+    .slogan {
+        h1 { font-size: 32px; }
+        a { font-size: 32px; }
+        .ig a { font-size: 16px; }
+    }
+
+    .top-menu li {
+        font-size: 38px;
+        padding-left: 0.3vw;
+    }
+
+    .blog .top-menu li a, 
+    .blog .top-menu li span,
+    .archive .top-menu li a, 
+    .archive .top-menu li span,
+    .single .top-menu li a, 
+    .single .top-menu li span,
+    .product-info .product-name{
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin-top: 0;
+        font-size: 32px!important;
+    }
+
+    .product-info .product-name{
+        line-height: 1.4;
+    }
+
+    .blog #categories ul li a,
+    .archive #categories ul li a {
+        font-size: 28px!important;
+    }
+}
+
+// 768px — MOBILE
+@media (max-width: 768px) {
+    header,
+    .blog header {
+        width: 87%;
+
+        .slogan {
+            flex-direction: column;
+            padding: 10px 0 5px 10px;
+
+            span {
+                display: none;
+            }
+
+            a {
+                font-size: 35px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    }
+
+    .nav-wrapper,
+    .blog .nav-wrapper,
+    .archive .nav-wrapper {
+        .top-menu {
+            flex-direction: row;
+
+            li {
+                font-size: 20px;
+                padding: 10px;
+                padding-right: 0;
+                padding-left: 0px !important;
+            }
+
+            li a,
+            li span {
+                font-size: 20px;
+                padding: 10px;
+            }
+        }
+
+        #categories {
+            position: absolute;
+            width: 100vw;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            margin-top: 4vh;
+
+            .category-item {
+                font-size: 20px;
+                padding: 10px!important;
+                padding-right: 0!important;
+            }
+
+            ul {
+                align-items: flex-start;
+                flex-wrap: wrap;
+                margin-top: 0;
+
+                li {
+                    font-size: 20px;
+                }
+
+                li span {
+                    padding-right: 0;
+                }
+            }
+
+            .mobile-only {
+                display: inline;
+            }
+        }
+    }
+
+    .blog .top-menu li a, 
+    .blog .top-menu li span,
+    .archive .top-menu li a, 
+    .archive .top-menu li span{
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin-top: 0;
+        font-size: 20px!important;
+        padding: 10px!important;
+    }
+
+    .blog #categories ul li a,
+    .archive #categories ul li a {
+        font-size: 20px!important;
+    }
+
+    .single .top-menu li{
+        font-size: 20px!important;
+        padding: 10px !important;
+        padding-left: 5px!important;
+    }
+
+    .single .top-menu li a, 
+    .product-info .product-name{
+        align-items: flex-start;
+        flex-wrap: wrap;
+        margin-top: 0;
+        font-size: 20px!important;
+        padding: 5px!important;
+    }
+
+    .single .top-menu li span{
+        font-size: 20px!important;
+        padding: 0;
+    }
+
+    .product-info .product-name{
+        line-height: 1.7;
+    }
+
+}
+
+// 480px — SMALL MOBILE
+// @media (max-width: 480px) {
+//     header .slogan {
+//         a { font-size: 28px; }
+//         h1 { font-size: 20px; }
+//         .ig a { font-size: 14px; }
+//     }
+
+//     .top-menu li {
+//         font-size: 18px;
+
+//         a, span {
+//             font-size: 18px;
+//             padding: 8px;
+//         }
+//     }
+
+//     .blog .top-menu li a,
+//     .archive .top-menu li a, 
+//     .blog .top-menu li span,
+//     .archive .top-menu li span{
+//         align-items: flex-start;
+//         flex-wrap: wrap;
+//         margin-top: 0;
+//         font-size: 18px!important;
+//         padding: 10px!important;
+//     }
+
+//     .blog #categories ul li a,
+//     .archive #categories ul li a {
+//         font-size: 18px!important;
+//     }
+// }
+
+.home #categories .category-item:first-child{
+    padding-left: 0!important;
+
+    span{
+        padding-right: 15px!important;
+    }
+}

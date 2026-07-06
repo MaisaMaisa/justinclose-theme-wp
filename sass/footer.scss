@@ -1,0 +1,137 @@
+// footer{
+//     position: fixed;
+//     bottom: 0;
+
+//     mix-blend-mode: difference;
+//     background-color: transparent;
+
+//     .bottom-menu{
+//         display: flex;
+//         margin: 0;
+//         padding: 0;
+
+//         list-style: none;
+//     }
+
+//     .bottom-menu li{
+//         margin: 0;
+//         padding: 0;
+//         padding-left: 0.5vw;
+        
+//         font-size: 40px;
+//         color: #CFCFCF!important;
+
+//         z-index: 11;
+    
+//         a{
+//             text-decoration: none;
+//             color: #CFCFCF !important;
+//         }
+    
+//         a:hover{
+//             font-style: italic;
+//         }
+//     }
+
+//     .bottom-menu li:nth-child(2) {
+//         position: fixed;
+//         right: 0.5%; 
+//     }
+// }
+
+footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+
+    mix-blend-mode: difference;
+    background-color: transparent;
+
+    .bottom-menu {
+        display: flex;
+        justify-content: space-between;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .bottom-menu li {
+        margin: 0;
+        padding: 0 0.5vw;
+        // padding-left: 0.5vw;
+
+        font-size: 40px; // matches .top-menu base (sits between 40px list / 60px li)
+        color: #CFCFCF !important;
+        z-index: 11;
+
+        a {
+            text-decoration: none;
+            color: #CFCFCF !important;
+        }
+
+        a:hover {
+            font-style: italic;
+        }
+    }
+
+    // .bottom-menu li:nth-child(2) {
+    //     position: fixed;
+    //     right: 0.5%;
+    // }
+
+    // FIX FOR 1026-1060px RANGE
+    @media (max-width: 1060px) {
+        .bottom-menu li {
+            font-size: 35px;
+        }
+    }
+
+    // TABLET/SMALL DESKTOP
+    @media (max-width: 1024px) {
+        .bottom-menu li {
+            font-size: 30px;
+        }
+    }
+
+    // FIX FOR 773-855px RANGE
+    @media (max-width: 855px) {
+        .bottom-menu li {
+            font-size: 25px;
+            padding-left: 5px;
+        }
+    }
+
+    // MOBILE BREAKPOINT
+    @media (max-width: 768px) {
+
+        .bottom-menu{
+            padding-bottom: 5px!important;
+        }
+
+        .bottom-menu li {
+            font-size: 20px;
+            padding-left: 0;
+
+            a {
+                font-size: 20px;
+                padding: 10px;
+            }
+
+            span {
+                font-size: 20px;
+                padding: 0;
+            }
+        }
+    }
+
+    // SMALL MOBILE
+    // @media (max-width: 480px) {
+    //     .bottom-menu li {
+    //         font-size: 18px;
+
+    //         a, span {
+    //             font-size: 18px;
+    //         }
+    //     }
+    // }
+}

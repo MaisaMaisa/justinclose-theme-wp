@@ -1,0 +1,12 @@
+.page-container {
+  padding: 5% 1%;
+}
+.page-container .copyright {
+  width: 100%;
+  text-align: center;
+  margin: 3% 0;
+  color: #CFCFCF;
+  background: transparent;
+  mix-blend-mode: difference;
+  z-index: 0;
+}/*# sourceMappingURL=page.css.map */

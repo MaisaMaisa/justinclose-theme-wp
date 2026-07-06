@@ -1,0 +1,254 @@
+:root {
+    --blue: #007bff;
+    --indigo: #6610f2;
+    --purple: #6f42c1;
+    --pink: #ee3577;
+    --red: #dc3545;
+    --orange: #f68e62;
+    --yellow: #FFFCC9;
+    --green: #28a745;
+    --teal: #20c997;
+    --cyan: #17a2b8;
+    --white: #fff;
+    --gray: #767575;
+    --gray-dark: #434242;
+    --primary: #6f42c1;
+    --secondary: #4f4f4f;
+    --success: #28a745;
+    --info: #17a2b8;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --light: #c2c2c2;
+    --lightgray: #eeeeee;
+    --dark: #434242;
+    --breakpoint-xs: 0;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    /* Font Sizes */
+    --font-normal: 1em;
+    --font-small: 0.8125rem;
+    /* Sidebar */
+    --sidebar-width: 280px;
+    --content-max-width: 860px;
+}
+
+.btn {
+    font-weight: bold;
+    padding: .375rem 1rem;
+    height: 2.75rem;
+    transition: all 0.4s ease-in-out
+}
+
+.btn:focus,
+.btn.focus {
+    box-shadow: none !important
+}
+
+.btn-primary {
+    color: #fff
+}
+
+.flex-column{
+    flex-direction: inherit!important;
+}
+
+.menu-item{
+    position: relative;
+    margin: 1%;
+}
+
+.menu-item a:hover{
+    text-decoration: none;
+    background-color: yellow;
+}
+
+.homepage{
+    width: 100%;
+    height: 100%;
+}
+
+.title{
+    position: initial;
+    width: 100%;
+    text-align: right;
+    margin-bottom: 2%;
+    padding-left: 0;
+}
+
+.title a{
+    color: black!important;
+    font-size: 2.5rem;
+    z-index: 10;
+}
+
+.title a:hover {
+    background-color: yellow;
+    text-decoration: none;
+}
+
+.main-wrapper {
+    margin-left: var(--sidebar-width);
+    background: #fff;
+} 
+
+.main-wrapper .container {
+    max-width: var(--content-max-width);
+}
+
+.container {
+    margin: 0!important;
+    padding: 0!important;
+}
+
+.footer {
+    display: none;
+} 
+
+.text-widget ul{
+    text-transform: uppercase;
+}
+
+.mb-3{
+    padding-top:7vh;
+}
+
+.single{
+    position: absolute;
+    width: 80%;
+    height: 100%;
+    overflow: scroll;
+    left: 3%;
+    top: 12%;
+}
+
+.content .post .title {
+    font-size: 1.275rem;
+    width: 100%!important;
+}
+
+.content .post .title a {
+    text-align: right;
+    color: black;
+}
+
+.content .post .intro {
+    font-size: 0.875rem
+}
+
+.content .post .more-link {
+    font-size: var(--font-small);
+}
+
+.meta {
+    color: black;
+    font-size: var(--font-small);
+}
+
+.meta span {
+    display: inline-block;
+    margin-right:.25em;
+}
+
+.meta span a {
+    color: #8f8f8f
+}
+.meta span.tag {
+    background-color: var(--lightgray);
+    padding:0 .5em;
+    border-radius:5px;
+}
+.meta span a:hover {
+    color: var(--secondary)
+}
+
+.meta span:last-child:after {
+    display: none
+}
+
+.blog-nav a {
+    background: var(--primary);
+    color: #fff;
+    font-size: 1rem;
+    padding: 1rem;
+    font-weight: bold;
+    position: relative;
+}
+
+.blog-nav a:hover {
+    background: var(--secondary);
+}
+
+.blog-nav .nav-link-prev {
+    border-right: 1px solid var(--secondary);
+}
+
+.blog-nav .arrow-prev {
+    position: absolute;
+    left: 1rem;
+    top: 1.25rem;
+    color: #fff
+}
+
+.blog-nav .arrow-next {
+    position: absolute;
+    right: 1rem;
+    top: 1.25rem;
+    color: #fff
+}
+
+.content .content-body p,
+.content .content-body li {
+    font-size: 1.125rem;
+    line-height: 1.6
+}
+
+.content .content-body h1 {
+    font-size: 2.125rem
+}
+
+.content .content-body h2 {
+    font-size: 2rem
+}
+
+.content .content-body h3 {
+    font-size: 1.75rem
+}
+
+.content .content-body h4 {
+    font-size: 1.5rem
+}
+
+.content .content-body h5 {
+    font-size: 1.25rem
+}
+
+.content .content-body h6 {
+    font-size: 1.125rem
+}
+
+.content .image-caption {
+    color: #8f8f8f;
+    font-size: 0.875rem
+}
+
+.content .image-caption a {
+    color: #8f8f8f;
+    text-decoration: underline
+}
+
+.content .image-caption a:hover {
+    color: var(--secondary)
+}
+
+.content .blockquote {
+    border-left: 2px solid var(--gray-dark);
+    font-size: 1.5rem
+}
+
+.content .blockquote p {
+    font-size: 1.5rem
+}
