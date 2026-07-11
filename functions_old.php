@@ -128,17 +128,6 @@ if (!function_exists('justin_register_meta_boxes')) {
     }
 }
 
-if (!function_exists('justin_photo_grid_tags')) {
-    function justin_photo_grid_tags() {
-        return [
-            'Roads', 'Balcony', 'Clouds', 'Street People', 'Nature', 'Food',
-            'Rejections', 'Cats', 'Dogs', 'Rocks', 'Architecture', 'Myself',
-            'Beds', 'Signs', 'StudioGirls', 'Guys', 'Friends', 'Home',
-            'Drawings', 'Other',
-        ];
-    }
-}
-
 add_action('after_setup_theme', function () {
     add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
@@ -167,10 +156,10 @@ add_action('admin_enqueue_scripts', function ($hook) {
 });
 
 add_action('wp_enqueue_scripts', function () {
-    wp_enqueue_style('justin-style', get_stylesheet_uri(), [], '1.1');
+    wp_enqueue_style('justin-style', get_stylesheet_uri(), [], '1.0');
     wp_enqueue_style('justin-font', 'https://fonts.googleapis.com/css2?family=Nothing+You+Could+Do&display=swap', [], null);
 
-    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.1', true);
+    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.0', true);
 
     $data = [
         'siteTitle' => get_bloginfo('name'),
@@ -179,7 +168,6 @@ add_action('wp_enqueue_scripts', function () {
         'catBios' => [],
         'entries' => [],
         'godModeVideo' => get_option('justin_god_mode_video_url', 'https://assets.mixkit.co/videos/1164/1164-720.mp4'),
-        'photoGridTags' => justin_photo_grid_tags(), // NEW
     ];
 
     $terms = get_categories([
@@ -219,24 +207,6 @@ add_action('wp_enqueue_scripts', function () {
         $film_images = justin_extract_image_urls(justin_get_attachment_ids(justin_get_meta($post->ID, 'film_grabs')));
         $hover_only = justin_parse_bool(justin_get_meta($post->ID, 'use_as_hover_only'));
         $hover_bg_image = absint(justin_get_meta($post->ID, 'hover_bg_image'));
-        // NEW: photo grid images with their tags
-        $gallery_tags_raw = justin_get_meta($post->ID, 'gallery_image_tags', '{}');
-        $gallery_tags_map = json_decode($gallery_tags_raw, true);
-        if (!is_array($gallery_tags_map)) {
-            $gallery_tags_map = [];
-        }
-
-        $photo_grid_images = [];
-        foreach (justin_get_attachment_ids(justin_get_meta($post->ID, 'gallery')) as $attachment_id) {
-            $url = justin_normalize_image_url($attachment_id);
-            if (!$url) {
-                continue;
-            }
-            $photo_grid_images[] = [
-                'url' => $url,
-                'tags' => isset($gallery_tags_map[$attachment_id]) ? array_values($gallery_tags_map[$attachment_id]) : [],
-            ];
-        }
 
         $entry = [
             'id' => $post->ID,
@@ -247,9 +217,6 @@ add_action('wp_enqueue_scripts', function () {
             'body' => wp_kses_post(justin_get_meta($post->ID, 'body_text')),
             'bgImage' => $hover_only && $hover_bg_image ? justin_normalize_image_url($hover_bg_image) : '',
             'hoverOnly' => $hover_only,
-            'layoutStyle' => justin_get_meta($post->ID, 'layout_style', 'standard'),
-            'photoGrid' => $photo_grid_images, // NEW
-            'videoUrl' => trim((string) justin_get_meta($post->ID, 'film_video_url')), // NEW
             'book' => null,
             'film' => null,
         ];
@@ -320,38 +287,6 @@ add_action('save_post_post', function ($post_id) {
 
     update_post_meta($post_id, 'use_as_hover_only', isset($_POST['use_as_hover_only']) ? '1' : '0');
     update_post_meta($post_id, 'has_teaser', isset($_POST['has_teaser']) ? '1' : '0');
-
-    // NEW
-    if (isset($_POST['layout_style'])) {
-        $layout_style = sanitize_text_field(wp_unslash($_POST['layout_style']));
-        if (!in_array($layout_style, ['standard', 'grid_hover', 'photo_grid', 'video_direct'], true)) {
-            $layout_style = 'standard';
-        }
-        update_post_meta($post_id, 'layout_style', $layout_style);
-    }
-
-    // NEW: per-image tags for photo grid
-    if (isset($_POST['gallery_image_tags'])) {
-        $raw_json = wp_unslash($_POST['gallery_image_tags']);
-        $decoded = json_decode($raw_json, true);
-        $clean = [];
-
-        if (is_array($decoded)) {
-            $valid_tags = justin_photo_grid_tags();
-            foreach ($decoded as $image_id => $tags) {
-                $image_id = absint($image_id);
-                if (!$image_id || !is_array($tags)) {
-                    continue;
-                }
-                $filtered = array_values(array_intersect($valid_tags, $tags));
-                if ($filtered) {
-                    $clean[$image_id] = $filtered;
-                }
-            }
-        }
-
-        update_post_meta($post_id, 'gallery_image_tags', wp_json_encode($clean));
-    }
 });
 
 add_action('created_category', 'justin_save_category_color');
@@ -405,7 +340,6 @@ function justin_render_project_common_box($post) {
     $info_text = justin_get_meta($post->ID, 'info_text');
     $hover_bg_image = justin_get_meta($post->ID, 'hover_bg_image');
     $use_as_hover_only = justin_parse_bool(justin_get_meta($post->ID, 'use_as_hover_only'));
-    $layout_style = justin_get_meta($post->ID, 'layout_style', 'standard'); // NEW
     ?>
     <p>Use this for all project types.</p>
     <p>
@@ -419,31 +353,14 @@ function justin_render_project_common_box($post) {
             Use as hover-only item
         </label>
     </p>
-    <p>
-    <label for="layout_style"><strong>Lightbox Layout</strong></label><br />
-        <select name="layout_style" id="layout_style">
-            <option value="standard" <?php selected($layout_style, 'standard'); ?>>Standard (image slideshow)</option>
-            <option value="grid_hover" <?php selected($layout_style, 'grid_hover'); ?>>Grid + Hover Preview</option>
-            <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid (tagged)</option>
-            <option value="video_direct" <?php selected($layout_style, 'video_direct'); ?>>Video (autoplay, no screengrabs)</option>
-        </select>
-    </p>
     <?php
 }
 
 function justin_render_project_gallery_box($post) {
     $gallery = justin_get_meta($post->ID, 'gallery');
-    $gallery_tags_json = justin_get_meta($post->ID, 'gallery_image_tags', '{}');
-    $all_tags = justin_photo_grid_tags();
     ?>
     <p>Used for Photography, Painting, and Collage posts.</p>
     <?php justin_render_media_preview('Gallery images', 'gallery', $gallery, true); ?>
-
-    <div id="justin-gallery-tag-assign" data-tags='<?php echo esc_attr(wp_json_encode($all_tags)); ?>'>
-        <p><strong>Photo Grid tags</strong> <span style="color:#777;">(only used when Lightbox Layout = Photo Grid)</span></p>
-        <input type="hidden" id="gallery_image_tags" name="gallery_image_tags" value='<?php echo esc_attr($gallery_tags_json); ?>' />
-        <div class="justin-gallery-tag-list"></div>
-    </div>
     <?php
 }
 

@@ -842,10 +842,9 @@ body {
 
 .lightbox-main img {
   height: 100%;
-  width: auto;
   max-width: none;
-  -o-object-fit: contain;
-     object-fit: contain;
+  -o-object-fit: cover;
+     object-fit: cover;
   display: block;
   margin: 0 auto;
 }
@@ -913,6 +912,113 @@ body {
   border-color: #000;
 }
 
+/* ── Grid + Hover lightbox layout (per-project alternate) ── */
+.gh-stage {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.gh-grid {
+  width: 250px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  height: 100%;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+
+.gh-thumb {
+  position: relative;
+  width: 50%;
+  box-sizing: border-box;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid #f2f2f2; /* thin gutter between tiles */
+}
+
+.gh-thumb img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  display: block;
+}
+
+.gh-thumb.gh-active {
+  outline: 2px solid #000;
+  outline-offset: -2px;
+}
+
+.gh-preview {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.gh-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+  display: block;
+}
+
+.gh-info-toggle {
+  position: absolute;
+  bottom: 8px;
+  left: 7%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 30px;
+  line-height: 1;
+  color: white;
+  text-shadow: #FC0 1px 0 10px;
+  padding: 2px 4px;
+}
+
+.gh-info-panel {
+  position: absolute;
+  bottom: 0;
+  left: 9%;
+  right: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  font-size: 15px;
+  line-height: 1.4;
+  color: white;
+  text-shadow: #FC0 1px 0 10px;
+  padding: 0 15px;
+}
+
+.gh-info-panel.open {
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 8px 12px 15px;
+}
+
+@media (max-width: 700px) {
+  .gh-stage {
+    flex-direction: column;
+  }
+  .gh-grid {
+    width: 100%;
+    height: 120px;
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(2, 1fr);
+  }
+}
 /* Film entries: extra "watch" tile at the end of the thumbnail strip */
 .lightbox-watch-thumb {
   height: 100%;
@@ -988,6 +1094,8 @@ body {
 
 /* Info icon + sliding description panel, between main image and thumbnails */
 .lightbox-infobar {
+  position: fixed;
+  bottom: 0;
   flex-shrink: 0;
   display: flex;
   justify-content: flex-start;
@@ -1280,7 +1388,9 @@ body.lb-upside-down #nav-line {
   --pg-accent: #f5c518;
   max-width: 100%;
   margin: 0 auto;
-  background: var(--pg-bg);
+  background: transparent;
+  height: 100%;
+  overflow-y: auto;
 }
 
 /* ---------- Top nav ---------- */
@@ -1293,14 +1403,12 @@ body.lb-upside-down #nav-line {
   padding: 6px;
 }
 
-.pg-info-btn,
-.pg-reset,
-.pg-dropdown-toggle {
-  font-family: inherit;
-  font-size: 13px;
+.pg-reset {
+  font-size: 14px;
+  text-transform: uppercase;
   font-weight: 600;
   color: var(--pg-nav-fg);
-  background: rgba(255, 255, 255, 0.06);
+  text-shadow: #FC0 1px 0 10px;
   border: none;
   border-radius: 3px;
   padding: 8px 14px;
@@ -1433,6 +1541,55 @@ body.lb-upside-down #nav-line {
   text-align: center;
   color: #777;
   font-size: 14px;
+}
+
+.pg-tagbar {
+  position: fixed;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  z-index: 10;
+}
+
+.pg-tag-btn {
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  text-shadow: #FC0 1px 0 10px;
+  background: var(--pg-nav-bg);
+  border: none;
+  border-radius: 3px;
+  padding: 6px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.pg-tag-btn.pg-active {
+  background: var(--pg-accent);
+  color: #111;
+}
+
+.pg-tile-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 6px 8px;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.3;
+  text-shadow: #FC0 1px 0 10px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  text-align: center;
+}
+
+.pg-tile:hover .pg-tile-caption {
+  opacity: 1;
 }
 
 /* ---------- Responsive ---------- */

@@ -135,11 +135,12 @@
     var hasImages = getEntryImages(entry).length > 0;
     var hasBody = !!(entry.body && entry.body.length);
     var hasFilmVideo = !!(entry.film && entry.film.videoUrl && String(entry.film.videoUrl).trim().length);
+    var hasDirectVideo = !!(entry.videoUrl && String(entry.videoUrl).trim().length); // NEW
     var hasBookText = !!(entry.book && entry.book.text && String(entry.book.text).trim().length);
     var hasBookImages = !!(entry.book && Array.isArray(entry.book.images) && entry.book.images.length);
     var hasTeasers = !!(entry.book && Array.isArray(entry.book.teasers) && entry.book.teasers.length);
 
-    return !hasImages && !hasBody && !hasFilmVideo && !hasBookText && !hasBookImages && !hasTeasers;
+    return !hasImages && !hasBody && !hasFilmVideo && !hasDirectVideo && !hasBookText && !hasBookImages && !hasTeasers;
   }
 
   function getCategoryBio(categoryName) {
@@ -182,6 +183,24 @@
     }
 
     elements.lightboxThumbs.innerHTML = '';
+  }
+
+  function renderVideoDirectLightbox(entry) {
+    var embedUrl = getVideoEmbedUrl(entry.videoUrl);
+
+    if (embedUrl) {
+      elements.lightboxStage.innerHTML = '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+    } else {
+      elements.lightboxStage.innerHTML = '';
+    }
+
+    elements.lightboxThumbs.innerHTML = '';
+    elements.lightboxThumbs.style.display = 'none';
+    elements.lightboxPrev.style.display = 'none';
+    elements.lightboxNext.style.display = 'none';
+    elements.lightboxInfoToggle.style.display = '';
+    elements.lightboxInfoPanel.style.display = '';
+    elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
 
   function syncMainImageAspectRatio(mainImage) {
@@ -356,6 +375,233 @@
     elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
 
+  function renderGridHoverLightbox(entry) {
+    var images = getEntryImages(entry);
+
+    var html =
+      '<div class="gh-stage" id="gh-stage">' +
+        '<div class="gh-grid" id="gh-grid"></div>' +
+        '<div class="gh-preview" id="gh-preview">' +
+          (images[0] ? '<img id="gh-preview-img" src="' + images[0] + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
+          '<button type="button" class="gh-info-toggle" id="gh-info-toggle" aria-label="Toggle info">ⓘ</button>' +
+          '<div class="gh-info-panel" id="gh-info-panel"></div>' +
+        '</div>' +
+      '</div>';
+
+    elements.lightboxStage.innerHTML = html;
+
+    var ghGrid = document.getElementById('gh-grid');
+    var ghPreviewImg = document.getElementById('gh-preview-img');
+    var ghInfoToggle = document.getElementById('gh-info-toggle');
+    var ghInfoPanel = document.getElementById('gh-info-panel');
+
+    if (ghInfoPanel) {
+      ghInfoPanel.innerHTML = getEntryInfo(entry);
+    }
+
+    if (ghInfoToggle) {
+      ghInfoToggle.addEventListener('click', function () {
+        ghInfoPanel.classList.toggle('open');
+      });
+    }
+
+    var columns = 2;
+    var rows = Math.ceil(images.length / columns);
+    var thumbHeightPercent = rows > 0 ? (100 / rows) : 100;
+
+    images.forEach(function (imageUrl, index) {
+      var thumb = document.createElement('div');
+      thumb.className = 'gh-thumb';
+      thumb.style.flex = '0 0 ' + thumbHeightPercent + '%'; // NEW: sets height along the column-flow axis
+      if (index === 0) {
+        thumb.classList.add('gh-active');
+      }
+
+      var thumbImg = document.createElement('img');
+      thumbImg.src = imageUrl;
+      thumbImg.alt = entry.text || '';
+      thumb.appendChild(thumbImg);
+
+      var setActive = function () {
+        if (ghPreviewImg) {
+          ghPreviewImg.src = imageUrl;
+        }
+        var activeThumbs = ghGrid.querySelectorAll('.gh-thumb');
+        activeThumbs.forEach(function (node) {
+          node.classList.remove('gh-active');
+        });
+        thumb.classList.add('gh-active');
+      };
+
+      thumb.addEventListener('mouseenter', setActive);
+      thumb.addEventListener('click', setActive);
+      thumb.addEventListener('focus', setActive);
+      thumb.setAttribute('tabindex', '0');
+
+      ghGrid.appendChild(thumb);
+    });
+
+    // images.forEach(function (imageUrl, index) {
+    //   var thumb = document.createElement('div');
+    //   thumb.className = 'gh-thumb';
+    //   if (index === 0) {
+    //     thumb.classList.add('gh-active');
+    //   }
+
+    //   var thumbImg = document.createElement('img');
+    //   thumbImg.src = imageUrl;
+    //   thumbImg.alt = entry.text || '';
+    //   thumb.appendChild(thumbImg);
+
+    //   var setActive = function () {
+    //     if (ghPreviewImg) {
+    //       ghPreviewImg.src = imageUrl;
+    //     }
+    //     var activeThumbs = ghGrid.querySelectorAll('.gh-thumb');
+    //     activeThumbs.forEach(function (node) {
+    //       node.classList.remove('gh-active');
+    //     });
+    //     thumb.classList.add('gh-active');
+    //   };
+
+    //   thumb.addEventListener('mouseenter', setActive);
+    //   thumb.addEventListener('click', setActive);
+    //   thumb.addEventListener('focus', setActive);
+    //   thumb.setAttribute('tabindex', '0');
+
+    //   ghGrid.appendChild(thumb);
+    // });
+
+    // Hide the standard gallery chrome — this layout is fully self-contained
+    elements.lightboxThumbs.innerHTML = '';
+    elements.lightboxThumbs.style.display = 'none';
+    elements.lightboxInfoToggle.style.display = 'none';
+    elements.lightboxInfoPanel.style.display = 'none';
+    elements.lightboxPrev.style.display = 'none';
+    elements.lightboxNext.style.display = 'none';
+  }
+
+  function getEntryPhotoGridImages(entry) {
+    if (!entry || !Array.isArray(entry.photoGrid)) {
+      return [];
+    }
+    return entry.photoGrid;
+  }
+
+function renderPhotoGridLightbox(entry) {
+    var photoGridImages = getEntryPhotoGridImages(entry);
+    var allTags = Array.isArray(data.photoGridTags) ? data.photoGridTags : [];
+    var activeFilters = [];
+
+    var html =
+      '<div class="pg-wrap" id="pg-wrap">' +
+        '<div class="pg-tagbar" id="pg-tagbar"></div>' +
+        '<div class="pg-grid" id="pg-grid"></div>' +
+      '</div>';
+
+    elements.lightboxStage.innerHTML = html;
+    elements.lightboxStage.style.display = 'block';
+    elements.lightboxStage.style.width = '100%';
+    elements.lightboxStage.style.height = '100%';
+    elements.lightboxStage.style.padding = '0';
+    elements.lightboxStage.style.margin = '0';
+
+    var pgTagbar = document.getElementById('pg-tagbar');
+    var pgGrid = document.getElementById('pg-grid');
+
+    function renderTiles() {
+      pgGrid.innerHTML = '';
+
+      var visibleImages = photoGridImages.filter(function (image) {
+        if (!activeFilters.length) {
+          return true;
+        }
+        var imageTags = Array.isArray(image.tags) ? image.tags : [];
+        return activeFilters.some(function (tag) {
+          return imageTags.indexOf(tag) !== -1;
+        });
+      });
+
+      if (!visibleImages.length) {
+        var emptyState = document.createElement('div');
+        emptyState.className = 'pg-empty';
+        emptyState.textContent = 'No images match the selected filters.';
+        pgGrid.appendChild(emptyState);
+        return;
+      }
+
+      visibleImages.forEach(function (image) {
+        var tile = document.createElement('div');
+        tile.className = 'pg-tile';
+
+        var img = document.createElement('img');
+        img.className = 'pg-media';
+        img.src = image.url;
+        img.alt = entry.text || '';
+        tile.appendChild(img);
+
+        var imageTags = Array.isArray(image.tags) ? image.tags : [];
+        if (imageTags.length) {
+          var caption = document.createElement('div');
+          caption.className = 'pg-tile-caption';
+          caption.textContent = imageTags.join(' · ');
+          tile.appendChild(caption);
+        }
+
+        pgGrid.appendChild(tile);
+      });
+    }
+
+    function renderTagbar() {
+      pgTagbar.innerHTML = '';
+
+      allTags.forEach(function (tag) {
+        var tagButton = document.createElement('button');
+        tagButton.type = 'button';
+        tagButton.className = 'pg-tag-btn';
+        tagButton.textContent = tag;
+
+        if (activeFilters.indexOf(tag) !== -1) {
+          tagButton.classList.add('pg-active');
+        }
+
+        tagButton.addEventListener('click', function () {
+          var tagIndex = activeFilters.indexOf(tag);
+          if (tagIndex === -1) {
+            activeFilters.push(tag);
+          } else {
+            activeFilters.splice(tagIndex, 1);
+          }
+          renderTagbar();
+          renderTiles();
+        });
+
+        pgTagbar.appendChild(tagButton);
+      });
+
+      var resetButton = document.createElement('button');
+      resetButton.type = 'button';
+      resetButton.className = 'pg-reset';
+      resetButton.textContent = 'Reset';
+      resetButton.addEventListener('click', function () {
+        activeFilters = [];
+        renderTagbar();
+        renderTiles();
+      });
+      pgTagbar.appendChild(resetButton);
+    }
+
+    renderTagbar();
+    renderTiles();
+
+    setLightboxChromeVisible(true);
+    elements.lightboxThumbs.innerHTML = '';
+    elements.lightboxThumbs.style.display = 'none';
+    elements.lightboxPrev.style.display = 'none';
+    elements.lightboxNext.style.display = 'none';
+    elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
+  }
+
   function renderBookStage(entry) {
     var book = entry.book || {};
     var images = Array.isArray(book.images) ? book.images.slice() : [];
@@ -468,7 +714,16 @@
         document.body.classList.remove('lb-upside-down');
       }
 
-      renderImageLightbox(entry);
+      // NEW: branch on layoutStyle, fall back to standard if no images
+      if (entry.layoutStyle === 'grid_hover' && getEntryImages(entry).length) {
+        renderGridHoverLightbox(entry);
+      } else if (entry.layoutStyle === 'photo_grid' && getEntryPhotoGridImages(entry).length) {
+        renderPhotoGridLightbox(entry);
+      } else if (entry.layoutStyle === 'video_direct' && entry.videoUrl) {
+        renderVideoDirectLightbox(entry);
+      } else {
+        renderImageLightbox(entry);
+      }
     }
   }
 
