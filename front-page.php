@@ -6,10 +6,15 @@ $bio_copy = get_theme_mod( 'justin_bio_copy', '' );   // <-- replaced $site_desc
 
 <div id="justin-label"><span>Justin</span></div>
 <div id="bio-label"><span>Bio</span></div>
-<a id="god-mode-btn" href="#" aria-label="Toggle God Mode">(GOD MODE)</a>
+<!-- <a id="god-mode-btn" href="#" aria-label="Toggle God Mode">(GOD MODE)</a> -->
+
+<a id="god-mode-btn" href="#" aria-label="Toggle God Mode">
+    <?php echo justin_render_circular_text_button('GOD MODE', ['id' => 'god-mode-circ']); ?>
+</a>
 
 <div id="god-mode-overlay" aria-hidden="true">
-	<video id="god-mode-video" autoplay loop muted playsinline></video>
+	<!-- <video id="god-mode-video" autoplay loop muted playsinline></video> -->
+	 <div id="god-mode-frame"></div>
 </div>
 
 <div id="page">
@@ -25,7 +30,9 @@ $bio_copy = get_theme_mod( 'justin_bio_copy', '' );   // <-- replaced $site_desc
 </section>
 
 <div class="lightbox-overlay" id="lightbox-overlay" aria-hidden="true">
-	<button class="lightbox-close" type="button" aria-label="Close lightbox">×</button>
+	<button class="lightbox-close" type="button" aria-label="Close lightbox">
+		<?php echo justin_render_circular_text_button('CLOSE', ['id' => 'lightbox-close-circ', 'size' => 60]); ?>
+	</button>
 	<div class="lightbox-main">
 		<button class="lightbox-arrow prev" type="button" aria-label="Previous image">‹</button>
 		<div id="lightbox-stage"></div>

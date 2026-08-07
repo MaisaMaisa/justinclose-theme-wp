@@ -148,9 +148,9 @@ body {
 }
 
 #page {
-    margin-left: 60px;
+    margin-left: 47px;
     padding-right: 5px;
-    border-left: solid 0.5px;
+    // border-left: solid 0.5px;
     margin-bottom: 5%;
 }
 
@@ -202,18 +202,18 @@ body {
     cursor: pointer;
     list-style: none;
     display: block;
-    color: #000;
+    color: lightgrey;
     margin-left: 5px;
     transition: font-size 0.15s ease;
 }
 
 #list summary:hover {
-    font-size: 30px;
+    color: black;
 }
 
-#list summary.highlighted {
-    font-size: 30px;
-}
+// #list summary.highlighted {
+//     font-size: 30px;
+// }
 
 #list summary.is-open {
     font-size: 30px;
@@ -221,13 +221,13 @@ body {
 
 #list li.category-active summary,
 #list summary.category-active {
-    font-size: 30px;
+    color: black;
 }
 
-#list li.category-active summary:hover,
-#list summary.category-active:hover {
-    font-size: 34px;
-}
+// #list li.category-active summary:hover,
+// #list summary.category-active:hover {
+//     font-size: 34px;
+// }
 
 .cat-dot {
     display: none;
@@ -889,13 +889,15 @@ body {
 
 .lightbox-close {
     position: absolute;
-    top: 12px;
-    right: 16px;
-    font-size: 28px;
+    width: 20px;
+    top: 15px;
+    right: 70px;
     background: none;
     border: none;
+    padding: 0;
     cursor: pointer;
-    z-index: 10;
+    z-index: 105678;
+    display: flex;
 }
 
 .lightbox-thumbs {
@@ -966,7 +968,7 @@ body {
 }
 
 .gh-thumb.gh-active {
-    outline: 2px solid #000;
+    outline: 2px solid white;
     outline-offset: -2px;
 }
 
@@ -989,6 +991,7 @@ body {
 }
 
 .gh-info-toggle {
+    display: none;
     position: absolute;
     bottom: 8px;
     left: 7%;
@@ -1094,30 +1097,6 @@ body {
     color: #000;
 }
 
-/* Painting / Collage entries: thumbnail strip flips to the top and upside down */
-.lightbox-overlay.upside-down #lightbox-thumbs {
-    order: -2;
-    justify-content: start;
-    transform: rotate(180deg);
-}
-
-.lightbox-overlay.upside-down .lightbox-infobar {
-    order: -1;
-    justify-content: end;
-
-    .lightbox-info-toggle {
-        transform: rotate(180deg);
-    }
-}
-
-/* Close (X) button moves to bottom-left for the upside-down effect */
-.lightbox-overlay.upside-down .lightbox-close {
-    top: auto;
-    bottom: 12px;
-    right: auto;
-    left: 16px;
-}
-
 /* Info icon + sliding description panel, between main image and thumbnails */
 .lightbox-infobar {
     position: fixed;
@@ -1129,6 +1108,7 @@ body {
 }
 
 .lightbox-info-toggle {
+    display: none;
     border: none;
     background: transparent;
     cursor: pointer;
@@ -1357,52 +1337,50 @@ body {
     z-index: 1;
 }
 
+#god-mode-btn.is-active .justin-circ-btn-ring {
+  stroke: #fff;
+}
+
+#god-mode-btn.is-active .justin-circ-btn-text {
+  fill: #fff;
+}
+
+#god-mode-btn.is-active .justin-circ-btn-x {
+  stroke: #fff;
+}
+
 #god-mode-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: #000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.8s ease;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
 }
 
 #god-mode-overlay.visible {
-    opacity: 1;
-    pointer-events: auto;
+  opacity: 1;
+  pointer-events: auto;
 }
 
-#god-mode-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+#god-mode-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+#god-mode-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
 }
 
 body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
     opacity: 0 !important;
     pointer-events: none !important;
     transition: opacity 0.6s ease;
-}
-
-/* When a Painting/Collage popup is open: background list flips upside-down
-       in place (staying on the right, since nav moves to the left), category
-       nav flips upside-down and moves to the left. */
-body.lb-upside-down #page {
-    transform: rotate(180deg);
-    transform-origin: center center;
-}
-
-body.lb-upside-down #justin-label {
-    display: none !important;
-}
-
-body.lb-upside-down #nav-line {
-    display: none !important;
-    right: auto;
-    left: 0;
-    text-align: left;
-    transform: rotate(180deg);
 }
 
 // PHOTOGRID
@@ -1520,7 +1498,7 @@ body.lb-upside-down #nav-line {
 
 .pg-tile {
 	position: relative;
-	aspect-ratio: 1 / 1;
+	aspect-ratio: 2.5 / 3;
 	overflow: hidden;
 	background: #ddd;
 }
@@ -1566,6 +1544,11 @@ body.lb-upside-down #nav-line {
 	gap: 6px;
 	padding: 8px;
     z-index: 10;
+    height: 100%;
+    flex-direction: column;
+    align-items: end;
+    justify-content: center;
+    right: 0;
 }
 
 .pg-tag-btn {
@@ -1619,4 +1602,269 @@ body.lb-upside-down #nav-line {
 @media (max-width: 560px) {
 	.pg-grid { grid-template-columns: repeat(2, 1fr); }
 	.pg-info-btn, .pg-reset, .pg-dropdown-toggle { font-size: 12px; padding: 7px 10px; }
+}
+
+
+// CHECK IF IT MAKES SENSE FOR LAYOUTS
+
+/* Photography (existing default look) */
+.gh-stage[data-variant="photography"] .gh-thumb {
+  aspect-ratio: 3 / 2;
+}
+
+/* PAINTING — give it its own thumbnail ratio / spacing / accent color */
+// .gh-stage[data-variant="painting"] .gh-thumb {
+//   aspect-ratio: 4 / 5;
+// }
+// .gh-stage[data-variant="painting"] .gh-info-toggle {
+//   background: #7a5c3e; /* example accent */
+// }
+
+/* ── Painting: rigid 3-column grid, each column its own character ── */
+// .gh-stage[data-variant="painting"] .gh-grid {
+//   display: grid;
+//   grid-template-columns: 1.15fr 1fr 0.75fr; /* col widths: tight / floating / sparse */
+//   grid-auto-rows: min-content;
+//   gap: 0;
+//   width: 340px;         /* widen the whole rail if 3 columns feel cramped */
+//   height: 100%;
+//   overflow: hidden;      /* rigid — no scrolling, unlike Collage */
+//   align-content: start;
+//   padding: 0;
+// }
+
+// .gh-stage[data-variant="painting"] .gh-thumb {
+//   width: 100%;
+//   box-sizing: border-box;
+// }
+
+// /* Cycle of 5 across the thumbnail sequence: col1, col2, col1, col2, col3.
+//    Column 3 only gets 1 in every 5 — that's the "fewer of them". */
+
+// /* Column 1 — rigid: edge-to-edge, thin gutter, no floating gaps */
+// .gh-stage[data-variant="painting"] .gh-thumb:nth-child(5n+1) {
+//   grid-column: 1;
+//   border: 1px solid #f2f2f2;
+//   aspect-ratio: 3 / 4;
+// }
+// .gh-stage[data-variant="painting"] .gh-thumb:nth-child(5n+3) {
+//   grid-column: 1;
+//   border: 1px solid #f2f2f2;
+//   aspect-ratio: 1 / 1;
+// }
+
+// /* Column 2 — floating: narrower than its track + margin, so it visibly
+//    detaches from the grid edges instead of touching neighbors */
+// .gh-stage[data-variant="painting"] .gh-thumb:nth-child(5n+2) {
+//   grid-column: 2;
+//   width: 82%;
+//   margin: 18px auto;
+//   aspect-ratio: 4 / 5;
+//   box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.15);
+// }
+// .gh-stage[data-variant="painting"] .gh-thumb:nth-child(5n+4) {
+//   grid-column: 2;
+//   width: 70%;
+//   margin: 24px auto;
+//   aspect-ratio: 1 / 1;
+//   box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.15);
+// }
+
+// /* Column 3 — sparse: only 1 in 5, generous margin, its own size */
+// .gh-stage[data-variant="painting"] .gh-thumb:nth-child(5n) {
+//   grid-column: 3;
+//   width: 90%;
+//   margin: 40px auto;
+//   aspect-ratio: 5 / 6;
+//   box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.15);
+// }
+
+/* ── Painting: JS-driven masonry (main.js's renderPaintingMasonry
+   measures the real container height and only ever places an item into
+   a column that has room left; a new column is added automatically if
+   every existing one is full) ── */
+// .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting {
+//   display: flex;
+//   align-items: flex-start;
+//   gap: 8px;
+//   padding: 12px 10px;
+//   width: auto;         /* grows only as many columns as JS actually adds */
+//   max-width: 420px;    /* hard cap: guarantees it can never push off the page */
+//   height: 100%;
+//   overflow-x: auto;    /* only ever engages if the cap above is hit */
+//   overflow-y: hidden;
+//   scrollbar-width: none;
+// }
+
+// .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting::-webkit-scrollbar {
+//   display: none;
+// }
+
+/* Take the grid out of flex flow entirely so extra columns overlap the
+   preview image instead of pushing it over or getting clipped/scrolled */
+.gh-stage[data-variant="painting"] {
+  position: relative;
+}
+
+.gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: max-content;   /* grows freely — no cap, no clipping */
+  overflow: visible;
+  z-index: 3;            /* sits above the preview image */
+  pointer-events: none;  /* clicks pass through the empty gaps to the preview... */
+}
+
+.gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting .gh-col,
+.gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting .gh-thumb {
+  pointer-events: auto;  /* ...but the thumbnails themselves stay clickable */
+}
+
+.gh-stage[data-variant="painting"] .gh-col {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* Reset the shared .gh-thumb defaults — JS now sets width, aspect-ratio,
+   margin, border, and shadow per item based on which column it landed in */
+.gh-stage[data-variant="painting"] .gh-thumb {
+  width: auto;
+  border: none;
+  box-sizing: border-box;
+  transition: transform 0.15s ease;
+}
+
+.gh-stage[data-variant="painting"] .gh-thumb:hover {
+  transform: scale(1.04);
+}
+
+
+/* COLLAGE — same idea, its own values */
+// .gh-stage[data-variant="collage"] .gh-thumb {
+//   aspect-ratio: 1 / 1;
+// }
+// .gh-stage[data-variant="collage"] .gh-info-toggle {
+//   background: #4a4a4a; /* example accent */
+// }
+
+/* ── Collage: scrollable 2-column scatter grid ── */
+/* Grid itself becomes the scroll container; .gh-preview (image + info
+   panel) is a separate flex sibling of .gh-grid inside .gh-stage, so it
+   never scrolls — this is what keeps the main image/description fixed. */
+.gh-stage[data-variant="collage"] .gh-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: min-content;
+  width: 300px;              /* widen/narrow the whole column here */
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-content: start;
+  gap: 18px 10px;
+  padding: 24px 18px;
+  scrollbar-width: none;     /* Firefox */
+}
+
+.gh-stage[data-variant="collage"] .gh-grid::-webkit-scrollbar {
+  display: none;              /* Chrome/Safari */
+}
+
+/* Base tile look: undo the flex-era width:50%, add a light polaroid frame */
+.gh-stage[data-variant="collage"] .gh-thumb {
+  width: 100%;
+//   border: 4px solid #fff;
+  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease;
+}
+
+.gh-stage[data-variant="collage"] .gh-thumb:hover {
+  transform: scale(1.05) rotate(0deg);
+}
+
+/* ── SIZE control: repeats every 6 tiles — edit these ratios freely ── */
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+1) { aspect-ratio: 3 / 4; }
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+2) { aspect-ratio: 1 / 1; }
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+3) { aspect-ratio: 4 / 3; }
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+4) { aspect-ratio: 1 / 1.3; }
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+5) { aspect-ratio: 5 / 4; }
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+6) { aspect-ratio: 2 / 3; }
+
+/* Occasional full-width showcase tile — delete this rule if you don't want it */
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(9n+5) {
+  grid-column: span 2;
+  aspect-ratio: 16 / 9;
+}
+
+/* ── SCATTER control: diagonal left/right stagger + slight rotation, repeats every 4 ── */
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+1) { transform: translateX(-8px) rotate(-2deg); }
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+2) { transform: translateX(10px) rotate(2.5deg); }
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+3) { transform: translateX(-6px) rotate(-1.5deg); }
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n)   { transform: translateX(8px) rotate(2deg); }
+
+
+// CIRCULAR BUTTON
+
+/* ── Circular text button (reusable) ── */
+.justin-circ-btn {
+  display: inline-flex;
+  width: var(--circ-size, 90px);
+  height: var(--circ-size, 90px);
+  cursor: pointer;
+}
+
+.justin-circ-btn svg {
+  display: block;
+}
+
+.justin-circ-btn-ring {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1;
+}
+
+.justin-circ-btn-text {
+  fill: #000;
+  text-transform: uppercase;
+  font-family: inherit;
+}
+
+.justin-circ-btn-x {
+  stroke: #000;
+  stroke-width: 1.4;
+}
+
+.justin-circ-btn:hover .justin-circ-btn-ring {
+  stroke-width: 1.4;
+}
+
+/* ── Slow clockwise rotation for circular text buttons ── */
+@keyframes justin-circ-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.justin-circ-btn svg {
+  animation: justin-circ-spin linear infinite;
+  animation-play-state: running;
+}
+
+.justin-circ-btn:hover svg {
+  animation-play-state: paused;
+}
+
+/* God Mode: slower-reading pace */
+#god-mode-btn .justin-circ-btn svg {
+  animation-duration: 18s;
+}
+
+/* Close button: rotates slower than God Mode */
+.lightbox-close .justin-circ-btn svg {
+  animation-duration: 28s;
 }
