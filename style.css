@@ -8,21 +8,157 @@ Tags: lovely stuff
 Author: Maisa Imamović
 Author URI: https://maisaimamovic.eu/
 */
-@font-face {
-  font-family: "Nadia";
-  src: url("assets/fonts/Nadia-Serif/nadia_serif.ttf") format("truetype"), url("assets/fonts/Nadia-Serif/nadia_serif.woff") format("woff");
-  font-weight: normal;
+.syne-mono-regular {
+  font-family: "Syne Mono", monospace;
+  font-weight: 400;
   font-style: normal;
-  font-display: swap;
-  /* improves performance */
 }
-.inclusive-sans-bro {
-  font-family: "Inclusive Sans", sans-serif;
+
+.michroma-regular {
+  font-family: "Michroma", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.exo-2-regular {
+  font-family: "Exo 2", sans-serif;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
 }
 
+.oxanium-reg {
+  font-family: "Oxanium", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.rubik-spray-paint-regular {
+  font-family: "Rubik Spray Paint", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.big-shoulders-regular {
+  font-family: "Big Shoulders", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.anton-regular {
+  font-family: "Anton", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.six-caps-regular {
+  font-family: "Six Caps", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sirin-stencil-regular {
+  font-family: "Sirin Stencil", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.jura-400 {
+  font-family: "Jura", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.syne-tactile-regular {
+  font-family: "Syne Tactile", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.geist-mono-400 {
+  font-family: "Geist Mono", monospace;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sofia-sans-semi-condensed-regular {
+  font-family: "Sofia Sans Semi Condensed", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.nova-flat-regular {
+  font-family: "Nova Flat", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.matemasie-regular {
+  font-family: "Matemasie", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.nunito-regular {
+  font-family: "Nunito", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.quicksand-REGULAR {
+  font-family: "Quicksand", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.asap-400 {
+  font-family: "Asap", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.sn-pro {
+  font-family: "SN Pro", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.archivo-regular {
+  font-family: "Archivo", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+@font-face {
+  font-family: "Authentic Sans";
+  src: url("./assets/fonts/authentic-sans-master/authentic-sans-60.otf") format("opentype"), url("./assets/fonts/authentic-sans-master/authentic-sans-60.woff") format("woff");
+  font-weight: 400; /* Regular */
+  font-style: normal;
+}
+@font-face {
+  font-family: "Authentic Sans Condensed";
+  src: url("./assets/fonts/authentic-sans-master/authentic-sans-condensed-60.otf") format("opentype"), url("./assets/fonts/authentic-sans-master/authentic-sans-condensed-60.woff") format("woff");
+  font-weight: 400; /* Regular */
+  font-style: normal;
+}
+@font-face {
+  font-family: "Cirruscumulus";
+  src: url("./assets/fonts/cirruscumulus-master/fonts/CirrusCumulus.otf") format("opentype"), url("./assets/fonts/cirruscumulus-master/fonts/CirrusCumulus.woff") format("woff");
+  font-weight: 400; /* Regular */
+  font-style: normal;
+}
 html {
   background-size: cover;
   scroll-behavior: smooth;
@@ -32,7 +168,13 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background-color: #CFCFCF;
+  font-family: "Authentic Sans";
+}
+
+#page {
+  margin-left: 55px;
+  padding-right: 5px;
+  margin-bottom: 5%;
 }
 
 ::-webkit-scrollbar {
@@ -85,16 +227,8 @@ body {
   --color-dark: #889D45;
 }
 
-@font-face {
-  font-family: "Bradford";
-  src: url("/BradfordLLWeb-Regular.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
 body {
-  background: var(--color-light);
   color: #000;
-  font-family: Bradford;
   padding: 10px;
   padding-top: 0;
 }
@@ -110,6 +244,7 @@ body {
   display: inline-block;
   white-space: nowrap;
   z-index: 100;
+  color: #0045bd;
 }
 
 #bio-label {
@@ -126,12 +261,6 @@ body {
 
 #bio-label span {
   color: lightgrey;
-}
-
-#page {
-  margin-left: 47px;
-  padding-right: 5px;
-  margin-bottom: 5%;
 }
 
 #nav-line {
@@ -161,8 +290,8 @@ body {
 
 #nav-line span.cat.active {
   /* text-decoration: underline;  */
-  font-size: 30px;
-  color: black !important;
+  font-size: 20px;
+  color: #0045bd !important;
 }
 
 #list {
@@ -188,7 +317,12 @@ body {
 }
 
 #list summary:hover {
-  color: black;
+  background: linear-gradient(90deg, #0045bd 8%, #348198 33%, #29c072 66%, #a9d82f 100%, #e7d613 50%);
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
 }
 
 #list summary.is-open {
@@ -197,7 +331,12 @@ body {
 
 #list li.category-active summary,
 #list summary.category-active {
-  color: black;
+  background: linear-gradient(90deg, #0045bd 8%, #348198 33%, #29c072 66%, #a9d82f 100%, #e7d613 50%);
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
 }
 
 .cat-dot {
@@ -382,7 +521,7 @@ body {
   transform: translateY(calc(100% - 38px));
   transition: transform 0.35s ease;
   background: #CDE562;
-  background: linear-gradient(0deg, rgb(205, 229, 98) 0%, rgba(253, 187, 45, 0) 100%);
+  background: linear-gradient(0deg, rgb(145, 145, 145) 0%, rgba(253, 187, 45, 0) 100%);
 }
 
 #bio-section.is-open {
@@ -804,7 +943,16 @@ body {
   z-index: 1000;
   display: none;
   flex-direction: column;
-  background: linear-gradient(0deg, rgb(130, 130, 130) 0%, rgba(242, 255, 186, 0.68) 50%);
+}
+
+.lightbox-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(0deg, rgb(130, 130, 130) 0%, rgba(242, 255, 186, 0) 50%);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(2px); /* Safari */
 }
 
 .lightbox-overlay.open {
@@ -830,8 +978,8 @@ body {
   min-height: 0;
 }
 
-.lightbox-main img {
-  height: 100%;
+.lightbox-main img:not(.pg-media, .gh-thumb img) {
+  height: 90%;
   max-width: none;
   -o-object-fit: cover;
      object-fit: cover;
