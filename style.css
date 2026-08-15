@@ -168,11 +168,11 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  font-family: "Authentic Sans";
+  font-family: "Geist Mono", monospace;
 }
 
 #page {
-  margin-left: 55px;
+  margin-left: 65px;
   padding-right: 5px;
   margin-bottom: 5%;
 }
@@ -266,6 +266,7 @@ body {
 #nav-line {
   height: 100%;
   justify-content: center;
+  align-items: flex-end;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -278,20 +279,39 @@ body {
   cursor: pointer;
   padding: 0 15px;
   font-size: 15px;
-  transition: font-size 0.15s ease;
-  color: black !important;
-  text-transform: uppercase;
+  transition: color 0.2s ease;
+  color: lightgrey !important;
+  text-transform: lowercase;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#nav-line span.cat::before {
+  content: "+";
+  display: inline-block;
+  color: black;
+  font-size: 14px;
+  transition: transform 0.2s ease;
 }
 
 #nav-line span.cat:hover {
-  /* text-decoration: underline;  */
-  font-size: 20px;
+  color: #0045bd !important;
+}
+
+#nav-line span.cat:hover::before {
+  transform: rotate(45deg);
+  color: #0045bd !important;
 }
 
 #nav-line span.cat.active {
-  /* text-decoration: underline;  */
-  font-size: 20px;
   color: #0045bd !important;
+}
+
+#nav-line span.cat.active::before {
+  transform: rotate(45deg);
+  color: #0045bd;
 }
 
 #list {
@@ -306,7 +326,7 @@ body {
 }
 
 #list summary {
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.45;
   cursor: pointer;
   list-style: none;
@@ -317,12 +337,7 @@ body {
 }
 
 #list summary:hover {
-  background: linear-gradient(90deg, #0045bd 8%, #348198 33%, #29c072 66%, #a9d82f 100%, #e7d613 50%);
-  color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-fill-color: transparent;
+  color: #0045bd;
 }
 
 #list summary.is-open {
@@ -331,12 +346,7 @@ body {
 
 #list li.category-active summary,
 #list summary.category-active {
-  background: linear-gradient(90deg, #0045bd 8%, #348198 33%, #29c072 66%, #a9d82f 100%, #e7d613 50%);
-  color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-fill-color: transparent;
+  color: #0045bd;
 }
 
 .cat-dot {
@@ -1012,15 +1022,17 @@ body {
 
 .lightbox-close {
   position: absolute;
-  width: 20px;
-  top: 15px;
-  right: 70px;
+  width: 90px !important;
+  height: 90px !important;
+  top: 1%;
+  right: 0;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
   z-index: 105678;
   display: flex;
+  align-items: center;
 }
 
 .lightbox-thumbs {
@@ -1430,6 +1442,7 @@ body {
 
 #god-mode-btn {
   position: fixed;
+  top: 1%;
   right: 0;
   cursor: pointer;
   padding: 0 15px;
@@ -1440,13 +1453,23 @@ body {
   text-decoration: none;
 }
 
-#god-mode-btn:hover {
-  color: red !important;
+.justin-circ-btn svg {
+  border-radius: 50%;
+  box-shadow: 0 0 20px 4px rgba(0, 0, 0, 0.6);
+  transition: background-color 0.2s ease;
 }
 
-/* When a popup/lightbox is open, GOD MODE sits behind it like the rest of the page */
-#god-mode-btn.behind-popup {
-  z-index: 1;
+.justin-circ-btn-text {
+  fill: transparent;
+  transition: fill 0.2s ease;
+}
+
+#god-mode-btn:hover .justin-circ-btn svg {
+  background-color: #000;
+}
+
+#god-mode-btn:hover .justin-circ-btn-text {
+  fill: #fff;
 }
 
 #god-mode-btn.is-active .justin-circ-btn-ring {
@@ -1881,14 +1904,7 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
 
 .justin-circ-btn-ring {
   fill: none;
-  stroke: #000;
   stroke-width: 1;
-}
-
-.justin-circ-btn-text {
-  fill: #000;
-  text-transform: uppercase;
-  font-family: inherit;
 }
 
 .justin-circ-btn-x {
@@ -1923,7 +1939,4 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
   animation-duration: 18s;
 }
 
-/* Close button: rotates slower than God Mode */
-.lightbox-close .justin-circ-btn svg {
-  animation-duration: 28s;
-}/*# sourceMappingURL=style.css.map */
+/* Close button: rotates slower than God Mode *//*# sourceMappingURL=style.css.map */

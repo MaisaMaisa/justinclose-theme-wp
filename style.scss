@@ -205,7 +205,7 @@ body {
     // font-family: "Six Caps", sans-serif;
     // font-family: "Sirin Stencil", sans-serif;
     // font-family: "Syne Tactile", system-ui;
-    // font-family: "Geist Mono", monospace;
+    font-family: "Geist Mono", monospace;
     // font-family: "Sofia Sans Semi Condensed", sans-serif;
     // font-family: "Nova Flat", system-ui;
     // font-family: "Jura", sans-serif;
@@ -214,13 +214,13 @@ body {
     // font-family: "Asap", sans-serif;
     // font-family: "SN Pro", sans-serif;
     // font-family: "Archivo", sans-serif;
-    font-family: "Authentic Sans";
+    // font-family: "Authentic Sans";
     // font-family: "Authentic Sans Condensed";
     // font-family: "Cirruscumulus";
 }
 
 #page {
-    margin-left: 55px;
+    margin-left: 65px;
     padding-right: 5px;
     // border-left: solid 0.5px;
     margin-bottom: 5%;
@@ -322,6 +322,7 @@ body {
 #nav-line {
     height: 100%;
     justify-content: center;
+    align-items: flex-end;
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -334,24 +335,74 @@ body {
     cursor: pointer;
     padding: 0 15px;
     font-size: 15px;
-    transition: font-size 0.15s ease;
-    color: black !important;
-    text-transform: uppercase;
+    transition: color 0.2s ease;
+    color: lightgrey!important;
+    text-transform: lowercase;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#nav-line span.cat::before {
+    content: "+";
+    display: inline-block;
+    color: black;
+    font-size: 14px;
+    transition: transform 0.2s ease;
 }
 
 #nav-line span.cat:hover {
-    /* text-decoration: underline;  */
-    font-size: 20px;
+    color: #0045bd !important;
+}
+
+#nav-line span.cat:hover::before {
+    transform: rotate(45deg);
+    color: #0045bd !important;
 }
 
 #nav-line span.cat.active {
-    /* text-decoration: underline;  */
-    font-size: 20px;
-    // color: black !important;
-    // color: #2596be!important;
-    // color: #F7C346!important;
-    color: #0045bd!important;
+    color: #0045bd !important;
 }
+
+#nav-line span.cat.active::before {
+    transform: rotate(45deg);
+    color: #0045bd;
+}
+
+// #nav-line {
+//     height: 100%;
+//     justify-content: center;
+//     display: flex;
+//     flex-direction: column;
+//     position: fixed;
+//     font-size: 20px;
+//     right: 0;
+//     text-align: right;
+// }
+
+// #nav-line span.cat {
+//     cursor: pointer;
+//     padding: 0 15px;
+//     font-size: 15px;
+//     transition: font-size 0.15s ease;
+//     color: black !important;
+//     text-transform: uppercase;
+// }
+
+// #nav-line span.cat:hover {
+//     /* text-decoration: underline;  */
+//     font-size: 20px;
+// }
+
+// #nav-line span.cat.active {
+//     /* text-decoration: underline;  */
+//     font-size: 20px;
+//     // color: black !important;
+//     // color: #2596be!important;
+//     // color: #F7C346!important;
+//     color: #0045bd!important;
+// }
 
 #list {
     margin: 0;
@@ -365,7 +416,7 @@ body {
 }
 
 #list summary {
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1.45;
     cursor: pointer;
     list-style: none;
@@ -381,13 +432,14 @@ body {
 #list summary:hover {
     // color: black;
     // color: #2596be;
+    color: #0045bd;
 
-    background: linear-gradient(90deg, #0045bd 8%, #348198 33%, #29c072 66%, #a9d82f 100%, #e7d613 50%);
-    color: transparent;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-fill-color: transparent;
+    // background: linear-gradient(90deg, #0045bd 8%, #348198 33%, #29c072 66%, #a9d82f 100%, #e7d613 50%);
+    // color: transparent;
+    // -webkit-background-clip: text;
+    // background-clip: text;
+    // -webkit-text-fill-color: transparent;
+    // text-fill-color: transparent;
 
     // color: white;
     // color: #F7C346;
@@ -406,13 +458,14 @@ body {
 #list summary.category-active {
     // color: black;
     // color: #2596be;
+    color: #0045bd;
 
-    background: linear-gradient(90deg, #0045bd 8%, #348198 33%, #29c072 66%, #a9d82f 100%, #e7d613 50%);
-    color: transparent;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-fill-color: transparent;
+    // background: linear-gradient(90deg, #0045bd 8%, #348198 33%, #29c072 66%, #a9d82f 100%, #e7d613 50%);
+    // color: transparent;
+    // -webkit-background-clip: text;
+    // background-clip: text;
+    // -webkit-text-fill-color: transparent;
+    // text-fill-color: transparent;
     
     // color: #F7C346;
 }
@@ -1094,15 +1147,17 @@ body {
 
 .lightbox-close {
     position: absolute;
-    width: 20px;
-    top: 15px;
-    right: 70px;
+    width: 90px!important;
+    height: 90px!important;
+    top: 1%;
+    right: 0;
     background: none;
     border: none;
     padding: 0;
     cursor: pointer;
     z-index: 105678;
     display: flex;
+    align-items: center;
 }
 
 .lightbox-thumbs {
@@ -1523,6 +1578,7 @@ body {
 
 #god-mode-btn {
     position: fixed;
+    top: 1%;
     right: 0;
     cursor: pointer;
     padding: 0 15px;
@@ -1533,13 +1589,29 @@ body {
     text-decoration: none;
 }
 
-#god-mode-btn:hover {
-    color: red !important;
+.justin-circ-btn svg {
+    border-radius: 50%;
+    box-shadow: 0 0 20px 4px rgba(0, 0, 0, 0.6);
+    transition: background-color 0.2s ease;
 }
 
-/* When a popup/lightbox is open, GOD MODE sits behind it like the rest of the page */
-#god-mode-btn.behind-popup {
-    z-index: 1;
+.justin-circ-btn-text {
+    fill: transparent;
+    transition: fill 0.2s ease;
+}
+
+#god-mode-btn:hover .justin-circ-btn svg {
+    background-color: #000;
+    // background-color: #0045bd !important;
+}
+
+// #god-mode-btn:hover .justin-circ-btn-ring,
+// #god-mode-btn:hover .justin-circ-btn-x {
+//     stroke: #fff;
+// }
+
+#god-mode-btn:hover .justin-circ-btn-text {
+    fill: #fff;
 }
 
 #god-mode-btn.is-active .justin-circ-btn-ring {
@@ -1553,6 +1625,39 @@ body {
 #god-mode-btn.is-active .justin-circ-btn-x {
   stroke: #fff;
 }
+
+// #god-mode-btn {
+//     position: fixed;
+//     right: 0;
+//     cursor: pointer;
+//     padding: 0 15px;
+//     font-size: 15px;
+//     transition: font-size 0.15s ease, z-index 0s;
+//     color: black !important;
+//     z-index: 456785678;
+//     text-decoration: none;
+// }
+
+// #god-mode-btn:hover {
+//     color: red !important;
+// }
+
+// /* When a popup/lightbox is open, GOD MODE sits behind it like the rest of the page */
+// #god-mode-btn.behind-popup {
+//     z-index: 1;
+// }
+
+// #god-mode-btn.is-active .justin-circ-btn-ring {
+//   stroke: #fff;
+// }
+
+// #god-mode-btn.is-active .justin-circ-btn-text {
+//   fill: #fff;
+// }
+
+// #god-mode-btn.is-active .justin-circ-btn-x {
+//   stroke: #fff;
+// }
 
 #god-mode-overlay {
   position: fixed;
@@ -2030,15 +2135,15 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 
 .justin-circ-btn-ring {
   fill: none;
-  stroke: #000;
+//   stroke: #000;
   stroke-width: 1;
 }
 
-.justin-circ-btn-text {
-  fill: #000;
-  text-transform: uppercase;
-  font-family: inherit;
-}
+// .justin-circ-btn-text {
+//   fill: #000;
+//   text-transform: uppercase;
+//   font-family: inherit;
+// }
 
 .justin-circ-btn-x {
   stroke: #000;
@@ -2070,6 +2175,6 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 }
 
 /* Close button: rotates slower than God Mode */
-.lightbox-close .justin-circ-btn svg {
-  animation-duration: 28s;
-}
+// .lightbox-close .justin-circ-btn svg {
+//   animation-duration: 28s;
+// }
