@@ -38,10 +38,76 @@
   }
 
   var entries = Array.isArray(data.entries) ? data.entries : [];
-  var categories = Array.isArray(data.cats) ? data.cats : [];
+  // var categories = Array.isArray(data.cats) ? data.cats : [];
+  var categories = shuffleArray(Array.isArray(data.cats) ? data.cats : []);
   var categoryBios = data.catBios || {};
   var siteBio = data.siteDescription || data.siteTitle || '';
   var justinLabelFrame = null;
+
+  var mobileQuery = window.matchMedia('(max-width: 700px)');
+  var scrollActiveSummary = null;
+  var scrollSpyFrame = null;
+
+  function updateScrollSpy() {
+    if (!mobileQuery.matches) {
+      if (scrollActiveSummary) {
+        scrollActiveSummary.classList.remove('scroll-active');
+        scrollActiveSummary = null;
+      }
+      return;
+    }
+
+    var summaries = elements.list.querySelectorAll('summary');
+    if (!summaries.length) {
+      return;
+    }
+
+    var viewportCenter = window.innerHeight / 2;
+    var closest = null;
+    var closestDistance = Infinity;
+
+    summaries.forEach(function (summary) {
+      var rect = summary.getBoundingClientRect();
+      var summaryCenter = rect.top + rect.height / 2;
+      var distance = Math.abs(summaryCenter - viewportCenter);
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closest = summary;
+      }
+    });
+
+    if (closest !== scrollActiveSummary) {
+      if (scrollActiveSummary) {
+        scrollActiveSummary.classList.remove('scroll-active');
+      }
+      if (closest) {
+        closest.classList.add('scroll-active');
+      }
+      scrollActiveSummary = closest;
+    }
+  }
+
+  function onScrollOrResize() {
+    if (scrollSpyFrame) {
+      return;
+    }
+    scrollSpyFrame = window.requestAnimationFrame(function () {
+      updateScrollSpy();
+      scrollSpyFrame = null;
+    });
+  }
+
+  function shuffleArray(array) {
+    var shuffled = array.slice(); // don't mutate the original
+    for (var i = shuffled.length - 1; i > 0; i -= 1) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = shuffled[i];
+      shuffled[i] = shuffled[j];
+      shuffled[j] = temp;
+    }
+    return shuffled;
+  }
 
   function escapeHtml(value) {
     return String(value || '')
@@ -1149,7 +1215,6 @@ function renderPhotoGridLightbox(entry) {
       elements.bioToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
   }
-
   function toggleGodMode(event) {
     if (event) {
       event.preventDefault();
@@ -1157,6 +1222,10 @@ function renderPhotoGridLightbox(entry) {
 
     var isVisible = elements.godModeOverlay.classList.toggle('visible');
     document.body.classList.toggle('god-mode-active', isVisible);
+
+    if (elements.godModeBtn) {
+      elements.godModeBtn.classList.toggle('is-active', isVisible);
+    }
 
     if (!elements.godModeFrame) {
       return;
@@ -1171,6 +1240,28 @@ function renderPhotoGridLightbox(entry) {
       elements.godModeFrame.innerHTML = '';
     }
   }
+
+  // function toggleGodMode(event) {
+  //   if (event) {
+  //     event.preventDefault();
+  //   }
+
+  //   var isVisible = elements.godModeOverlay.classList.toggle('visible');
+  //   document.body.classList.toggle('god-mode-active', isVisible);
+
+  //   if (!elements.godModeFrame) {
+  //     return;
+  //   }
+
+  //   if (isVisible) {
+  //     var embedUrl = getVideoEmbedUrl(data.godModeVideo || '');
+  //     elements.godModeFrame.innerHTML = embedUrl
+  //       ? '<iframe src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
+  //       : '';
+  //   } else {
+  //     elements.godModeFrame.innerHTML = '';
+  //   }
+  // }
 
   renderNav();
   setBioText(siteBio);
@@ -1217,6 +1308,10 @@ function renderPhotoGridLightbox(entry) {
   if (elements.lightboxNext) {
     elements.lightboxNext.addEventListener('click', showNextImage);
   }
+
+  window.addEventListener('scroll', onScrollOrResize, { passive: true });
+  window.addEventListener('resize', onScrollOrResize);
+  updateScrollSpy();
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {

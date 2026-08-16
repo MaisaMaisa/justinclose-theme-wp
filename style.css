@@ -280,7 +280,7 @@ body {
   padding: 0 15px;
   font-size: 15px;
   transition: color 0.2s ease;
-  color: lightgrey !important;
+  color: transparent !important;
   text-transform: lowercase;
   position: relative;
   display: inline-flex;
@@ -1030,7 +1030,7 @@ body {
   border: none;
   padding: 0;
   cursor: pointer;
-  z-index: 105678;
+  z-index: 556785678;
   display: flex;
   align-items: center;
 }
@@ -1440,6 +1440,14 @@ body {
   /* height set by JS based on items */
 }
 
+@keyframes justin-circ-blur {
+  0%, 100% {
+    filter: blur(0px);
+  }
+  50% {
+    filter: blur(4px);
+  }
+}
 #god-mode-btn {
   position: fixed;
   top: 1%;
@@ -1453,27 +1461,26 @@ body {
   text-decoration: none;
 }
 
+#god-mode-btn .justin-circ-btn svg {
+  animation: justin-circ-spin 18s linear infinite;
+}
+#god-mode-btn .justin-circ-btn svg .justin-circ-btn-x {
+  stroke: transparent;
+}
+
 .justin-circ-btn svg {
   border-radius: 50%;
-  box-shadow: 0 0 20px 4px rgba(0, 0, 0, 0.6);
   transition: background-color 0.2s ease;
 }
 
 .justin-circ-btn-text {
-  fill: transparent;
+  fill: black;
   transition: fill 0.2s ease;
-}
-
-#god-mode-btn:hover .justin-circ-btn svg {
-  background-color: #000;
+  font-size: 20px !important;
 }
 
 #god-mode-btn:hover .justin-circ-btn-text {
-  fill: #fff;
-}
-
-#god-mode-btn.is-active .justin-circ-btn-ring {
-  stroke: #fff;
+  fill: #0045bd;
 }
 
 #god-mode-btn.is-active .justin-circ-btn-text {
@@ -1481,7 +1488,13 @@ body {
 }
 
 #god-mode-btn.is-active .justin-circ-btn-x {
-  stroke: #fff;
+  stroke: white !important;
+  transform-origin: center;
+  transform: scale(2.2);
+}
+
+#god-mode-btn.behind-popup {
+  z-index: 1;
 }
 
 #god-mode-overlay {
@@ -1925,18 +1938,40 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
     transform: rotate(360deg);
   }
 }
+/* Close button's X — its own styling, independent of God Mode */
+.lightbox-close .justin-circ-btn-x {
+  stroke: black;
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(2.2);
+  transition: transform 0.2s ease;
+}
+
+.lightbox-close:hover .justin-circ-btn-x {
+  transform: scale(5);
+}
+
+.lightbox-close .justin-circ-btn-text {
+  fill: transparent;
+}
+
 .justin-circ-btn svg {
   animation: justin-circ-spin linear infinite;
   animation-play-state: running;
 }
 
-.justin-circ-btn:hover svg {
+#god-mode-btn:hover .justin-circ-btn svg {
   animation-play-state: paused;
 }
 
-/* God Mode: slower-reading pace */
-#god-mode-btn .justin-circ-btn svg {
-  animation-duration: 18s;
-}
-
-/* Close button: rotates slower than God Mode *//*# sourceMappingURL=style.css.map */
+@media (max-width: 700px) {
+  #justin-label {
+    position: fixed;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
+  #list summary.scroll-active {
+    color: #0045bd;
+  }
+}/*# sourceMappingURL=style.css.map */
