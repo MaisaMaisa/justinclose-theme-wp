@@ -276,6 +276,7 @@ body {
     --color-medium: #E6F2B1;
     --color-bright: #CDE562;
     --color-dark: #889D45;
+    --circ-size: 70px;
 }
 
 body {
@@ -1082,14 +1083,25 @@ body {
     // background: linear-gradient(0deg, rgba(130, 130, 130, 1) 0%, rgba(242, 255, 186, 0) 50%);
 }
 
+// .lightbox-overlay::before {
+//   content: "";
+//   position: absolute;
+//   inset: 0;
+//   z-index: -1;
+//     background: linear-gradient(0deg, rgba(130, 130, 130, 1) 0%, rgba(242, 255, 186, 0) 50%);
+//   backdrop-filter: blur(3px);
+//   -webkit-backdrop-filter: blur(2px); /* Safari */
+// }
+
 .lightbox-overlay::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
-    background: linear-gradient(0deg, rgba(130, 130, 130, 1) 0%, rgba(242, 255, 186, 0) 50%);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(2px); /* Safari */
+  background: var(--lightbox-tint);
+//   background: linear-gradient(0deg, var(--lightbox-tint, rgba(130, 130, 130, 1)) 0%, transparent 50%);
+//   backdrop-filter: blur(3px);
+//   -webkit-backdrop-filter: blur(2px); /* Safari */
 }
 
 .lightbox-overlay.open {
@@ -1148,9 +1160,10 @@ body {
 
 .lightbox-close {
     position: absolute;
-    width: 90px!important;
-    height: 90px!important;
-    top: 1%;
+    // width: 70px!important;
+    // height: 70px!important;
+    // top: 1%;
+    margin: 0.5%;
     right: 0;
     background: none;
     border: none;
@@ -1584,15 +1597,14 @@ body {
 
 #god-mode-btn {
     position: fixed;
-    top: 1%;
     right: 0;
     cursor: pointer;
-    padding: 0 15px;
-    font-size: 15px;
-    transition: font-size 0.15s ease, z-index 0s;
+    // font-size: 15px;
+    // transition: font-size 0.15s ease, z-index 0s;
     color: black !important;
     z-index: 456785678;
     text-decoration: none;
+    margin: 0.5%;
 }
 
 // #god-mode-btn .justin-circ-btn svg {
@@ -1645,7 +1657,7 @@ body {
     // fill: transparent;
     fill: black;
     transition: fill 0.2s ease;
-    font-size: 20px !important;
+    font-size: 12px !important;
 }
 
 #god-mode-btn:hover .justin-circ-btn-text {
@@ -1663,7 +1675,7 @@ body {
 #god-mode-btn.is-active .justin-circ-btn-x {
       stroke: white !important;
       transform-origin: center;
-    transform: scale(2.2);
+    transform: scale(1.2);
     // transition: transform 0.2s ease;
 }
 
@@ -2169,8 +2181,10 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 /* ── Circular text button (reusable) ── */
 .justin-circ-btn {
   display: inline-flex;
-  width: var(--circ-size, 90px);
-  height: var(--circ-size, 90px);
+  width: 70px!important;
+  height: 70px!important;
+  width: var(--circ-size, 70px);
+  height: var(--circ-size, 70px);
   cursor: pointer;
 }
 
@@ -2211,12 +2225,12 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
   stroke-width: 1;
   transform-box: fill-box;
   transform-origin: center;
-  transform: scale(2.2);
+  transform: scale(1.2);
   transition: transform 0.2s ease;
 }
 
 .lightbox-close:hover .justin-circ-btn-x {
-  transform: scale(5);
+  transform: scale(2.2);
 }
 
 .lightbox-close .justin-circ-btn-text{
@@ -2242,4 +2256,208 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
   #list summary.scroll-active {
     color: #0045bd;
   }
+}
+
+// GOD MODE
+
+/* Styles for the channel UI rendered inside the theme's existing
+   #god-mode-frame element (see toggleGodMode / renderGodModeChannel
+   in main.js). Visibility/backdrop is still controlled by the
+   theme's own .god-mode-overlay.visible / .god-mode-active rules. */
+
+#god-mode-frame {
+	width: 100%;
+	height: 100%;
+}
+
+.gm-screen {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	background: #000;
+	overflow: hidden;
+	perspective: 700px;
+	transform-style: preserve-3d;
+}
+
+.gm-screen::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: repeating-linear-gradient(
+		to bottom,
+		rgba(255, 255, 255, 0.04) 0px,
+		rgba(255, 255, 255, 0.04) 1px,
+		transparent 1px,
+		transparent 3px
+	);
+	mix-blend-mode: overlay;
+}
+
+.gm-iframe {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+}
+
+.gm-static {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #666;
+	font-family: monospace;
+	font-size: 13px;
+	letter-spacing: 4px;
+	text-transform: uppercase;
+	background: repeating-linear-gradient(45deg, #1a1a1a 0px, #1a1a1a 2px, #0a0a0a 2px, #0a0a0a 4px);
+	animation: gm-flicker 6s infinite;
+}
+
+@keyframes gm-flicker {
+	0%, 92%, 100% { opacity: 1; }
+	93% { opacity: 0.6; }
+	94% { opacity: 1; }
+	95% { opacity: 0.7; }
+	96% { opacity: 1; }
+}
+
+.gm-info {
+	position: absolute;
+	left: 16px;
+	bottom: 12px;
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+	font-family: monospace;
+	color: #fff;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+	pointer-events: none;
+	z-index: 2;
+}
+
+.gm-chnum {
+	font-size: 13px;
+	color: #9a9a9a;
+}
+
+.gm-chtitle {
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.gm-chname {
+	font-size: 12px;
+	color: #ccc;
+}
+
+.gm-controls {
+	position: absolute;
+	right: 16px;
+	top: 50%;
+	transform: translateY(-50%);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	z-index: 3;
+}
+
+.gm-controls button {
+	width: 44px;
+	height: 36px;
+	background: rgba(28, 28, 28, 0.85);
+	border: 1px solid #333;
+	border-radius: 6px;
+	color: #eee;
+	cursor: pointer;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.gm-controls button:hover {
+	background: #2a2a2a;
+}
+
+.gm-controls button:active {
+	transform: scale(0.94);
+}
+
+@media (max-width: 640px) {
+	.gm-controls {
+		right: auto;
+		left: 50%;
+		top: auto;
+		bottom: 12px;
+		transform: translateX(-50%);
+		flex-direction: row;
+	}
+}
+
+
+// FOOTER
+
+.site-footer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 50;
+}
+
+.footer-widget { position: relative; }
+
+.footer-info-toggle,
+.footer-eyes-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  color: #000;
+}
+
+.footer-eyes-link{
+    font-size: 30px;
+}
+
+.footer-eyes-link:hover{
+    font-size: 35px;
+}
+
+.footer-info-popup {
+  position: absolute;
+  bottom: 100%;
+  right: 50px;
+  margin-bottom: 8px;
+  background: #fff;
+  border: 1px solid #000;
+  padding: 10px 14px;
+  min-width: 140px;
+}
+.footer-info-popup[hidden] { display: none; }
+.footer-info-popup ul { list-style: none; margin: 0; padding: 0; }
+.footer-info-popup li + li { margin-top: 6px; }
+.footer-info-popup a { 
+    text-decoration: none; 
+    color: #000; 
+    font-size: 15px;
+}
+
+.footer-info-popup a:hover { 
+    text-decoration: underline; 
 }

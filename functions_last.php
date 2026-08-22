@@ -116,6 +116,60 @@ if (!function_exists('justin_render_media_preview')) {
         </div>
         <?php
     }
+
+    if (!function_exists('justin_render_circular_text_button')) {
+    /**
+     * Renders a circular button: text curved around a ring, with an X
+     * in the center. Reusable anywhere — just pass different $text and
+     * a unique 'id' (required whenever more than one appears on a page,
+     * since SVG <textPath> needs a unique path id per instance).
+     */
+        function justin_render_circular_text_button($text, $args = []) {
+            $defaults = [
+                'id'             => 'circ-btn-' . wp_unique_id(),
+                'size'           => 90,   // overall button diameter in px
+                'class'          => '',
+                'letter_spacing' => 3.5,  // px between letters — tune per text length
+                'start_offset'   => '75%', // where the text begins along the ring
+                'font_size'      => 11,
+            ];
+            $args = wp_parse_args($args, $defaults);
+
+            $id     = esc_attr($args['id']);
+            $size   = (int) $args['size'];
+            $cx     = $size / 2;
+            $cy     = $size / 2;
+            $radius = $size / 2 - 10; // leaves room for the ring stroke + text
+
+            ob_start();
+            ?>
+            <span class="justin-circ-btn <?php echo esc_attr($args['class']); ?>" style="--circ-size: <?php echo $size; ?>px;">
+                <svg viewBox="0 0 <?php echo $size; ?> <?php echo $size; ?>" width="<?php echo $size; ?>" height="<?php echo $size; ?>" overflow="visible">
+                    <defs>
+                        <path id="<?php echo $id; ?>-path"
+                            d="M <?php echo $cx; ?>,<?php echo $cy; ?>
+                            m -<?php echo $radius; ?>,0
+                            a <?php echo $radius; ?>,<?php echo $radius; ?> 0 1,1 <?php echo $radius * 2; ?>,0
+                            a <?php echo $radius; ?>,<?php echo $radius; ?> 0 1,1 -<?php echo $radius * 2; ?>,0" />
+                    </defs>
+
+                    <circle class="justin-circ-btn-ring"
+                        cx="<?php echo $cx; ?>" cy="<?php echo $cy; ?>" r="<?php echo $radius + 7; ?>" />
+
+                    <text class="justin-circ-btn-text" style="font-size:<?php echo (int) $args['font_size']; ?>px; letter-spacing:<?php echo esc_attr($args['letter_spacing']); ?>px;">
+                        <textPath href="#<?php echo $id; ?>-path" startOffset="<?php echo esc_attr($args['start_offset']); ?>" text-anchor="middle">
+                            <?php echo esc_html($text); ?>
+                        </textPath>
+                    </text>
+
+                    <line class="justin-circ-btn-x" x1="<?php echo $cx - 6; ?>" y1="<?php echo $cy - 6; ?>" x2="<?php echo $cx + 6; ?>" y2="<?php echo $cy + 6; ?>" />
+                    <line class="justin-circ-btn-x" x1="<?php echo $cx + 6; ?>" y1="<?php echo $cy - 6; ?>" x2="<?php echo $cx - 6; ?>" y2="<?php echo $cy + 6; ?>" />
+                </svg>
+            </span>
+            <?php
+            return ob_get_clean();
+        }
+    }
 }
 
 if (!function_exists('justin_register_meta_boxes')) {
@@ -136,6 +190,18 @@ if (!function_exists('justin_photo_grid_tags')) {
             'Beds', 'Signs', 'StudioGirls', 'Guys', 'Friends', 'Home',
             'Drawings', 'Other',
         ];
+    }
+}
+
+if (!function_exists('justin_layout_variant_from_style')) {
+    function justin_layout_variant_from_style($layout_style) {
+        $map = [
+            'grid_hover'          => 'photography',
+            'grid_hover_painting' => 'painting',
+            'grid_hover_collage'  => 'collage',
+        ];
+
+        return $map[$layout_style] ?? '';
     }
 }
 
@@ -171,6 +237,7 @@ add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('justin-font', 'https://fonts.googleapis.com/css2?family=Nothing+You+Could+Do&display=swap', [], null);
 
     wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.1', true);
+    // wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.2', true);
 
     $data = [
         'siteTitle' => get_bloginfo('name'),
@@ -238,6 +305,8 @@ add_action('wp_enqueue_scripts', function () {
             ];
         }
 
+        $layout_style = justin_get_meta($post->ID, 'layout_style', 'grid_hover');
+
         $entry = [
             'id' => $post->ID,
             'text' => get_the_title($post),
@@ -247,7 +316,8 @@ add_action('wp_enqueue_scripts', function () {
             'body' => wp_kses_post(justin_get_meta($post->ID, 'body_text')),
             'bgImage' => $hover_only && $hover_bg_image ? justin_normalize_image_url($hover_bg_image) : '',
             'hoverOnly' => $hover_only,
-            'layoutStyle' => justin_get_meta($post->ID, 'layout_style', 'standard'),
+            'layoutStyle' => $layout_style,
+            'layoutVariant' => justin_layout_variant_from_style($layout_style), // NEW: 'photography' | 'painting' | 'collage' | ''
             'photoGrid' => $photo_grid_images, // NEW
             'videoUrl' => trim((string) justin_get_meta($post->ID, 'film_video_url')), // NEW
             'book' => null,
@@ -324,8 +394,16 @@ add_action('save_post_post', function ($post_id) {
     // NEW
     if (isset($_POST['layout_style'])) {
         $layout_style = sanitize_text_field(wp_unslash($_POST['layout_style']));
-        if (!in_array($layout_style, ['standard', 'grid_hover', 'photo_grid', 'video_direct'], true)) {
-            $layout_style = 'standard';
+        $allowed_layout_styles = [
+            'grid_hover',
+            'grid_hover_painting',
+            'grid_hover_collage',
+            'photo_grid',
+            'video_direct',
+            'standard',
+        ];
+        if (!in_array($layout_style, $allowed_layout_styles, true)) {
+            $layout_style = 'grid_hover';
         }
         update_post_meta($post_id, 'layout_style', $layout_style);
     }
@@ -405,7 +483,7 @@ function justin_render_project_common_box($post) {
     $info_text = justin_get_meta($post->ID, 'info_text');
     $hover_bg_image = justin_get_meta($post->ID, 'hover_bg_image');
     $use_as_hover_only = justin_parse_bool(justin_get_meta($post->ID, 'use_as_hover_only'));
-    $layout_style = justin_get_meta($post->ID, 'layout_style', 'standard'); // NEW
+    $layout_style = justin_get_meta($post->ID, 'layout_style', 'grid_hover'); // NEW
     ?>
     <p>Use this for all project types.</p>
     <p>
@@ -422,10 +500,12 @@ function justin_render_project_common_box($post) {
     <p>
     <label for="layout_style"><strong>Lightbox Layout</strong></label><br />
         <select name="layout_style" id="layout_style">
-            <option value="standard" <?php selected($layout_style, 'standard'); ?>>Standard (image slideshow)</option>
             <option value="grid_hover" <?php selected($layout_style, 'grid_hover'); ?>>Grid + Hover Preview (Photography)</option>
-            <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid (Misc)</option>
+            <option value="grid_hover_painting" <?php selected($layout_style, 'grid_hover_painting'); ?>>Grid + Hover Preview (Painting)</option>
+            <option value="grid_hover_collage" <?php selected($layout_style, 'grid_hover_collage'); ?>>Grid + Hover Preview (Collage)</option>
             <option value="video_direct" <?php selected($layout_style, 'video_direct'); ?>>Video (Film)</option>
+            <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid (Misc)</option>
+            <option value="standard" <?php selected($layout_style, 'standard'); ?>>Standard (image slideshow)</option>
         </select>
     </p>
     <?php

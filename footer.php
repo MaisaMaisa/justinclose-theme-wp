@@ -1,14 +1,7 @@
-<footer>
-	<?php 
-		wp_nav_menu(
-			array(
-				'menu' => 'Bottom Menu',
-				'container' => '',
-				'theme_location' => 'bottom',
-				'items_wrap' => '<ul class="bottom-menu">%3$s</ul>'
-			)
-		);
-	?>
+<footer id="site-footer" class="site-footer">
+    <?php if (is_active_sidebar('footer-widgets')) : ?>
+        <?php dynamic_sidebar('footer-widgets'); ?>
+    <?php endif; ?>
 </footer>
    
 <?php wp_footer(); ?>

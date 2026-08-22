@@ -127,7 +127,7 @@ if (!function_exists('justin_render_media_preview')) {
         function justin_render_circular_text_button($text, $args = []) {
             $defaults = [
                 'id'             => 'circ-btn-' . wp_unique_id(),
-                'size'           => 90,   // overall button diameter in px
+                'size'           => 70,   // overall button diameter in px
                 'class'          => '',
                 'letter_spacing' => 3.5,  // px between letters — tune per text length
                 'start_offset'   => '75%', // where the text begins along the ring
@@ -205,6 +205,218 @@ if (!function_exists('justin_layout_variant_from_style')) {
     }
 }
 
+//FOOTER WIDGETS
+
+class Justin_Social_Links_Widget extends WP_Widget {
+    const MAX_LINKS = 6;
+
+    public function __construct() {
+        parent::__construct(
+            'justin_social_links_widget',
+            'Justin: Social Links (Info Icon)',
+            ['description' => 'Info icon that opens a popup with social/contact links.']
+        );
+    }
+
+    public function widget($args, $instance) {
+        $links = [];
+        for ($i = 0; $i < self::MAX_LINKS; $i++) {
+            $label = trim($instance['label_' . $i] ?? '');
+            $url   = trim($instance['url_' . $i] ?? '');
+            if ($label !== '' && $url !== '') {
+                $links[] = ['label' => $label, 'url' => $url];
+            }
+        }
+
+        if (!$links) {
+            return;
+        }
+
+        echo $args['before_widget']; ?>
+        <button type="button" class="footer-info-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Social links">ⓘ</button>
+        <div class="footer-info-popup" hidden>
+            <ul>
+                <?php foreach ($links as $link) : ?>
+                    <li><a href="<?php echo esc_url($link['url']); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($link['label']); ?></a></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <?php echo $args['after_widget'];
+    }
+
+    public function form($instance) { ?>
+        <p>Up to <?php echo self::MAX_LINKS; ?> links. Leave a label blank to skip that row. Use <code>mailto:you@example.com</code> for email.</p>
+        <?php for ($i = 0; $i < self::MAX_LINKS; $i++) :
+            $label = esc_attr($instance['label_' . $i] ?? '');
+            $url   = esc_attr($instance['url_' . $i] ?? ''); ?>
+            <p style="border-top:1px solid #ddd;padding-top:8px;">
+                <label for="<?php echo $this->get_field_id('label_' . $i); ?>">Label</label>
+                <input class="widefat" type="text" id="<?php echo $this->get_field_id('label_' . $i); ?>" name="<?php echo $this->get_field_name('label_' . $i); ?>" value="<?php echo $label; ?>" placeholder="instagram" />
+                <label for="<?php echo $this->get_field_id('url_' . $i); ?>">URL</label>
+                <input class="widefat" type="text" id="<?php echo $this->get_field_id('url_' . $i); ?>" name="<?php echo $this->get_field_name('url_' . $i); ?>" value="<?php echo $url; ?>" placeholder="https://instagram.com/you or mailto:you@example.com" />
+            </p>
+        <?php endfor;
+    }
+
+    public function update($new_instance, $old_instance) {
+        $instance = [];
+        for ($i = 0; $i < self::MAX_LINKS; $i++) {
+            $instance['label_' . $i] = sanitize_text_field($new_instance['label_' . $i] ?? '');
+            $instance['url_' . $i]   = esc_url_raw(trim((string) ($new_instance['url_' . $i] ?? '')));
+        }
+        return $instance;
+    }
+}
+
+class Justin_Eyes_Link_Widget extends WP_Widget {
+    public function __construct() {
+        parent::__construct(
+            'justin_eyes_link_widget',
+            'Justin: Eyes Emoji Link',
+            ['description' => '👀 emoji linking to a page you choose.']
+        );
+    }
+
+    public function widget($args, $instance) {
+        $page_id = absint($instance['page_id'] ?? 0);
+        if (!$page_id || get_post_status($page_id) !== 'publish') {
+            return;
+        }
+        $url = get_permalink($page_id);
+        if (!$url) {
+            return;
+        }
+
+        echo $args['before_widget'];
+        printf(
+            '<a class="footer-eyes-link" href="%s" aria-label="%s">👀</a>',
+            esc_url($url),
+            esc_attr(get_the_title($page_id))
+        );
+        echo $args['after_widget'];
+    }
+
+    public function form($instance) {
+        $page_id = absint($instance['page_id'] ?? 0); ?>
+        <p>
+            <label for="<?php echo $this->get_field_id('page_id'); ?>">Link to page</label>
+            <?php wp_dropdown_pages([
+                'name'              => $this->get_field_name('page_id'),
+                'id'                => $this->get_field_id('page_id'),
+                'selected'          => $page_id,
+                'show_option_none'  => '— Select a page —',
+                'option_none_value' => '0',
+                'class'             => 'widefat',
+            ]); ?>
+        </p>
+    <?php }
+
+    public function update($new_instance, $old_instance) {
+        return ['page_id' => absint($new_instance['page_id'] ?? 0)];
+    }
+}
+
+// Step 1: register the sidebar
+add_action('widgets_init', function () {
+    register_sidebar([
+        'name'          => 'Footer Widgets',
+        'id'            => 'footer-widgets',
+        'description'   => 'Icon widgets shown in the site footer. Drag to reorder.',
+        'before_widget' => '<div id="%1$s" class="footer-widget %2$s">',
+        'after_widget'  => '</div>',
+        'before_title'  => '<h2 class="screen-reader-text">',
+        'after_title'   => '</h2>',
+    ]);
+
+    // register the widgets too, in the same hook
+    register_widget('Justin_Social_Links_Widget');
+    register_widget('Justin_Eyes_Link_Widget');
+});
+
+/**
+ * ---- GOD MODE CHANNELS ----
+ * 11 fixed channel slots, each with a title, a name, and a Vimeo URL.
+ * Stored as a single option (array of 11 rows) so it's editable from
+ * Appearance > Justin Settings without needing a custom post type.
+ */
+
+if (!function_exists('justin_god_mode_channel_count')) {
+    function justin_god_mode_channel_count() {
+        return 11;
+    }
+}
+
+if (!function_exists('justin_default_god_mode_channels')) {
+    function justin_default_god_mode_channels() {
+        $rows = [];
+        for ($i = 0; $i < justin_god_mode_channel_count(); $i++) {
+            $rows[] = [
+                'title'     => '',
+                'name'      => '',
+                'vimeo_url' => '',
+            ];
+        }
+        return $rows;
+    }
+}
+
+if (!function_exists('justin_sanitize_god_mode_channels')) {
+    function justin_sanitize_god_mode_channels($input) {
+        $clean = [];
+        $count = justin_god_mode_channel_count();
+
+        for ($i = 0; $i < $count; $i++) {
+            $row = is_array($input) && isset($input[$i]) && is_array($input[$i]) ? $input[$i] : [];
+
+            $clean[$i] = [
+                'title'     => isset($row['title']) ? sanitize_text_field(wp_unslash($row['title'])) : '',
+                'name'      => isset($row['name']) ? sanitize_text_field(wp_unslash($row['name'])) : '',
+                'vimeo_url' => isset($row['vimeo_url']) ? esc_url_raw(wp_unslash($row['vimeo_url'])) : '',
+            ];
+        }
+
+        return $clean;
+    }
+}
+
+if (!function_exists('justin_vimeo_embed_url')) {
+    /**
+     * Turns a plain vimeo.com URL (or an already-correct player URL)
+     * into a player.vimeo.com embed src. Returns '' if it doesn't look
+     * like a Vimeo URL, so the frontend can show a "no signal" state
+     * instead of a broken iframe.
+     */
+    function justin_vimeo_embed_url($url) {
+        $url = trim((string) $url);
+
+        if ($url === '') {
+            return '';
+        }
+
+        if (preg_match('/vimeo\.com\/(?:video\/)?(\d+)/', $url, $matches)) {
+            return 'https://player.vimeo.com/video/' . $matches[1] . '?title=0&byline=0&portrait=0';
+        }
+
+        return '';
+    }
+}
+
+if (!function_exists('justin_god_mode_trigger_button')) {
+    /**
+     * Optional helper — call this in header.php (or wherever) if you
+     * don't already have a God Mode button in your markup:
+     *   <?php justin_god_mode_trigger_button(); ?>
+     * If you already have your own button, just make sure it has
+     * id="god-mode-btn" and the JS below will pick it up automatically.
+     */
+    function justin_god_mode_trigger_button($label = 'God Mode') {
+        printf(
+            '<button type="button" id="god-mode-btn" class="god-mode-trigger">%s</button>',
+            esc_html($label)
+        );
+    }
+}
+
 add_action('after_setup_theme', function () {
     add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
@@ -215,10 +427,10 @@ add_action('admin_menu', function () {
 });
 
 add_action('admin_init', function () {
-    register_setting('justin_settings_group', 'justin_god_mode_video_url', [
-        'type' => 'string',
-        'sanitize_callback' => 'esc_url_raw',
-        'default' => 'https://assets.mixkit.co/videos/1164/1164-720.mp4',
+    register_setting('justin_settings_group', 'justin_god_mode_channels', [
+        'type'              => 'array',
+        'sanitize_callback' => 'justin_sanitize_god_mode_channels',
+        'default'           => justin_default_god_mode_channels(),
     ]);
 });
 
@@ -239,14 +451,19 @@ add_action('wp_enqueue_scripts', function () {
     wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.1', true);
     // wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.2', true);
 
+    // God Mode styling only — the channel logic itself lives in main.js,
+    // reusing the existing #god-mode-overlay / #god-mode-btn / #god-mode-frame
+    // elements already in the theme's templates.
+    wp_enqueue_style('justin-god-mode', get_template_directory_uri() . '/assets/css/god-mode.css', [], '1.0');
+
     $data = [
         'siteTitle' => get_bloginfo('name'),
         'siteDescription' => wp_kses_post( get_theme_mod( 'justin_bio_copy', get_bloginfo('description') ) ),
         'cats' => [],
         'catBios' => [],
         'entries' => [],
-        'godModeVideo' => get_option('justin_god_mode_video_url', 'https://assets.mixkit.co/videos/1164/1164-720.mp4'),
-        'photoGridTags' => justin_photo_grid_tags(), // NEW
+        'photoGridTags' => justin_photo_grid_tags(),
+        'godModeChannels' => [],
     ];
 
     $terms = get_categories([
@@ -260,12 +477,12 @@ add_action('wp_enqueue_scripts', function () {
                 continue;
             }
 
-            $color = get_term_meta($term->term_id, 'justin_cat_color', true);
+            $lightbox_color = get_term_meta($term->term_id, 'justin_cat_lightbox_color', true);
 
             $data['cats'][] = [
                 'name' => $term->name,
                 'slug' => $term->slug,
-                'color' => $color ?: '#000000',
+                'lightboxColor' => $lightbox_color ?: '',
             ];
 
             $data['catBios'][$term->name] = wp_kses_post($term->description);
@@ -286,7 +503,7 @@ add_action('wp_enqueue_scripts', function () {
         $film_images = justin_extract_image_urls(justin_get_attachment_ids(justin_get_meta($post->ID, 'film_grabs')));
         $hover_only = justin_parse_bool(justin_get_meta($post->ID, 'use_as_hover_only'));
         $hover_bg_image = absint(justin_get_meta($post->ID, 'hover_bg_image'));
-        // NEW: photo grid images with their tags
+
         $gallery_tags_raw = justin_get_meta($post->ID, 'gallery_image_tags', '{}');
         $gallery_tags_map = json_decode($gallery_tags_raw, true);
         if (!is_array($gallery_tags_map)) {
@@ -317,9 +534,9 @@ add_action('wp_enqueue_scripts', function () {
             'bgImage' => $hover_only && $hover_bg_image ? justin_normalize_image_url($hover_bg_image) : '',
             'hoverOnly' => $hover_only,
             'layoutStyle' => $layout_style,
-            'layoutVariant' => justin_layout_variant_from_style($layout_style), // NEW: 'photography' | 'painting' | 'collage' | ''
-            'photoGrid' => $photo_grid_images, // NEW
-            'videoUrl' => trim((string) justin_get_meta($post->ID, 'film_video_url')), // NEW
+            'layoutVariant' => justin_layout_variant_from_style($layout_style),
+            'photoGrid' => $photo_grid_images,
+            'videoUrl' => trim((string) justin_get_meta($post->ID, 'film_video_url')),
             'book' => null,
             'film' => null,
         ];
@@ -347,6 +564,17 @@ add_action('wp_enqueue_scripts', function () {
         }
 
         $data['entries'][] = $entry;
+    }
+
+    // God Mode channels for the frontend flip-widget.
+    $god_mode_channels = get_option('justin_god_mode_channels', justin_default_god_mode_channels());
+    foreach ($god_mode_channels as $i => $row) {
+        $data['godModeChannels'][] = [
+            'number'   => $i + 1,
+            'title'    => $row['title'] ?? '',
+            'name'     => $row['name'] ?? '',
+            'embedUrl' => justin_vimeo_embed_url($row['vimeo_url'] ?? ''),
+        ];
     }
 
     wp_localize_script('justin-main', 'JUSTIN_DATA', $data);
@@ -391,7 +619,6 @@ add_action('save_post_post', function ($post_id) {
     update_post_meta($post_id, 'use_as_hover_only', isset($_POST['use_as_hover_only']) ? '1' : '0');
     update_post_meta($post_id, 'has_teaser', isset($_POST['has_teaser']) ? '1' : '0');
 
-    // NEW
     if (isset($_POST['layout_style'])) {
         $layout_style = sanitize_text_field(wp_unslash($_POST['layout_style']));
         $allowed_layout_styles = [
@@ -408,7 +635,6 @@ add_action('save_post_post', function ($post_id) {
         update_post_meta($post_id, 'layout_style', $layout_style);
     }
 
-    // NEW: per-image tags for photo grid
     if (isset($_POST['gallery_image_tags'])) {
         $raw_json = wp_unslash($_POST['gallery_image_tags']);
         $decoded = json_decode($raw_json, true);
@@ -444,34 +670,34 @@ function justin_save_category_color($term_id) {
         return;
     }
 
-    $color = isset($_POST['justin_cat_color']) ? sanitize_hex_color(wp_unslash($_POST['justin_cat_color'])) : '';
+    $lightbox_color = isset($_POST['justin_cat_lightbox_color']) ? sanitize_hex_color(wp_unslash($_POST['justin_cat_lightbox_color'])) : '';
 
-    if ($color) {
-        update_term_meta($term_id, 'justin_cat_color', $color);
+    if ($lightbox_color) {
+        update_term_meta($term_id, 'justin_cat_lightbox_color', $lightbox_color);
     } else {
-        delete_term_meta($term_id, 'justin_cat_color');
+        delete_term_meta($term_id, 'justin_cat_lightbox_color');
     }
 }
 
 add_action('category_add_form_fields', function () {
     ?>
     <div class="form-field term-group">
-        <label for="justin_cat_color">Category Color</label>
-        <input type="color" id="justin_cat_color" name="justin_cat_color" value="#000000" />
-        <p class="description">Color used in the project navigation.</p>
+        <label for="justin_cat_lightbox_color">Lightbox Background Color</label>
+        <input type="color" id="justin_cat_lightbox_color" name="justin_cat_lightbox_color" value="#828282" />
+        <p class="description">Tint color shown behind the lightbox popup for projects in this category.</p>
     </div>
     <?php wp_nonce_field('justin_save_cat_color', 'justin_cat_color_nonce'); ?>
     <?php
 });
 
 add_action('category_edit_form_fields', function ($term) {
-    $color = get_term_meta($term->term_id, 'justin_cat_color', true) ?: '#000000';
+    $lightbox_color = get_term_meta($term->term_id, 'justin_cat_lightbox_color', true) ?: '#828282';
     ?>
     <tr class="form-field term-group-wrap">
-        <th scope="row"><label for="justin_cat_color">Category Color</label></th>
+        <th scope="row"><label for="justin_cat_lightbox_color">Lightbox Background Color</label></th>
         <td>
-            <input type="color" id="justin_cat_color" name="justin_cat_color" value="<?php echo esc_attr($color); ?>" />
-            <p class="description">Color used in the project navigation.</p>
+            <input type="color" id="justin_cat_lightbox_color" name="justin_cat_lightbox_color" value="<?php echo esc_attr($lightbox_color); ?>" />
+            <p class="description">Tint color shown behind the lightbox popup for projects in this category.</p>
             <?php wp_nonce_field('justin_save_cat_color', 'justin_cat_color_nonce'); ?>
         </td>
     </tr>
@@ -483,7 +709,7 @@ function justin_render_project_common_box($post) {
     $info_text = justin_get_meta($post->ID, 'info_text');
     $hover_bg_image = justin_get_meta($post->ID, 'hover_bg_image');
     $use_as_hover_only = justin_parse_bool(justin_get_meta($post->ID, 'use_as_hover_only'));
-    $layout_style = justin_get_meta($post->ID, 'layout_style', 'grid_hover'); // NEW
+    $layout_style = justin_get_meta($post->ID, 'layout_style', 'grid_hover');
     ?>
     <p>Use this for all project types.</p>
     <p>
@@ -589,20 +815,45 @@ function justin_render_site_settings_box() {
 }
 
 function justin_render_settings_page() {
-    $value = get_option('justin_god_mode_video_url', 'https://assets.mixkit.co/videos/1164/1164-720.mp4');
+    $channels = get_option('justin_god_mode_channels', justin_default_god_mode_channels());
     ?>
     <div class="wrap">
         <h1>Justin Settings</h1>
         <form method="post" action="options.php">
             <?php settings_fields('justin_settings_group'); ?>
-            <table class="form-table" role="presentation">
-                <tr>
-                    <th scope="row"><label for="justin_god_mode_video_url">God Mode video URL</label></th>
-                    <td>
-                        <input type="url" id="justin_god_mode_video_url" name="justin_god_mode_video_url" value="<?php echo esc_attr($value); ?>" class="regular-text" />
-                    </td>
-                </tr>
+
+            <h2>God Mode channels</h2>
+            <p>Each row is one channel in the God Mode flip display. Paste a normal Vimeo link (e.g. <code>https://vimeo.com/123456789</code>) — it's converted to an embed automatically. Leave the URL blank to show "no signal" for that channel.</p>
+
+            <table class="widefat" style="max-width:900px;">
+                <thead>
+                    <tr>
+                        <th style="width:60px;">#</th>
+                        <th>Title</th>
+                        <th>Name</th>
+                        <th>Vimeo URL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php for ($i = 0; $i < justin_god_mode_channel_count(); $i++) :
+                        $row = $channels[$i] ?? ['title' => '', 'name' => '', 'vimeo_url' => ''];
+                        ?>
+                        <tr>
+                            <td><?php echo esc_html(str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT)); ?></td>
+                            <td>
+                                <input type="text" style="width:100%;" name="justin_god_mode_channels[<?php echo $i; ?>][title]" value="<?php echo esc_attr($row['title'] ?? ''); ?>" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:100%;" name="justin_god_mode_channels[<?php echo $i; ?>][name]" value="<?php echo esc_attr($row['name'] ?? ''); ?>" />
+                            </td>
+                            <td>
+                                <input type="url" style="width:100%;" name="justin_god_mode_channels[<?php echo $i; ?>][vimeo_url]" value="<?php echo esc_attr($row['vimeo_url'] ?? ''); ?>" placeholder="https://vimeo.com/..." />
+                            </td>
+                        </tr>
+                    <?php endfor; ?>
+                </tbody>
             </table>
+
             <?php submit_button(); ?>
         </form>
     </div>

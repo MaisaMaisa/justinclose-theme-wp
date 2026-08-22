@@ -38,10 +38,76 @@
   }
 
   var entries = Array.isArray(data.entries) ? data.entries : [];
-  var categories = Array.isArray(data.cats) ? data.cats : [];
+  // var categories = Array.isArray(data.cats) ? data.cats : [];
+  var categories = shuffleArray(Array.isArray(data.cats) ? data.cats : []);
   var categoryBios = data.catBios || {};
   var siteBio = data.siteDescription || data.siteTitle || '';
   var justinLabelFrame = null;
+
+  var mobileQuery = window.matchMedia('(max-width: 700px)');
+  var scrollActiveSummary = null;
+  var scrollSpyFrame = null;
+
+  function updateScrollSpy() {
+    if (!mobileQuery.matches) {
+      if (scrollActiveSummary) {
+        scrollActiveSummary.classList.remove('scroll-active');
+        scrollActiveSummary = null;
+      }
+      return;
+    }
+
+    var summaries = elements.list.querySelectorAll('summary');
+    if (!summaries.length) {
+      return;
+    }
+
+    var viewportCenter = window.innerHeight / 2;
+    var closest = null;
+    var closestDistance = Infinity;
+
+    summaries.forEach(function (summary) {
+      var rect = summary.getBoundingClientRect();
+      var summaryCenter = rect.top + rect.height / 2;
+      var distance = Math.abs(summaryCenter - viewportCenter);
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closest = summary;
+      }
+    });
+
+    if (closest !== scrollActiveSummary) {
+      if (scrollActiveSummary) {
+        scrollActiveSummary.classList.remove('scroll-active');
+      }
+      if (closest) {
+        closest.classList.add('scroll-active');
+      }
+      scrollActiveSummary = closest;
+    }
+  }
+
+  function onScrollOrResize() {
+    if (scrollSpyFrame) {
+      return;
+    }
+    scrollSpyFrame = window.requestAnimationFrame(function () {
+      updateScrollSpy();
+      scrollSpyFrame = null;
+    });
+  }
+
+  function shuffleArray(array) {
+    var shuffled = array.slice(); // don't mutate the original
+    for (var i = shuffled.length - 1; i > 0; i -= 1) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = shuffled[i];
+      shuffled[i] = shuffled[j];
+      shuffled[j] = temp;
+    }
+    return shuffled;
+  }
 
   function escapeHtml(value) {
     return String(value || '')
@@ -377,11 +443,220 @@
     elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
 
+  // function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg) {
+  //   ghGrid.classList.add('gh-grid-painting');
+
+  //   var containerHeight = ghGrid.clientHeight || 600;
+
+  //   // Each style is a "column personality." Cycles rigid → floating →
+  //   // sparse → rigid… if a 4th+ column is ever needed.
+  //   var styleCycle = [
+  //     { name: 'rigid',    colWidth: 120, innerWidthPct: 100, marginY: 0,  ratios: [3 / 4, 1 / 1], border: true,  shadow: false },
+  //     { name: 'floating', colWidth: 120, innerWidthPct: 80,  marginY: 20, ratios: [4 / 5, 1 / 1], border: false, shadow: true  },
+  //     { name: 'sparse',   colWidth: 130, innerWidthPct: 90,  marginY: 36, ratios: [5 / 6],        border: false, shadow: true  },
+  //   ];
+
+  //   var columns = [];
+
+  //   function addColumn() {
+  //     var style = styleCycle[columns.length % styleCycle.length];
+  //     var col = document.createElement('div');
+  //     col.className = 'gh-col gh-col-' + style.name;
+  //     col.style.width = style.colWidth + 'px';
+  //     ghGrid.appendChild(col);
+  //     var record = { el: col, height: 0, style: style, count: 0 };
+  //     columns.push(record);
+  //     return record;
+  //   }
+
+  //   addColumn();
+
+  //   images.forEach(function (imageUrl, index) {
+  //     // Pick the least-filled column that still has vertical room.
+  //     // Only spin up a new column if every existing one is already full.
+  //     var target = null;
+  //     for (var i = 0; i < columns.length; i += 1) {
+  //       if (columns[i].height < containerHeight && (!target || columns[i].height < target.height)) {
+  //         target = columns[i];
+  //       }
+  //     }
+  //     if (!target) {
+  //       target = addColumn();
+  //     }
+
+  //     var style = target.style;
+  //     var ratio = style.ratios[target.count % style.ratios.length];
+  //     var innerWidth = style.colWidth * (style.innerWidthPct / 100);
+  //     var thumbHeight = innerWidth / ratio;
+
+  //     var thumb = document.createElement('div');
+  //     thumb.className = 'gh-thumb';
+  //     if (index === 0) {
+  //       thumb.classList.add('gh-active');
+  //     }
+  //     thumb.style.width = style.innerWidthPct + '%';
+  //     thumb.style.aspectRatio = ratio;
+  //     thumb.style.margin = style.marginY ? style.marginY + 'px auto' : '0';
+  //     if (style.border) {
+  //       thumb.style.border = '1px solid #f2f2f2';
+  //     }
+  //     if (style.shadow) {
+  //       thumb.style.boxShadow = '1px 2px 8px rgba(0, 0, 0, 0.15)';
+  //     }
+
+  //     var thumbImg = document.createElement('img');
+  //     thumbImg.src = imageUrl;
+  //     thumbImg.alt = entry.text || '';
+  //     thumb.appendChild(thumbImg);
+
+  //     var setActive = function () {
+  //       if (ghPreviewImg) {
+  //         ghPreviewImg.src = imageUrl;
+  //       }
+  //       ghGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
+  //         node.classList.remove('gh-active');
+  //       });
+  //       thumb.classList.add('gh-active');
+  //     };
+
+  //     thumb.addEventListener('mouseenter', setActive);
+  //     thumb.addEventListener('click', setActive);
+  //     thumb.addEventListener('focus', setActive);
+  //     thumb.setAttribute('tabindex', '0');
+
+  //     target.el.appendChild(thumb);
+  //     target.height += thumbHeight + (style.marginY * 2);
+  //     target.count += 1;
+  //   });
+  // }
+
+  function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg) {
+    ghGrid.classList.add('gh-grid-painting');
+
+    var containerHeight = ghGrid.clientHeight || 600;
+
+    // 4 distinct personalities now, so a 4th column never repeats the 1st.
+    var styleCycle = [
+      { name: 'rigid',    colWidth: 120, innerWidthPct: 100, marginY: 0,  ratios: [3 / 4, 1 / 1],       border: true,  shadow: false, rotate: 0 },
+      { name: 'floating', colWidth: 120, innerWidthPct: 80,  marginY: 20, ratios: [4 / 5, 1 / 1],       border: false, shadow: true,  rotate: 0 },
+      { name: 'sparse',   colWidth: 130, innerWidthPct: 90,  marginY: 36, ratios: [5 / 6],              border: false, shadow: true,  rotate: 0 },
+      { name: 'loose',    colWidth: 110, innerWidthPct: 65,  marginY: 28, ratios: [1 / 1, 3 / 5, 5 / 4], border: false, shadow: true,  rotate: 1.5 },
+    ];
+
+    var columns = [];
+
+    function addColumn() {
+      var cycleIndex = columns.length % styleCycle.length;
+      var lap = Math.floor(columns.length / styleCycle.length); // 0 on first pass, 1+ on repeats
+      var base = styleCycle[cycleIndex];
+
+      // On repeat laps, vary width/margin slightly so a 2nd trip through
+      // the cycle doesn't look like a duplicate of the 1st.
+      var style = {
+        name: base.name,
+        colWidth: base.colWidth - lap * 6,
+        innerWidthPct: Math.max(55, base.innerWidthPct - lap * 8),
+        marginY: base.marginY + lap * 6,
+        ratios: base.ratios,
+        border: base.border,
+        shadow: base.shadow,
+        rotate: base.rotate + (lap % 2 === 0 ? 0 : 1),
+      };
+
+      var col = document.createElement('div');
+      col.className = 'gh-col gh-col-' + style.name;
+      col.style.width = style.colWidth + 'px';
+      ghGrid.appendChild(col);
+      var record = { el: col, height: 0, style: style, count: 0 };
+      columns.push(record);
+      return record;
+    }
+
+    addColumn();
+
+    images.forEach(function (imageUrl, index) {
+      var target = null;
+      var targetHeight = 0;
+
+      // Only consider a column if this specific item would actually fit
+      // inside it — not just whether the column has started.
+      for (var i = 0; i < columns.length; i += 1) {
+        var col = columns[i];
+        var style = col.style;
+        var ratio = style.ratios[col.count % style.ratios.length];
+        var innerWidth = style.colWidth * (style.innerWidthPct / 100);
+        var thumbHeight = innerWidth / ratio + style.marginY * 2;
+        var projectedHeight = col.height + thumbHeight;
+
+        if (projectedHeight <= containerHeight && (!target || col.height < target.height)) {
+          target = col;
+          targetHeight = thumbHeight;
+        }
+      }
+
+      if (!target) {
+        target = addColumn();
+        var newStyle = target.style;
+        var newRatio = newStyle.ratios[target.count % newStyle.ratios.length];
+        var newInnerWidth = newStyle.colWidth * (newStyle.innerWidthPct / 100);
+        targetHeight = newInnerWidth / newRatio + newStyle.marginY * 2;
+      }
+
+      var style = target.style;
+      var ratio = style.ratios[target.count % style.ratios.length];
+      var innerWidth = style.colWidth * (style.innerWidthPct / 100);
+
+      var thumb = document.createElement('div');
+      thumb.className = 'gh-thumb';
+      if (index === 0) {
+        thumb.classList.add('gh-active');
+      }
+      thumb.style.width = style.innerWidthPct + '%';
+      thumb.style.aspectRatio = ratio;
+      thumb.style.margin = style.marginY ? style.marginY + 'px auto' : '0';
+      if (style.border) {
+        thumb.style.border = '1px solid #f2f2f2';
+      }
+      if (style.shadow) {
+        thumb.style.boxShadow = '1px 2px 8px rgba(0, 0, 0, 0.15)';
+      }
+      if (style.rotate) {
+        var sign = target.count % 2 === 0 ? 1 : -1;
+        thumb.style.transform = 'rotate(' + (style.rotate * sign) + 'deg)';
+      }
+
+      var thumbImg = document.createElement('img');
+      thumbImg.src = imageUrl;
+      thumbImg.alt = entry.text || '';
+      thumb.appendChild(thumbImg);
+
+      var setActive = function () {
+        if (ghPreviewImg) {
+          ghPreviewImg.src = imageUrl;
+        }
+        ghGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
+          node.classList.remove('gh-active');
+        });
+        thumb.classList.add('gh-active');
+      };
+
+      thumb.addEventListener('mouseenter', setActive);
+      thumb.addEventListener('click', setActive);
+      thumb.addEventListener('focus', setActive);
+      thumb.setAttribute('tabindex', '0');
+
+      target.el.appendChild(thumb);
+      target.height += targetHeight;
+      target.count += 1;
+    });
+  }
+
   function renderGridHoverLightbox(entry) {
     var images = getEntryImages(entry);
+    var variant = entry.layoutVariant || 'photography';
 
     var html =
-      '<div class="gh-stage" id="gh-stage">' +
+      '<div class="gh-stage" id="gh-stage" data-variant="' + escapeHtml(variant) + '">' +
         '<div class="gh-grid" id="gh-grid"></div>' +
         '<div class="gh-preview" id="gh-preview">' +
           (images[0] ? '<img id="gh-preview-img" src="' + images[0] + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
@@ -407,41 +682,98 @@
       });
     }
 
-    var columns = 2;
-    var rows = Math.ceil(images.length / columns);
-    var thumbHeightPercent = rows > 0 ? (100 / rows) : 100;
+    // var isCollage = variant === 'collage';
+    // var columns = 2;
+    // var rows = Math.ceil(images.length / columns);
+    // var thumbHeightPercent = rows > 0 ? (100 / rows) : 100;
 
-    images.forEach(function (imageUrl, index) {
-      var thumb = document.createElement('div');
-      thumb.className = 'gh-thumb';
-      thumb.style.flex = '0 0 ' + thumbHeightPercent + '%'; // NEW: sets height along the column-flow axis
-      if (index === 0) {
-        thumb.classList.add('gh-active');
-      }
+    // images.forEach(function (imageUrl, index) {
+    //   var thumb = document.createElement('div');
+    //   thumb.className = 'gh-thumb';
+    //   if (!isCollage) {
+    //     thumb.style.flex = '0 0 ' + thumbHeightPercent + '%';
+    //   }
+    //   if (index === 0) {
+    //     thumb.classList.add('gh-active');
+    //   }
 
-      var thumbImg = document.createElement('img');
-      thumbImg.src = imageUrl;
-      thumbImg.alt = entry.text || '';
-      thumb.appendChild(thumbImg);
+    // var usesCustomGrid = variant === 'collage' || variant === 'painting';
+    // var columns = 2;
+    // var rows = Math.ceil(images.length / columns);
+    // var thumbHeightPercent = rows > 0 ? (100 / rows) : 100;
 
-      var setActive = function () {
-        if (ghPreviewImg) {
-          ghPreviewImg.src = imageUrl;
+    // images.forEach(function (imageUrl, index) {
+    //   var thumb = document.createElement('div');
+    //   thumb.className = 'gh-thumb';
+    //   if (!usesCustomGrid) {
+    //     thumb.style.flex = '0 0 ' + thumbHeightPercent + '%';
+    //   }
+
+    //   var thumbImg = document.createElement('img');
+    //   thumbImg.src = imageUrl;
+    //   thumbImg.alt = entry.text || '';
+    //   thumb.appendChild(thumbImg);
+
+    //   var setActive = function () {
+    //     if (ghPreviewImg) {
+    //       ghPreviewImg.src = imageUrl;
+    //     }
+    //     var activeThumbs = ghGrid.querySelectorAll('.gh-thumb');
+    //     activeThumbs.forEach(function (node) {
+    //       node.classList.remove('gh-active');
+    //     });
+    //     thumb.classList.add('gh-active');
+    //   };
+
+    //   thumb.addEventListener('mouseenter', setActive);
+    //   thumb.addEventListener('click', setActive);
+    //   thumb.addEventListener('focus', setActive);
+    //   thumb.setAttribute('tabindex', '0');
+
+    //   ghGrid.appendChild(thumb);
+    // });
+
+    if (variant === 'painting') {
+      renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg);
+    } else {
+      var isCollage = variant === 'collage';
+      var columns = 2;
+      var rows = Math.ceil(images.length / columns);
+      var thumbHeightPercent = rows > 0 ? (100 / rows) : 100;
+
+      images.forEach(function (imageUrl, index) {
+        var thumb = document.createElement('div');
+        thumb.className = 'gh-thumb';
+        if (!isCollage) {
+          thumb.style.flex = '0 0 ' + thumbHeightPercent + '%';
         }
-        var activeThumbs = ghGrid.querySelectorAll('.gh-thumb');
-        activeThumbs.forEach(function (node) {
-          node.classList.remove('gh-active');
-        });
-        thumb.classList.add('gh-active');
-      };
+        if (index === 0) {
+          thumb.classList.add('gh-active');
+        }
 
-      thumb.addEventListener('mouseenter', setActive);
-      thumb.addEventListener('click', setActive);
-      thumb.addEventListener('focus', setActive);
-      thumb.setAttribute('tabindex', '0');
+        var thumbImg = document.createElement('img');
+        thumbImg.src = imageUrl;
+        thumbImg.alt = entry.text || '';
+        thumb.appendChild(thumbImg);
 
-      ghGrid.appendChild(thumb);
-    });
+        var setActive = function () {
+          if (ghPreviewImg) {
+            ghPreviewImg.src = imageUrl;
+          }
+          ghGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
+            node.classList.remove('gh-active');
+          });
+          thumb.classList.add('gh-active');
+        };
+
+        thumb.addEventListener('mouseenter', setActive);
+        thumb.addEventListener('click', setActive);
+        thumb.addEventListener('focus', setActive);
+        thumb.setAttribute('tabindex', '0');
+
+        ghGrid.appendChild(thumb);
+      });
+    }
 
     // images.forEach(function (imageUrl, index) {
     //   var thumb = document.createElement('div');
@@ -483,12 +815,16 @@
     elements.lightboxNext.style.display = 'none';
   }
 
-  function getEntryPhotoGridImages(entry) {
-    if (!entry || !Array.isArray(entry.photoGrid)) {
-      return [];
-    }
-    return entry.photoGrid;
+function getEntryPhotoGridImages(entry) {
+  if (!entry || !Array.isArray(entry.photoGrid)) {
+    return [];
   }
+  return entry.photoGrid;
+}
+
+function isGridHoverLayout(layoutStyle) {
+    return layoutStyle === 'grid_hover' || layoutStyle === 'grid_hover_painting' || layoutStyle === 'grid_hover_collage';
+}
 
 function renderPhotoGridLightbox(entry) {
     var photoGridImages = getEntryPhotoGridImages(entry);
@@ -710,14 +1046,9 @@ function renderPhotoGridLightbox(entry) {
       document.body.classList.remove('lb-upside-down');
       renderTextStage(entry);
     } else {
-      if (entry.cat === 'Painting' || entry.cat === 'Collage') {
-        document.body.classList.add('lb-upside-down');
-      } else {
-        document.body.classList.remove('lb-upside-down');
-      }
 
       // NEW: branch on layoutStyle, fall back to standard if no images
-      if (entry.layoutStyle === 'grid_hover' && getEntryImages(entry).length) {
+      if (isGridHoverLayout(entry.layoutStyle) && getEntryImages(entry).length) {
         renderGridHoverLightbox(entry);
       } else if (entry.layoutStyle === 'photo_grid' && getEntryPhotoGridImages(entry).length) {
         renderPhotoGridLightbox(entry);
@@ -884,25 +1215,6 @@ function renderPhotoGridLightbox(entry) {
       elements.bioToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
   }
-
-  // function toggleGodMode(event) {
-  //   if (event) {
-  //     event.preventDefault();
-  //   }
-
-  //   var isVisible = elements.godModeOverlay.classList.toggle('visible');
-  //   document.body.classList.toggle('god-mode-active', isVisible);
-
-  //   if (elements.godModeVideo) {
-  //     elements.godModeVideo.src = data.godModeVideo || '';
-  //     if (isVisible) {
-  //       elements.godModeVideo.play().catch(function () {});
-  //     } else {
-  //       elements.godModeVideo.pause();
-  //     }
-  //   }
-  // }
-
   function toggleGodMode(event) {
     if (event) {
       event.preventDefault();
@@ -910,6 +1222,10 @@ function renderPhotoGridLightbox(entry) {
 
     var isVisible = elements.godModeOverlay.classList.toggle('visible');
     document.body.classList.toggle('god-mode-active', isVisible);
+
+    if (elements.godModeBtn) {
+      elements.godModeBtn.classList.toggle('is-active', isVisible);
+    }
 
     if (!elements.godModeFrame) {
       return;
@@ -924,6 +1240,28 @@ function renderPhotoGridLightbox(entry) {
       elements.godModeFrame.innerHTML = '';
     }
   }
+
+  // function toggleGodMode(event) {
+  //   if (event) {
+  //     event.preventDefault();
+  //   }
+
+  //   var isVisible = elements.godModeOverlay.classList.toggle('visible');
+  //   document.body.classList.toggle('god-mode-active', isVisible);
+
+  //   if (!elements.godModeFrame) {
+  //     return;
+  //   }
+
+  //   if (isVisible) {
+  //     var embedUrl = getVideoEmbedUrl(data.godModeVideo || '');
+  //     elements.godModeFrame.innerHTML = embedUrl
+  //       ? '<iframe src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
+  //       : '';
+  //   } else {
+  //     elements.godModeFrame.innerHTML = '';
+  //   }
+  // }
 
   renderNav();
   setBioText(siteBio);
@@ -970,6 +1308,10 @@ function renderPhotoGridLightbox(entry) {
   if (elements.lightboxNext) {
     elements.lightboxNext.addEventListener('click', showNextImage);
   }
+
+  window.addEventListener('scroll', onScrollOrResize, { passive: true });
+  window.addEventListener('resize', onScrollOrResize);
+  updateScrollSpy();
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
