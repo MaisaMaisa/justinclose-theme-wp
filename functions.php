@@ -448,8 +448,8 @@ add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('justin-style', get_stylesheet_uri(), [], '1.1');
     wp_enqueue_style('justin-font', 'https://fonts.googleapis.com/css2?family=Nothing+You+Could+Do&display=swap', [], null);
 
-    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.1', true);
-    // wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.2', true);
+    // wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.1', true);
+    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.3', true);
 
     // God Mode styling only — the channel logic itself lives in main.js,
     // reusing the existing #god-mode-overlay / #god-mode-btn / #god-mode-frame

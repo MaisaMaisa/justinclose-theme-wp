@@ -1344,11 +1344,70 @@ body {
     background: #000;
 }
 
+// .film-vimeo {
+//     width: 80%;
+//     max-width: 900px;
+//     height: 500px;
+//     border: none;
+// }
+
+// .film-watch-wrap {
+//     display: flex;
+//     flex-direction: column;
+//     align-items: center;
+//     width: 100%;
+//     height: 100%;
+//     justify-content: center;
+// }
+
 .film-vimeo {
     width: 80%;
     max-width: 900px;
     height: 500px;
+    border: none;
+    flex-shrink: 0;
 }
+
+.film-watch-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.film-caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 30px;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.4;
+    color: white;
+    text-shadow: #FC0 1px 0 10px;
+    padding: 0 40px;
+    pointer-events: none;
+
+    p {
+        margin: 0;
+    }
+}
+
+// .film-caption {
+//     width: 80%;
+//     max-width: 900px;
+//     margin-top: 14px;
+//     font-size: 15px;
+//     line-height: 1.4;
+//     color: white;
+//     text-shadow: #FC0 1px 0 10px;
+//     text-align: center;
+
+//     p {
+//         margin: 0;
+//     }
+// }
 
 .film-resume-btn {
     position: absolute;
@@ -1373,11 +1432,13 @@ body {
 
 /* Info icon + sliding description panel, between main image and thumbnails */
 .lightbox-infobar {
+    align-items: center;
+    width: 100%;
+    justify-content: center;
     position: fixed;
     bottom: 0;
     flex-shrink: 0;
     display: flex;
-    justify-content: flex-start;
     padding: 2px 12px;
 }
 
@@ -1388,27 +1449,19 @@ body {
     cursor: pointer;
     font-size: 30px;
     line-height: 1;
-    color: white;
-    text-shadow: #FC0 1px 0 10px;
+    color: black;
     padding: 2px 4px;
 }
 
 .lightbox-info-panel {
     flex-shrink: 0;
-    max-height: 0;
     overflow: hidden;
     transition: max-height 0.35s ease;
-    font-family: Bradford!important;
     // font-family: "Nothing You Could Do", cursive;
     font-size: 15px;
     line-height: 1.4;
-    color: white;
-    text-shadow: #FC0 1px 0 10px;
+    color: black;
     padding: 0 16px;
-
-    p{
-        font-family: Bradford!important;
-    }
 }
 
 .lightbox-info-panel.open {
@@ -2088,6 +2141,26 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
   pointer-events: none;  /* clicks pass through the empty gaps to the preview... */
 }
 
+/* When split (4+ columns), the grid spans full stage width and
+   pushes its two groups to opposite edges — first 3 columns left,
+   remaining columns right. */
+.gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting.gh-grid-painting-split {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.gh-stage[data-variant="painting"] .gh-painting-left,
+.gh-stage[data-variant="painting"] .gh-painting-right {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 50%;
+}
+
+.gh-stage[data-variant="painting"] .gh-painting-right {
+  justify-content: end;
+}
+
 .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting .gh-col,
 .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting .gh-thumb {
   pointer-events: auto;  /* ...but the thumbnails themselves stay clickable */
@@ -2156,12 +2229,12 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 }
 
 /* ── SIZE control: repeats every 6 tiles — edit these ratios freely ── */
-.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+1) { aspect-ratio: 3 / 4; }
-.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+2) { aspect-ratio: 1 / 1; }
-.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+3) { aspect-ratio: 4 / 3; }
-.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+4) { aspect-ratio: 1 / 1.3; }
-.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+5) { aspect-ratio: 5 / 4; }
-.gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+6) { aspect-ratio: 2 / 3; }
+// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+1) { aspect-ratio: 3 / 4; }
+// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+2) { aspect-ratio: 1 / 1; }
+// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+3) { aspect-ratio: 4 / 3; }
+// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+4) { aspect-ratio: 1 / 1.3; }
+// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+5) { aspect-ratio: 5 / 4; }
+// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+6) { aspect-ratio: 2 / 3; }
 
 /* Occasional full-width showcase tile — delete this rule if you don't want it */
 .gh-stage[data-variant="collage"] .gh-thumb:nth-child(9n+5) {
@@ -2175,6 +2248,18 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 .gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+3) { transform: translateX(-6px) rotate(-1.5deg); }
 .gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n)   { transform: translateX(8px) rotate(2deg); }
 
+.gh-counter {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: white;
+    text-shadow: #FC0 1px 0 10px;
+    pointer-events: none;
+    z-index: 4;
+}
 
 // CIRCULAR BUTTON
 

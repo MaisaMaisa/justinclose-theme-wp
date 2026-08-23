@@ -197,9 +197,17 @@
         var vimeoMatch = rawUrl.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
         var vimeoId = vimeoMatch ? vimeoMatch[1] : '';
         return vimeoId
-          ? 'https://player.vimeo.com/video/' + encodeURIComponent(vimeoId) + '?autoplay=1&muted=1&loop=1&background=1'
+          ? 'https://player.vimeo.com/video/' + encodeURIComponent(vimeoId) + '?autoplay=1&muted=1&loop=1&title=0&byline=0&portrait=0'
           : rawUrl;
       }
+
+      // if (host.indexOf('vimeo') !== -1) {
+      //   var vimeoMatch = rawUrl.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+      //   var vimeoId = vimeoMatch ? vimeoMatch[1] : '';
+      //   return vimeoId
+      //     ? 'https://player.vimeo.com/video/' + encodeURIComponent(vimeoId) + '?autoplay=1&muted=1&loop=1&background=1'
+      //     : rawUrl;
+      // }
     } catch (error) {
       return rawUrl;
     }
@@ -255,15 +263,33 @@
   function buildVideoStage(entry) {
     var videoUrl = entry && entry.film ? entry.film.videoUrl : '';
     var embedUrl = getVideoEmbedUrl(videoUrl);
+    var caption = getEntryInfo(entry);
 
     if (embedUrl) {
-      elements.lightboxStage.innerHTML = '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+      elements.lightboxStage.innerHTML =
+        '<div class="film-watch-wrap">' +
+          '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>' +
+        '</div>' +
+        '<div class="film-caption">' + caption + '</div>';
     } else {
       elements.lightboxStage.innerHTML = '';
     }
 
     elements.lightboxThumbs.innerHTML = '';
   }
+
+  // function buildVideoStage(entry) {
+  //   var videoUrl = entry && entry.film ? entry.film.videoUrl : '';
+  //   var embedUrl = getVideoEmbedUrl(videoUrl);
+
+  //   if (embedUrl) {
+  //     elements.lightboxStage.innerHTML = '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+  //   } else {
+  //     elements.lightboxStage.innerHTML = '';
+  //   }
+
+  //   elements.lightboxThumbs.innerHTML = '';
+  // }
 
   function renderVideoDirectLightbox(entry) {
     var embedUrl = getVideoEmbedUrl(entry.videoUrl);
@@ -371,18 +397,18 @@
     elements.lightboxInfoToggle.style.display = '';
   }
 
-  function buildVideoStage(entry) {
-    var videoUrl = entry && entry.film ? entry.film.videoUrl : '';
-    var embedUrl = getVideoEmbedUrl(videoUrl);
+  // function buildVideoStage(entry) {
+  //   var videoUrl = entry && entry.film ? entry.film.videoUrl : '';
+  //   var embedUrl = getVideoEmbedUrl(videoUrl);
 
-    if (embedUrl) {
-      elements.lightboxStage.innerHTML = '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
-    } else {
-      elements.lightboxStage.innerHTML = '';
-    }
+  //   if (embedUrl) {
+  //     elements.lightboxStage.innerHTML = '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+  //   } else {
+  //     elements.lightboxStage.innerHTML = '';
+  //   }
 
-    elements.lightboxThumbs.innerHTML = '';
-  }
+  //   elements.lightboxThumbs.innerHTML = '';
+  // }
 
   function renderImageLightbox(entry) {
     var images = getEntryImages(entry);
@@ -397,10 +423,18 @@
       state.watchMode = true;
       elements.lightboxOverlay.classList.add('watch-mode');
       buildVideoStage(entry);
-      setLightboxChromeVisible(true);
-      elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
-      return;
+      setLightboxChromeVisible(false);   // was: true
+      return;                            // delete the getEntryInfo line that followed
     }
+
+    // if (!images.length && videoUrl) {
+    //   state.watchMode = true;
+    //   elements.lightboxOverlay.classList.add('watch-mode');
+    //   buildVideoStage(entry);
+    //   setLightboxChromeVisible(true);
+    //   elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
+    //   return;
+    // }
 
     var initialImage = images[0] || '';
     elements.lightboxStage.innerHTML = initialImage ? '<img id="lightbox-main-image" src="' + initialImage + '" alt="' + escapeHtml(entry.text || '') + '">' : '';
@@ -446,8 +480,8 @@
         state.watchMode = true;
         elements.lightboxOverlay.classList.add('watch-mode');
         buildVideoStage(entry);
-        setLightboxChromeVisible(true);
-        elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
+        setLightboxChromeVisible(false);
+        // elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
       });
       elements.lightboxThumbs.appendChild(watchThumb);
     }
@@ -456,7 +490,8 @@
     elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
 
-  function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg) {
+  // function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg) {
+    function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter) {
     ghGrid.classList.add('gh-grid-painting');
 
     var containerHeight = ghGrid.clientHeight || 600;
@@ -571,15 +606,53 @@
       thumb.addEventListener('focus', setActive);
       thumb.setAttribute('tabindex', '0');
 
-      target.el.appendChild(thumb);
+  //     target.el.appendChild(thumb);
+  //     target.height += targetHeight;
+  //     target.count += 1;
+  //   });
+  // }
+        target.el.appendChild(thumb);
       target.height += targetHeight;
       target.count += 1;
     });
+
+    // If more than 3 columns exist, push column 4 onward to the far
+    // right — first 3 columns stay left, the rest anchor to the right
+    // edge of the stage, leaving a gap in the middle.
+    if (columns.length > 3) {
+      var leftWrap = document.createElement('div');
+      leftWrap.className = 'gh-painting-left';
+      var rightWrap = document.createElement('div');
+      rightWrap.className = 'gh-painting-right';
+
+      columns.forEach(function (col, idx) {
+        if (idx < 3) {
+          leftWrap.appendChild(col.el);
+        } else {
+          rightWrap.appendChild(col.el);
+        }
+      });
+
+      ghGrid.innerHTML = '';
+      ghGrid.appendChild(leftWrap);
+      ghGrid.appendChild(rightWrap);
+      ghGrid.classList.add('gh-grid-painting-split');
+    }
   }
 
   function renderGridHoverLightbox(entry) {
     var images = getEntryImages(entry);
     var variant = entry.layoutVariant || 'photography';
+
+    // var html =
+    //   '<div class="gh-stage" id="gh-stage" data-variant="' + escapeHtml(variant) + '">' +
+    //     '<div class="gh-grid" id="gh-grid"></div>' +
+    //     '<div class="gh-preview" id="gh-preview">' +
+    //       (images[0] ? '<img id="gh-preview-img" src="' + images[0] + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
+    //       '<button type="button" class="gh-info-toggle" id="gh-info-toggle" aria-label="Toggle info">ⓘ</button>' +
+    //       '<div class="gh-info-panel" id="gh-info-panel"></div>' +
+    //     '</div>' +
+    //   '</div>';
 
     var html =
       '<div class="gh-stage" id="gh-stage" data-variant="' + escapeHtml(variant) + '">' +
@@ -588,15 +661,22 @@
           (images[0] ? '<img id="gh-preview-img" src="' + images[0] + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
           '<button type="button" class="gh-info-toggle" id="gh-info-toggle" aria-label="Toggle info">ⓘ</button>' +
           '<div class="gh-info-panel" id="gh-info-panel"></div>' +
+          (images.length ? '<div class="gh-counter" id="gh-counter">1/' + images.length + '</div>' : '') +
         '</div>' +
       '</div>';
 
     elements.lightboxStage.innerHTML = html;
 
+    // var ghGrid = document.getElementById('gh-grid');
+    // var ghPreviewImg = document.getElementById('gh-preview-img');
+    // var ghInfoToggle = document.getElementById('gh-info-toggle');
+    // var ghInfoPanel = document.getElementById('gh-info-panel');
+
     var ghGrid = document.getElementById('gh-grid');
     var ghPreviewImg = document.getElementById('gh-preview-img');
     var ghInfoToggle = document.getElementById('gh-info-toggle');
     var ghInfoPanel = document.getElementById('gh-info-panel');
+    var ghCounter = document.getElementById('gh-counter');
 
     if (ghInfoPanel) {
       ghInfoPanel.innerHTML = getEntryInfo(entry);
@@ -608,8 +688,11 @@
       });
     }
 
+    // if (variant === 'painting') {
+    //   renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg);
+    // } else {
     if (variant === 'painting') {
-      renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg);
+      renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter);
     } else {
       var isCollage = variant === 'collage';
       var columns = 2;
@@ -631,9 +714,30 @@
         thumbImg.alt = entry.text || '';
         thumb.appendChild(thumbImg);
 
+    //     var setActive = function () {
+    //       if (ghPreviewImg) {
+    //         ghPreviewImg.src = imageUrl;
+    //       }
+    //       ghGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
+    //         node.classList.remove('gh-active');
+    //       });
+    //       thumb.classList.add('gh-active');
+    //     };
+
+    //     thumb.addEventListener('mouseenter', setActive);
+    //     thumb.addEventListener('click', setActive);
+    //     thumb.addEventListener('focus', setActive);
+    //     thumb.setAttribute('tabindex', '0');
+
+    //     ghGrid.appendChild(thumb);
+    //   });
+    // }
         var setActive = function () {
           if (ghPreviewImg) {
             ghPreviewImg.src = imageUrl;
+          }
+          if (ghCounter) {
+            ghCounter.textContent = (index + 1) + '/' + images.length;
           }
           ghGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
             node.classList.remove('gh-active');
@@ -649,6 +753,8 @@
         ghGrid.appendChild(thumb);
       });
     }
+
+    // Hide the standard gallery chrome — this layout is fully self-contained
 
     // Hide the standard gallery chrome — this layout is fully self-contained
     elements.lightboxThumbs.innerHTML = '';

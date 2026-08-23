@@ -2,8 +2,6 @@
 <div id="bg-hover-img" aria-hidden="true"></div>
 
 <div id="justin-label"><span>Justin</span></div>
-<!-- <div id="bio-label"><span>Bio</span></div> -->
-<!-- <a id="god-mode-btn" href="#" aria-label="Toggle God Mode">(GOD MODE)</a> -->
 
 <a id="god-mode-btn" href="#" aria-label="Toggle God Mode">
     <?php echo justin_render_circular_text_button('GOD MODE', ['id' => 'god-mode-circ']); ?>
@@ -29,8 +27,9 @@
 	</div>
 	<div class="lightbox-infobar">
 		<button class="lightbox-info-toggle" type="button" aria-label="Toggle info">ⓘ</button>
+		<div class="lightbox-info-panel" id="lightbox-info-panel"></div>
 	</div>
-	<div class="lightbox-info-panel" id="lightbox-info-panel"></div>
+	
 	<div class="lightbox-thumbs" id="lightbox-thumbs"></div>
 </div>
 

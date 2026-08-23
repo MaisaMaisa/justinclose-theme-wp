@@ -40,9 +40,21 @@
   var entries = Array.isArray(data.entries) ? data.entries : [];
   // var categories = Array.isArray(data.cats) ? data.cats : [];
   var categories = shuffleArray(Array.isArray(data.cats) ? data.cats : []);
+  var categoryLightboxColors = {};
+  (Array.isArray(data.cats) ? data.cats : []).forEach(function (item) {
+    if (item && item.name) {
+      categoryLightboxColors[item.name] = item.lightboxColor || '';
+    }
+  });
   var categoryBios = data.catBios || {};
   var siteBio = data.siteDescription || data.siteTitle || '';
   var justinLabelFrame = null;
+
+  // God Mode channel state — fed by data.godModeChannels (from the
+  // Appearance > Justin Settings repeater), not a single video URL.
+  var godModeChannels = Array.isArray(data.godModeChannels) ? data.godModeChannels : [];
+  var godModeIndex = 0;
+  var godModeFlipping = false;
 
   var mobileQuery = window.matchMedia('(max-width: 700px)');
   var scrollActiveSummary = null;
@@ -341,6 +353,7 @@
     state.activeImageIndex = 0;
     state.watchMode = false;
     document.body.classList.remove('lb-upside-down');
+    elements.lightboxOverlay.style.removeProperty('--lightbox-tint');
     if (elements.godModeBtn) {
       elements.godModeBtn.classList.remove('behind-popup');
     }
@@ -442,93 +455,6 @@
     setLightboxChromeVisible(true);
     elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
-
-  // function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg) {
-  //   ghGrid.classList.add('gh-grid-painting');
-
-  //   var containerHeight = ghGrid.clientHeight || 600;
-
-  //   // Each style is a "column personality." Cycles rigid → floating →
-  //   // sparse → rigid… if a 4th+ column is ever needed.
-  //   var styleCycle = [
-  //     { name: 'rigid',    colWidth: 120, innerWidthPct: 100, marginY: 0,  ratios: [3 / 4, 1 / 1], border: true,  shadow: false },
-  //     { name: 'floating', colWidth: 120, innerWidthPct: 80,  marginY: 20, ratios: [4 / 5, 1 / 1], border: false, shadow: true  },
-  //     { name: 'sparse',   colWidth: 130, innerWidthPct: 90,  marginY: 36, ratios: [5 / 6],        border: false, shadow: true  },
-  //   ];
-
-  //   var columns = [];
-
-  //   function addColumn() {
-  //     var style = styleCycle[columns.length % styleCycle.length];
-  //     var col = document.createElement('div');
-  //     col.className = 'gh-col gh-col-' + style.name;
-  //     col.style.width = style.colWidth + 'px';
-  //     ghGrid.appendChild(col);
-  //     var record = { el: col, height: 0, style: style, count: 0 };
-  //     columns.push(record);
-  //     return record;
-  //   }
-
-  //   addColumn();
-
-  //   images.forEach(function (imageUrl, index) {
-  //     // Pick the least-filled column that still has vertical room.
-  //     // Only spin up a new column if every existing one is already full.
-  //     var target = null;
-  //     for (var i = 0; i < columns.length; i += 1) {
-  //       if (columns[i].height < containerHeight && (!target || columns[i].height < target.height)) {
-  //         target = columns[i];
-  //       }
-  //     }
-  //     if (!target) {
-  //       target = addColumn();
-  //     }
-
-  //     var style = target.style;
-  //     var ratio = style.ratios[target.count % style.ratios.length];
-  //     var innerWidth = style.colWidth * (style.innerWidthPct / 100);
-  //     var thumbHeight = innerWidth / ratio;
-
-  //     var thumb = document.createElement('div');
-  //     thumb.className = 'gh-thumb';
-  //     if (index === 0) {
-  //       thumb.classList.add('gh-active');
-  //     }
-  //     thumb.style.width = style.innerWidthPct + '%';
-  //     thumb.style.aspectRatio = ratio;
-  //     thumb.style.margin = style.marginY ? style.marginY + 'px auto' : '0';
-  //     if (style.border) {
-  //       thumb.style.border = '1px solid #f2f2f2';
-  //     }
-  //     if (style.shadow) {
-  //       thumb.style.boxShadow = '1px 2px 8px rgba(0, 0, 0, 0.15)';
-  //     }
-
-  //     var thumbImg = document.createElement('img');
-  //     thumbImg.src = imageUrl;
-  //     thumbImg.alt = entry.text || '';
-  //     thumb.appendChild(thumbImg);
-
-  //     var setActive = function () {
-  //       if (ghPreviewImg) {
-  //         ghPreviewImg.src = imageUrl;
-  //       }
-  //       ghGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
-  //         node.classList.remove('gh-active');
-  //       });
-  //       thumb.classList.add('gh-active');
-  //     };
-
-  //     thumb.addEventListener('mouseenter', setActive);
-  //     thumb.addEventListener('click', setActive);
-  //     thumb.addEventListener('focus', setActive);
-  //     thumb.setAttribute('tabindex', '0');
-
-  //     target.el.appendChild(thumb);
-  //     target.height += thumbHeight + (style.marginY * 2);
-  //     target.count += 1;
-  //   });
-  // }
 
   function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg) {
     ghGrid.classList.add('gh-grid-painting');
@@ -682,57 +608,6 @@
       });
     }
 
-    // var isCollage = variant === 'collage';
-    // var columns = 2;
-    // var rows = Math.ceil(images.length / columns);
-    // var thumbHeightPercent = rows > 0 ? (100 / rows) : 100;
-
-    // images.forEach(function (imageUrl, index) {
-    //   var thumb = document.createElement('div');
-    //   thumb.className = 'gh-thumb';
-    //   if (!isCollage) {
-    //     thumb.style.flex = '0 0 ' + thumbHeightPercent + '%';
-    //   }
-    //   if (index === 0) {
-    //     thumb.classList.add('gh-active');
-    //   }
-
-    // var usesCustomGrid = variant === 'collage' || variant === 'painting';
-    // var columns = 2;
-    // var rows = Math.ceil(images.length / columns);
-    // var thumbHeightPercent = rows > 0 ? (100 / rows) : 100;
-
-    // images.forEach(function (imageUrl, index) {
-    //   var thumb = document.createElement('div');
-    //   thumb.className = 'gh-thumb';
-    //   if (!usesCustomGrid) {
-    //     thumb.style.flex = '0 0 ' + thumbHeightPercent + '%';
-    //   }
-
-    //   var thumbImg = document.createElement('img');
-    //   thumbImg.src = imageUrl;
-    //   thumbImg.alt = entry.text || '';
-    //   thumb.appendChild(thumbImg);
-
-    //   var setActive = function () {
-    //     if (ghPreviewImg) {
-    //       ghPreviewImg.src = imageUrl;
-    //     }
-    //     var activeThumbs = ghGrid.querySelectorAll('.gh-thumb');
-    //     activeThumbs.forEach(function (node) {
-    //       node.classList.remove('gh-active');
-    //     });
-    //     thumb.classList.add('gh-active');
-    //   };
-
-    //   thumb.addEventListener('mouseenter', setActive);
-    //   thumb.addEventListener('click', setActive);
-    //   thumb.addEventListener('focus', setActive);
-    //   thumb.setAttribute('tabindex', '0');
-
-    //   ghGrid.appendChild(thumb);
-    // });
-
     if (variant === 'painting') {
       renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg);
     } else {
@@ -774,37 +649,6 @@
         ghGrid.appendChild(thumb);
       });
     }
-
-    // images.forEach(function (imageUrl, index) {
-    //   var thumb = document.createElement('div');
-    //   thumb.className = 'gh-thumb';
-    //   if (index === 0) {
-    //     thumb.classList.add('gh-active');
-    //   }
-
-    //   var thumbImg = document.createElement('img');
-    //   thumbImg.src = imageUrl;
-    //   thumbImg.alt = entry.text || '';
-    //   thumb.appendChild(thumbImg);
-
-    //   var setActive = function () {
-    //     if (ghPreviewImg) {
-    //       ghPreviewImg.src = imageUrl;
-    //     }
-    //     var activeThumbs = ghGrid.querySelectorAll('.gh-thumb');
-    //     activeThumbs.forEach(function (node) {
-    //       node.classList.remove('gh-active');
-    //     });
-    //     thumb.classList.add('gh-active');
-    //   };
-
-    //   thumb.addEventListener('mouseenter', setActive);
-    //   thumb.addEventListener('click', setActive);
-    //   thumb.addEventListener('focus', setActive);
-    //   thumb.setAttribute('tabindex', '0');
-
-    //   ghGrid.appendChild(thumb);
-    // });
 
     // Hide the standard gallery chrome — this layout is fully self-contained
     elements.lightboxThumbs.innerHTML = '';
@@ -1032,6 +876,10 @@ function renderPhotoGridLightbox(entry) {
     }
 
     state.activeEntryIndex = index;
+
+    var lightboxColor = categoryLightboxColors[entry.cat] || '';
+    elements.lightboxOverlay.style.setProperty('--lightbox-tint', lightboxColor || '');
+
     elements.lightboxOverlay.classList.add('open');
     elements.lightboxOverlay.setAttribute('aria-hidden', 'false');
     if (elements.godModeBtn) {
@@ -1118,7 +966,7 @@ function renderPhotoGridLightbox(entry) {
       nav.className = 'cat';
       nav.dataset.category = item.name;
       nav.textContent = item.name;
-      nav.style.color = item.color || '#000000';
+      // nav.style.color = item.color || '#000000';
 
       if (item.name === state.activeCategory) {
         nav.classList.add('active');
@@ -1215,6 +1063,93 @@ function renderPhotoGridLightbox(entry) {
       elements.bioToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
   }
+
+  // ---- GOD MODE: channel flip display ----
+  // Renders a single "channel" (video + title/name/number + up/down
+  // controls) inside the theme's existing #god-mode-frame element.
+  // Channel data comes from data.godModeChannels, localized in
+  // functions.php from the Appearance > Justin Settings repeater.
+
+  function padChannelNumber(number) {
+    return number < 10 ? '0' + number : String(number);
+  }
+
+  function renderGodModeChannel() {
+    if (!elements.godModeFrame || !godModeChannels.length) {
+      return;
+    }
+
+    var channel = godModeChannels[godModeIndex] || {};
+
+    var mediaHtml = channel.embedUrl
+      ? '<iframe class="gm-iframe" src="' + channel.embedUrl + '&autoplay=1&muted=1&loop=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen frameborder="0"></iframe>'
+      : '<div class="gm-static">no signal</div>';
+
+    elements.godModeFrame.innerHTML =
+      '<div class="gm-screen">' +
+        mediaHtml +
+        '<div class="gm-info">' +
+          '<span class="gm-chnum">' + padChannelNumber(channel.number || (godModeIndex + 1)) + '</span>' +
+          '<span class="gm-chtitle">' + escapeHtml(channel.title || '') + '</span>' +
+          '<span class="gm-chname">' + escapeHtml(channel.name || '') + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="gm-controls">' +
+        '<button type="button" class="gm-up" aria-label="previous channel">&#9650;</button>' +
+        '<button type="button" class="gm-down" aria-label="next channel">&#9660;</button>' +
+      '</div>';
+
+    var upBtn = elements.godModeFrame.querySelector('.gm-up');
+    var downBtn = elements.godModeFrame.querySelector('.gm-down');
+
+    if (upBtn) {
+      upBtn.addEventListener('click', function () { clipGodModeChannel('up'); });
+    }
+    if (downBtn) {
+      downBtn.addEventListener('click', function () { clipGodModeChannel('down'); });
+    }
+  }
+
+  function clipGodModeChannel(direction) {
+    if (godModeFlipping || godModeChannels.length < 2 || !elements.godModeFrame) {
+      return;
+    }
+
+    var screen = elements.godModeFrame.querySelector('.gm-screen');
+    if (!screen) {
+      return;
+    }
+
+    godModeFlipping = true;
+
+    var rotateFrom = direction === 'down' ? -90 : 90;
+    screen.style.transition = 'transform 120ms ease-in';
+    screen.style.transform = 'rotateX(' + rotateFrom + 'deg)';
+
+    setTimeout(function () {
+      godModeIndex = direction === 'down'
+        ? (godModeIndex + 1) % godModeChannels.length
+        : (godModeIndex - 1 + godModeChannels.length) % godModeChannels.length;
+
+      renderGodModeChannel();
+
+      var newScreen = elements.godModeFrame.querySelector('.gm-screen');
+      if (newScreen) {
+        newScreen.style.transition = 'none';
+        newScreen.style.transform = 'rotateX(' + (direction === 'down' ? 90 : -90) + 'deg)';
+
+        requestAnimationFrame(function () {
+          newScreen.style.transition = 'transform 150ms ease-out';
+          newScreen.style.transform = 'rotateX(0deg)';
+        });
+      }
+
+      setTimeout(function () {
+        godModeFlipping = false;
+      }, 160);
+    }, 120);
+  }
+
   function toggleGodMode(event) {
     if (event) {
       event.preventDefault();
@@ -1231,37 +1166,12 @@ function renderPhotoGridLightbox(entry) {
       return;
     }
 
-    if (isVisible) {
-      var embedUrl = getVideoEmbedUrl(data.godModeVideo || '');
-      elements.godModeFrame.innerHTML = embedUrl
-        ? '<iframe src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
-        : '';
+    if (isVisible && godModeChannels.length) {
+      renderGodModeChannel();
     } else {
       elements.godModeFrame.innerHTML = '';
     }
   }
-
-  // function toggleGodMode(event) {
-  //   if (event) {
-  //     event.preventDefault();
-  //   }
-
-  //   var isVisible = elements.godModeOverlay.classList.toggle('visible');
-  //   document.body.classList.toggle('god-mode-active', isVisible);
-
-  //   if (!elements.godModeFrame) {
-  //     return;
-  //   }
-
-  //   if (isVisible) {
-  //     var embedUrl = getVideoEmbedUrl(data.godModeVideo || '');
-  //     elements.godModeFrame.innerHTML = embedUrl
-  //       ? '<iframe src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
-  //       : '';
-  //   } else {
-  //     elements.godModeFrame.innerHTML = '';
-  //   }
-  // }
 
   renderNav();
   setBioText(siteBio);
@@ -1326,6 +1236,19 @@ function renderPhotoGridLightbox(entry) {
       return;
     }
 
+    if (elements.godModeOverlay.classList.contains('visible')) {
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        clipGodModeChannel('up');
+        return;
+      }
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        clipGodModeChannel('down');
+        return;
+      }
+    }
+
     if (!isImageLightboxOpen()) {
       return;
     }
@@ -1341,3 +1264,40 @@ function renderPhotoGridLightbox(entry) {
     }
   });
 }());
+
+// FOOTER STUFF
+  // ---- Footer: social-links info popup ----
+  document.querySelectorAll('.footer-info-toggle').forEach(function (toggle) {
+    var popup = toggle.nextElementSibling;
+    if (!popup || !popup.classList.contains('footer-info-popup')) {
+      return;
+    }
+
+    toggle.addEventListener('click', function (event) {
+      event.stopPropagation();
+      var isOpen = !popup.hasAttribute('hidden');
+
+      document.querySelectorAll('.footer-info-popup').forEach(function (p) {
+        p.setAttribute('hidden', '');
+      });
+      document.querySelectorAll('.footer-info-toggle').forEach(function (t) {
+        t.setAttribute('aria-expanded', 'false');
+      });
+
+      if (!isOpen) {
+        popup.removeAttribute('hidden');
+        toggle.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!event.target.closest('.footer-widget')) {
+      document.querySelectorAll('.footer-info-popup').forEach(function (p) {
+        p.setAttribute('hidden', '');
+      });
+      document.querySelectorAll('.footer-info-toggle').forEach(function (t) {
+        t.setAttribute('aria-expanded', 'false');
+      });
+    }
+  });
