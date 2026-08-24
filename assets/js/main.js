@@ -150,13 +150,13 @@
     return Array.isArray(entry.images) ? entry.images.slice() : [];
   }
 
-  function getEntryTeasers(entry) {
-    if (!entry || !entry.book || !Array.isArray(entry.book.teasers)) {
-      return [];
-    }
+  // function getEntryTeasers(entry) {
+  //   if (!entry || !entry.book || !Array.isArray(entry.book.teasers)) {
+  //     return [];
+  //   }
 
-    return entry.book.teasers.slice();
-  }
+  //   return entry.book.teasers.slice();
+  // }
 
   function getEntryInfo(entry) {
     if (!entry) {
@@ -223,12 +223,11 @@
     var hasImages = getEntryImages(entry).length > 0;
     var hasBody = !!(entry.body && entry.body.length);
     var hasFilmVideo = !!(entry.film && entry.film.videoUrl && String(entry.film.videoUrl).trim().length);
-    var hasDirectVideo = !!(entry.videoUrl && String(entry.videoUrl).trim().length); // NEW
+    var hasDirectVideo = !!(entry.videoUrl && String(entry.videoUrl).trim().length);
     var hasBookText = !!(entry.book && entry.book.text && String(entry.book.text).trim().length);
     var hasBookImages = !!(entry.book && Array.isArray(entry.book.images) && entry.book.images.length);
-    var hasTeasers = !!(entry.book && Array.isArray(entry.book.teasers) && entry.book.teasers.length);
 
-    return !hasImages && !hasBody && !hasFilmVideo && !hasDirectVideo && !hasBookText && !hasBookImages && !hasTeasers;
+    return !hasImages && !hasBody && !hasFilmVideo && !hasDirectVideo && !hasBookText && !hasBookImages;
   }
 
   function getCategoryBio(categoryName) {
@@ -890,22 +889,102 @@ function renderPhotoGridLightbox(entry) {
     elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
 
-  function renderBookStage(entry) {
+  // function renderBookStage(entry) {
+  //   var book = entry.book || {};
+  //   var images = Array.isArray(book.images) ? book.images.slice() : [];
+  //   var teasers = getEntryTeasers(entry);
+  //   var allImages = images.concat(teasers);
+  //   var mainImage = allImages[0] || '';
+  //   var html = '<div class="book-stage" style="position:absolute; inset:0; display:grid; grid-template-columns:42% 58%; width:100%; height:100%; overflow:hidden;">' +
+  //     '<div class="book-text" style="padding:40px 30px; overflow:hidden; display:flex; flex-direction:column; justify-content:center; font-size:16px; line-height:1.6; color:#111;">' + (book.text || '') +
+  //     (book.buyUrl ? '<a class="buy-btn" href="' + book.buyUrl + '" target="_blank" rel="noopener">BUY ME</a>' : '') +
+  //     '</div>' +
+  //     '<div class="book-gallery" style="position:relative; min-width:0; min-height:0;">' +
+  //     '<div class="book-images" style="position:absolute; inset:0 0 110px 0; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#eee;">' +
+  //     (mainImage ? '<img id="book-main-image" src="' + mainImage + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
+  //     '</div>' +
+  //     '<div class="book-thumb-strip" id="book-thumb-strip" style="position:absolute; left:0; right:0; bottom:0; height:110px; display:flex; align-items:center; gap:8px; overflow-x:auto; overflow-y:hidden; padding:10px 12px; background:#efefef; flex-shrink:0;"></div>' +
+  //     '</div></div>';
+
+  //   elements.lightboxStage.innerHTML = html;
+  //   elements.lightboxStage.style.display = 'block';
+  //   elements.lightboxStage.style.width = '100%';
+  //   elements.lightboxStage.style.height = '100%';
+  //   elements.lightboxStage.style.padding = '0';
+  //   elements.lightboxStage.style.margin = '0';
+  //   elements.lightboxThumbs.innerHTML = '';
+
+  //   var bookThumbStrip = document.getElementById('book-thumb-strip');
+  //   for (var i = 0; i < allImages.length; i += 1) {
+  //     var thumb = document.createElement('img');
+  //     thumb.src = allImages[i];
+  //     thumb.alt = entry.text || '';
+  //     thumb.style.height = '100%';
+  //     thumb.style.width = 'auto';
+  //     thumb.style.flexShrink = '0';
+  //     thumb.style.cursor = 'pointer';
+  //     thumb.style.objectFit = 'contain';
+  //     thumb.style.border = '2px solid transparent';
+
+  //     if (i >= images.length) {
+  //       thumb.classList.add('teaser-thumb');
+  //     }
+
+  //     if (i === 0) {
+  //       thumb.classList.add('active');
+  //     }
+
+  //     if (i >= images.length) {
+  //       thumb.classList.add('teaser-thumb');
+  //     }
+
+  //     (function (index, thumbElement) {
+  //       thumbElement.addEventListener('click', function () {
+  //         var mainImageElement = document.getElementById('book-main-image');
+  //         if (mainImageElement) {
+  //           mainImageElement.src = allImages[index];
+  //           mainImageElement.style.aspectRatio = '';
+  //           syncMainImageAspectRatio(mainImageElement);
+  //         }
+
+  //         var activeThumbs = elements.lightboxThumbs.querySelectorAll('img');
+  //         activeThumbs.forEach(function (node) {
+  //           node.classList.remove('active');
+  //         });
+  //         thumbElement.classList.add('active');
+  //       });
+  //     })(i, thumb);
+
+  //     if (bookThumbStrip) {
+  //       bookThumbStrip.appendChild(thumb);
+  //     }
+  //   }
+
+  //   elements.lightboxThumbs.style.display = 'none';
+  //   elements.lightboxInfoToggle.style.display = 'none';
+  //   elements.lightboxInfoPanel.style.display = 'none';
+  //   elements.lightboxPrev.style.display = 'none';
+  //   elements.lightboxNext.style.display = 'none';
+  // }
+
+function renderBookStage(entry) {
     var book = entry.book || {};
     var images = Array.isArray(book.images) ? book.images.slice() : [];
-    var teasers = getEntryTeasers(entry);
-    var allImages = images.concat(teasers);
-    var mainImage = allImages[0] || '';
-    var html = '<div class="book-stage" style="position:absolute; inset:0; display:grid; grid-template-columns:42% 58%; width:100%; height:100%; overflow:hidden;">' +
-      '<div class="book-text" style="padding:40px 30px; overflow:hidden; display:flex; flex-direction:column; justify-content:center; font-size:16px; line-height:1.6; color:#111;">' + (book.text || '') +
-      (book.buyUrl ? '<a class="buy-btn" href="' + book.buyUrl + '" target="_blank" rel="noopener">BUY ME</a>' : '') +
-      '</div>' +
-      '<div class="book-gallery" style="position:relative; min-width:0; min-height:0;">' +
-      '<div class="book-images" style="position:absolute; inset:0 0 110px 0; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#eee;">' +
-      (mainImage ? '<img id="book-main-image" src="' + mainImage + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
-      '</div>' +
-      '<div class="book-thumb-strip" id="book-thumb-strip" style="position:absolute; left:0; right:0; bottom:0; height:110px; display:flex; align-items:center; gap:8px; overflow-x:auto; overflow-y:hidden; padding:10px 12px; background:#efefef; flex-shrink:0;"></div>' +
-      '</div></div>';
+    var mainImage = images[0] || '';
+
+    var html =
+      '<div class="book-stage-v2" id="book-stage-v2">' +
+        '<div class="book-grid" id="book-grid"></div>' +
+        '<div class="book-main">' +
+          '<div class="book-main-image-wrap">' +
+            (mainImage ? '<img id="book-main-image" src="' + mainImage + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
+          '</div>' +
+          '<div class="book-info">' +
+            '<div class="book-text">' + (book.text || '') + '</div>' +
+            (book.buyUrl ? '<a class="buy-btn" href="' + book.buyUrl + '" target="_blank" rel="noopener">BUY ME</a>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>';
 
     elements.lightboxStage.innerHTML = html;
     elements.lightboxStage.style.display = 'block';
@@ -915,51 +994,40 @@ function renderPhotoGridLightbox(entry) {
     elements.lightboxStage.style.margin = '0';
     elements.lightboxThumbs.innerHTML = '';
 
-    var bookThumbStrip = document.getElementById('book-thumb-strip');
-    for (var i = 0; i < allImages.length; i += 1) {
-      var thumb = document.createElement('img');
-      thumb.src = allImages[i];
-      thumb.alt = entry.text || '';
-      thumb.style.height = '100%';
-      thumb.style.width = 'auto';
-      thumb.style.flexShrink = '0';
-      thumb.style.cursor = 'pointer';
-      thumb.style.objectFit = 'contain';
-      thumb.style.border = '2px solid transparent';
+    var bookGrid = document.getElementById('book-grid');
 
-      if (i >= images.length) {
-        thumb.classList.add('teaser-thumb');
+    images.forEach(function (imageUrl, index) {
+      var thumb = document.createElement('div');
+      thumb.className = 'gh-thumb book-thumb';
+      if (index === 0) {
+        thumb.classList.add('gh-active');
       }
 
-      if (i === 0) {
-        thumb.classList.add('active');
-      }
+      var thumbImg = document.createElement('img');
+      thumbImg.src = imageUrl;
+      thumbImg.alt = entry.text || '';
+      thumb.appendChild(thumbImg);
 
-      if (i >= images.length) {
-        thumb.classList.add('teaser-thumb');
-      }
-
-      (function (index, thumbElement) {
-        thumbElement.addEventListener('click', function () {
-          var mainImageElement = document.getElementById('book-main-image');
-          if (mainImageElement) {
-            mainImageElement.src = allImages[index];
-            mainImageElement.style.aspectRatio = '';
-            syncMainImageAspectRatio(mainImageElement);
-          }
-
-          var activeThumbs = elements.lightboxThumbs.querySelectorAll('img');
-          activeThumbs.forEach(function (node) {
-            node.classList.remove('active');
-          });
-          thumbElement.classList.add('active');
+      var setActive = function () {
+        var mainImageElement = document.getElementById('book-main-image');
+        if (mainImageElement) {
+          mainImageElement.src = imageUrl;
+        }
+        bookGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
+          node.classList.remove('gh-active');
         });
-      })(i, thumb);
+        thumb.classList.add('gh-active');
+      };
 
-      if (bookThumbStrip) {
-        bookThumbStrip.appendChild(thumb);
+      thumb.addEventListener('mouseenter', setActive);
+      thumb.addEventListener('click', setActive);
+      thumb.addEventListener('focus', setActive);
+      thumb.setAttribute('tabindex', '0');
+
+      if (bookGrid) {
+        bookGrid.appendChild(thumb);
       }
-    }
+    });
 
     elements.lightboxThumbs.style.display = 'none';
     elements.lightboxInfoToggle.style.display = 'none';
