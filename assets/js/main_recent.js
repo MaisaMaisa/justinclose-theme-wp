@@ -110,6 +110,90 @@
     });
   }
 
+  // ---- Mobile-only infinite list loop ----
+  // #justin-label is fixed at the vertical center of the viewport on
+  // mobile (see the max-width: 700px block in style.css), so the list
+  // is rendered 3x back-to-back (see LIST_LOOP_SETS/renderList) and,
+  // once the user actually scrolls to a real document edge while still
+  // moving in that direction, silently teleported one set forward/back.
+  // Since all 3 sets are pixel-identical, the teleport is invisible —
+  // it reads as "the list just keeps going", not a jump.
+  //
+  // Nothing here ever calls scrollTo on page load or on the first
+  // scroll event after any (re)render: lastLoopScrollY starts as null,
+  // and the very first scroll event only records a baseline position —
+  // it can never trigger a wrap by itself. A wrap only fires once we
+  // have two data points and can tell the user is actively scrolling
+  // up into scrollY 0, or down into the document's actual max scroll.
+  var LIST_LOOP_SETS = 3;
+  var listLoopScrollHandler = null;
+  var lastLoopScrollY = null;
+
+  function getListSetHeight() {
+    if (!elements.list.children.length) {
+      return 0;
+    }
+    return elements.list.scrollHeight / LIST_LOOP_SETS;
+  }
+
+  function setupListLoop() {
+    var setHeight = getListSetHeight();
+    if (!setHeight) {
+      return;
+    }
+
+    // Reset on every (re)render (e.g. switching category) so a stale
+    // previous position can't cause a false wrap right after the DOM
+    // changes — the next scroll event just re-establishes a baseline.
+    lastLoopScrollY = null;
+
+    if (!listLoopScrollHandler) {
+      listLoopScrollHandler = function () {
+        if (!mobileQuery.matches) {
+          return;
+        }
+
+        var currentSetHeight = getListSetHeight();
+        if (!currentSetHeight) {
+          return;
+        }
+
+        var currentScrollY = window.scrollY;
+        var maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
+
+        if (lastLoopScrollY === null) {
+          lastLoopScrollY = currentScrollY;
+          return;
+        }
+
+        var scrollingUp = currentScrollY < lastLoopScrollY;
+        var scrollingDown = currentScrollY > lastLoopScrollY;
+
+        // Reached the true top of the document while actively
+        // scrolling up — jump forward one set.
+        if (scrollingUp && currentScrollY <= 0) {
+          var newScrollUp = currentScrollY + currentSetHeight;
+          window.scrollTo(0, newScrollUp);
+          lastLoopScrollY = newScrollUp;
+          return;
+        }
+
+        // Reached the true bottom of the document while actively
+        // scrolling down — jump back one set.
+        if (scrollingDown && currentScrollY >= maxScrollY - 1) {
+          var newScrollDown = currentScrollY - currentSetHeight;
+          window.scrollTo(0, newScrollDown);
+          lastLoopScrollY = newScrollDown;
+          return;
+        }
+
+        lastLoopScrollY = currentScrollY;
+      };
+
+      window.addEventListener('scroll', listLoopScrollHandler, { passive: true });
+    }
+  }
+
   function shuffleArray(array) {
     var shuffled = array.slice(); // don't mutate the original
     for (var i = shuffled.length - 1; i > 0; i -= 1) {
@@ -505,8 +589,17 @@
     elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
 
-  // function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg) {
-  function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter) {
+  // ============================================================
+  // FIX (mobile prev/next arrows not working for the "painting"
+  // layout): renderPaintingMasonry now takes the shared
+  // `selectImage` function and `thumbEls` array from
+  // renderGridHoverLightbox instead of keeping its own local
+  // `setActive`/index state. This means clicking/hovering a
+  // painting thumbnail — and clicking the mobile nav arrows,
+  // which call the SAME `selectImage` — now stay in sync with
+  // each other and with the counter (gh-counter) text.
+  // ============================================================
+  function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls) {
     ghGrid.classList.add('gh-grid-painting');
 
     var containerHeight = ghGrid.clientHeight || 600;
@@ -606,29 +699,24 @@
       thumbImg.alt = entry.text || '';
       thumb.appendChild(thumbImg);
 
-      var setActive = function () {
-        if (ghPreviewImg) {
-          ghPreviewImg.src = imageUrl;
-        }
-        ghGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
-          node.classList.remove('gh-active');
-        });
-        thumb.classList.add('gh-active');
-      };
-
-      thumb.addEventListener('mouseenter', setActive);
-      thumb.addEventListener('click', setActive);
-      thumb.addEventListener('focus', setActive);
+      // FIX: use the shared selectImage(index) from renderGridHoverLightbox
+      // instead of a local setActive closure, so this stays in sync with
+      // the mobile prev/next arrows and the gh-counter text.
+      thumb.addEventListener('mouseenter', function () { selectImage(index); });
+      thumb.addEventListener('click', function () { selectImage(index); });
+      thumb.addEventListener('focus', function () { selectImage(index); });
       thumb.setAttribute('tabindex', '0');
 
-  //     target.el.appendChild(thumb);
-  //     target.height += targetHeight;
-  //     target.count += 1;
-  //   });
-  // }
-        target.el.appendChild(thumb);
+      target.el.appendChild(thumb);
       target.height += targetHeight;
       target.count += 1;
+
+      // FIX: register this thumb into the shared thumbEls array (by
+      // image index) so selectImage() can toggle .gh-active on it,
+      // exactly like it already does for photography/collage thumbs.
+      if (thumbEls) {
+        thumbEls[index] = thumb;
+      }
     });
 
     // If more than 3 columns exist, push column 4 onward to the far
@@ -710,32 +798,45 @@
       });
     }
 
+    // ============================================================
+    // FIX: currentIndex / thumbEls / selectImage used to be declared
+    // ONLY inside the `else` (photography/collage) branch below, so
+    // the mobile gh-nav-prev/gh-nav-next arrows — which are rendered
+    // for EVERY variant, including painting — had no selectImage to
+    // call when variant === 'painting'. They're hoisted here so both
+    // branches (and the nav buttons) share the same state.
+    // ============================================================
+    var currentIndex = 0;
+    var thumbEls = [];
+
+    var selectImage = function (index) {
+      if (!images.length) {
+        return;
+      }
+      index = (index + images.length) % images.length;
+      currentIndex = index;
+      if (ghPreviewImg) {
+        ghPreviewImg.src = images[index];
+      }
+      if (ghCounter) {
+        ghCounter.textContent = (index + 1) + '/' + images.length;
+      }
+      thumbEls.forEach(function (node, i) {
+        if (node) {
+          node.classList.toggle('gh-active', i === index);
+        }
+      });
+    };
+
     if (variant === 'painting') {
-      renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter);
+      // FIX: pass the shared selectImage + thumbEls down so painting
+      // thumbnails participate in the same active-state/counter sync.
+      renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls);
     } else {
       var isCollage = variant === 'collage';
       var columns = 2;
       var rows = Math.ceil(images.length / columns);
       var thumbHeightPercent = rows > 0 ? (100 / rows) : 100;
-      var currentIndex = 0;
-      var thumbEls = [];
-
-      var selectImage = function (index) {
-        if (!images.length) {
-          return;
-        }
-        index = (index + images.length) % images.length;
-        currentIndex = index;
-        if (ghPreviewImg) {
-          ghPreviewImg.src = images[index];
-        }
-        if (ghCounter) {
-          ghCounter.textContent = (index + 1) + '/' + images.length;
-        }
-        thumbEls.forEach(function (node, i) {
-          node.classList.toggle('gh-active', i === index);
-        });
-      };
 
       images.forEach(function (imageUrl, index) {
         var thumb = document.createElement('div');
@@ -760,15 +861,18 @@
         ghGrid.appendChild(thumb);
         thumbEls.push(thumb);
       });
+    }
 
-      var navPrev = document.getElementById('gh-nav-prev');
-      var navNext = document.getElementById('gh-nav-next');
-      if (navPrev) {
-        navPrev.addEventListener('click', function () { selectImage(currentIndex - 1); });
-      }
-      if (navNext) {
-        navNext.addEventListener('click', function () { selectImage(currentIndex + 1); });
-      }
+    // FIX: nav-arrow wiring moved OUT of the `else` branch above so it
+    // runs unconditionally — the arrows now work for painting too,
+    // since they call the same shared selectImage() either way.
+    var navPrev = document.getElementById('gh-nav-prev');
+    var navNext = document.getElementById('gh-nav-next');
+    if (navPrev) {
+      navPrev.addEventListener('click', function () { selectImage(currentIndex - 1); });
+    }
+    if (navNext) {
+      navNext.addEventListener('click', function () { selectImage(currentIndex + 1); });
     }
 
     // Hide the standard gallery chrome — this layout is fully self-contained
@@ -1175,6 +1279,70 @@ function renderBookStage(entry) {
     });
   }
 
+  // Builds a single <li> for one entry. Extracted out of renderList so
+  // it can be called multiple times per entry on mobile (see
+  // LIST_LOOP_SETS above) without duplicating this logic. Behavior is
+  // identical to what used to be inline inside renderList's forEach.
+  function createListItem(entry, index) {
+    var li = document.createElement('li');
+    li.dataset.entryIndex = String(index);
+    li.dataset.category = entry.cat || '';
+
+    var details = document.createElement('details');
+    var summary = document.createElement('summary');
+    summary.appendChild(document.createTextNode(entry.text || 'Untitled'));
+
+    var catDot = document.createElement('span');
+    catDot.className = 'cat-dot';
+    catDot.textContent = '●';
+    summary.appendChild(catDot);
+
+    if (isHoverOnly(entry) || (!getEntryImages(entry).length && !entry.body && !entry.vimeo && !(entry.book && entry.book.images && entry.book.images.length))) {
+      var emptyTag = document.createElement('span');
+      emptyTag.className = 'empty-tag';
+      emptyTag.textContent = isHoverOnly(entry) ? 'hover only' : ' = empty';
+      summary.appendChild(emptyTag);
+    }
+
+    if (state.activeCategory && entry.cat === state.activeCategory) {
+      li.classList.add('category-active');
+      summary.classList.add('category-active');
+    }
+
+    summary.addEventListener('click', function (event) {
+      event.preventDefault();
+      if (isHoverOnly(entry)) {
+        return;
+      }
+      openEntry(index);
+    });
+
+    summary.addEventListener('mouseenter', function () {
+      setBackground(entry.bgImage);
+      summary.classList.add('highlighted');
+      moveJustinLabelToElement(summary);
+    });
+
+    summary.addEventListener('mouseleave', function () {
+      setBackground('');
+      summary.classList.remove('highlighted');
+      clearJustinLabelPosition();
+    });
+
+    if (state.activeEntryIndex === index) {
+      summary.classList.add('is-open');
+    }
+
+    if (state.activeCategory && entry.cat === state.activeCategory) {
+      summary.classList.add('category-active');
+      li.classList.add('category-active');
+    }
+
+    details.appendChild(summary);
+    li.appendChild(details);
+    return li;
+  }
+
   function renderList() {
     elements.list.innerHTML = '';
 
@@ -1186,66 +1354,21 @@ function renderBookStage(entry) {
       return;
     }
 
-    entries.forEach(function (entry) {
-      var index = entries.indexOf(entry);
-      var li = document.createElement('li');
-      li.dataset.entryIndex = String(index);
-      li.dataset.category = entry.cat || '';
+    // Mobile only: render the list 3x back-to-back so it can be looped
+    // infinitely (see setupListLoop above). Desktop always renders a
+    // single copy — identical to the previous behavior.
+    var loopSets = mobileQuery.matches ? LIST_LOOP_SETS : 1;
 
-      var details = document.createElement('details');
-      var summary = document.createElement('summary');
-      summary.appendChild(document.createTextNode(entry.text || 'Untitled'));
-
-      var catDot = document.createElement('span');
-      catDot.className = 'cat-dot';
-      catDot.textContent = '●';
-      summary.appendChild(catDot);
-
-      if (isHoverOnly(entry) || (!getEntryImages(entry).length && !entry.body && !entry.vimeo && !(entry.book && entry.book.images && entry.book.images.length))) {
-        var emptyTag = document.createElement('span');
-        emptyTag.className = 'empty-tag';
-        emptyTag.textContent = isHoverOnly(entry) ? 'hover only' : ' = empty';
-        summary.appendChild(emptyTag);
-      }
-
-      if (state.activeCategory && entry.cat === state.activeCategory) {
-        li.classList.add('category-active');
-        summary.classList.add('category-active');
-      }
-
-      summary.addEventListener('click', function (event) {
-        event.preventDefault();
-        if (isHoverOnly(entry)) {
-          return;
-        }
-        openEntry(index);
+    for (var setIndex = 0; setIndex < loopSets; setIndex += 1) {
+      entries.forEach(function (entry) {
+        var index = entries.indexOf(entry);
+        elements.list.appendChild(createListItem(entry, index));
       });
+    }
 
-      summary.addEventListener('mouseenter', function () {
-        setBackground(entry.bgImage);
-        summary.classList.add('highlighted');
-        moveJustinLabelToElement(summary);
-      });
-
-      summary.addEventListener('mouseleave', function () {
-        setBackground('');
-        summary.classList.remove('highlighted');
-        clearJustinLabelPosition();
-      });
-
-      if (state.activeEntryIndex === index) {
-        summary.classList.add('is-open');
-      }
-
-      if (state.activeCategory && entry.cat === state.activeCategory) {
-        summary.classList.add('category-active');
-        li.classList.add('category-active');
-      }
-
-      details.appendChild(summary);
-      li.appendChild(details);
-      elements.list.appendChild(li);
-    });
+    if (loopSets > 1) {
+      setupListLoop();
+    }
   }
 
   function toggleBioSection() {
@@ -1414,6 +1537,14 @@ function renderBookStage(entry) {
   window.addEventListener('scroll', onScrollOrResize, { passive: true });
   window.addEventListener('resize', onScrollOrResize);
   updateScrollSpy();
+
+  // Mobile-only: rebuild the list when crossing the mobile breakpoint so
+  // it switches cleanly between the looped (mobile) and single-copy
+  // (desktop) versions, and re-centers scroll position for the newly
+  // mobile case. No-op impact on desktop-only sessions.
+  mobileQuery.addEventListener('change', function () {
+    renderList();
+  });
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {

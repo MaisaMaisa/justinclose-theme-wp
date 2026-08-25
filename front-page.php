@@ -21,7 +21,7 @@
 		<?php echo justin_render_circular_text_button('CLOSE', ['id' => 'lightbox-close-circ', 'size' => 70]); ?>
 	</button>
 	<div class="lightbox-main">
-		<button class="lightbox-arrow prev" type="button" aria-label="Previous image">‹</button>
+		<button class="lightbox-arrow prev" type="button" aria-label="Previous image">↓</button>
 		<div id="lightbox-stage"></div>
 		<button class="lightbox-arrow next" type="button" aria-label="Next image">›</button>
 	</div>

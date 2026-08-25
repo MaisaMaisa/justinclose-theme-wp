@@ -1163,18 +1163,32 @@ body {
   }
   .gh-counter-wrap {
     width: 100%;
-    bottom: 10px;
+    height: 100%;
     transform: translateX(-50%);
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     gap: 14px;
     z-index: 4;
+  }
+  .gh-counter {
+    position: absolute;
+    bottom: 5%;
   }
   .gh-grid {
     display: none; /* thumbnails removed on mobile */
   }
   .gh-nav-arrow {
-    display: inline-flex !important; /* arrows shown on mobile only */
+    display: inline-flex !important;
+    position: fixed;
+  }
+  .gh-nav-prev {
+    transform: rotate(0deg) scaleX(-1);
+    top: 2%;
+  } /* points up */
+  .gh-nav-next {
+    transform: rotate(0deg);
+    bottom: 0;
   }
   .lightbox-main img:not(.pg-media, .gh-thumb img) {
     width: 90%;
@@ -2180,15 +2194,15 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
 }
 
 .gm-chnum {
-  font-size: 13px;
+  font-size: 18px;
 }
 
 .gm-chtitle {
-  font-size: 13px;
+  font-size: 18px;
 }
 
 .gm-chname {
-  font-size: 12px;
+  font-size: 18px;
   color: #ccc;
 }
 

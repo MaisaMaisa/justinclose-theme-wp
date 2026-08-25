@@ -589,8 +589,17 @@
     elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
 
-  // function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg) {
-  function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter) {
+  // ============================================================
+  // FIX (mobile prev/next arrows not working for the "painting"
+  // layout): renderPaintingMasonry now takes the shared
+  // `selectImage` function and `thumbEls` array from
+  // renderGridHoverLightbox instead of keeping its own local
+  // `setActive`/index state. This means clicking/hovering a
+  // painting thumbnail — and clicking the mobile nav arrows,
+  // which call the SAME `selectImage` — now stay in sync with
+  // each other and with the counter (gh-counter) text.
+  // ============================================================
+  function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls) {
     ghGrid.classList.add('gh-grid-painting');
 
     var containerHeight = ghGrid.clientHeight || 600;
@@ -690,29 +699,24 @@
       thumbImg.alt = entry.text || '';
       thumb.appendChild(thumbImg);
 
-      var setActive = function () {
-        if (ghPreviewImg) {
-          ghPreviewImg.src = imageUrl;
-        }
-        ghGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
-          node.classList.remove('gh-active');
-        });
-        thumb.classList.add('gh-active');
-      };
-
-      thumb.addEventListener('mouseenter', setActive);
-      thumb.addEventListener('click', setActive);
-      thumb.addEventListener('focus', setActive);
+      // FIX: use the shared selectImage(index) from renderGridHoverLightbox
+      // instead of a local setActive closure, so this stays in sync with
+      // the mobile prev/next arrows and the gh-counter text.
+      thumb.addEventListener('mouseenter', function () { selectImage(index); });
+      thumb.addEventListener('click', function () { selectImage(index); });
+      thumb.addEventListener('focus', function () { selectImage(index); });
       thumb.setAttribute('tabindex', '0');
 
-  //     target.el.appendChild(thumb);
-  //     target.height += targetHeight;
-  //     target.count += 1;
-  //   });
-  // }
-        target.el.appendChild(thumb);
+      target.el.appendChild(thumb);
       target.height += targetHeight;
       target.count += 1;
+
+      // FIX: register this thumb into the shared thumbEls array (by
+      // image index) so selectImage() can toggle .gh-active on it,
+      // exactly like it already does for photography/collage thumbs.
+      if (thumbEls) {
+        thumbEls[index] = thumb;
+      }
     });
 
     // If more than 3 columns exist, push column 4 onward to the far
@@ -763,9 +767,9 @@
           // (images.length ? '<div class="gh-counter" id="gh-counter">1/' + images.length + '</div>' : '') +
           (images.length ?
           '<div class="gh-counter-wrap" id="gh-counter-wrap">' +
-            (images.length > 1 ? '<button type="button" class="gh-nav-arrow gh-nav-prev" id="gh-nav-prev" aria-label="Previous image">‹</button>' : '') +
+            (images.length > 1 ? '<button type="button" class="gh-nav-arrow gh-nav-prev" id="gh-nav-prev" aria-label="Previous image">↑</button>' : '') +
             '<span class="gh-counter" id="gh-counter">1/' + images.length + '</span>' +
-            (images.length > 1 ? '<button type="button" class="gh-nav-arrow gh-nav-next" id="gh-nav-next" aria-label="Next image">›</button>' : '') +
+            (images.length > 1 ? '<button type="button" class="gh-nav-arrow gh-nav-next" id="gh-nav-next" aria-label="Next image">↓</button>' : '') +
           '</div>'
           : '') +
         '</div>' +
@@ -794,32 +798,45 @@
       });
     }
 
+    // ============================================================
+    // FIX: currentIndex / thumbEls / selectImage used to be declared
+    // ONLY inside the `else` (photography/collage) branch below, so
+    // the mobile gh-nav-prev/gh-nav-next arrows — which are rendered
+    // for EVERY variant, including painting — had no selectImage to
+    // call when variant === 'painting'. They're hoisted here so both
+    // branches (and the nav buttons) share the same state.
+    // ============================================================
+    var currentIndex = 0;
+    var thumbEls = [];
+
+    var selectImage = function (index) {
+      if (!images.length) {
+        return;
+      }
+      index = (index + images.length) % images.length;
+      currentIndex = index;
+      if (ghPreviewImg) {
+        ghPreviewImg.src = images[index];
+      }
+      if (ghCounter) {
+        ghCounter.textContent = (index + 1) + '/' + images.length;
+      }
+      thumbEls.forEach(function (node, i) {
+        if (node) {
+          node.classList.toggle('gh-active', i === index);
+        }
+      });
+    };
+
     if (variant === 'painting') {
-      renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter);
+      // FIX: pass the shared selectImage + thumbEls down so painting
+      // thumbnails participate in the same active-state/counter sync.
+      renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls);
     } else {
       var isCollage = variant === 'collage';
       var columns = 2;
       var rows = Math.ceil(images.length / columns);
       var thumbHeightPercent = rows > 0 ? (100 / rows) : 100;
-      var currentIndex = 0;
-      var thumbEls = [];
-
-      var selectImage = function (index) {
-        if (!images.length) {
-          return;
-        }
-        index = (index + images.length) % images.length;
-        currentIndex = index;
-        if (ghPreviewImg) {
-          ghPreviewImg.src = images[index];
-        }
-        if (ghCounter) {
-          ghCounter.textContent = (index + 1) + '/' + images.length;
-        }
-        thumbEls.forEach(function (node, i) {
-          node.classList.toggle('gh-active', i === index);
-        });
-      };
 
       images.forEach(function (imageUrl, index) {
         var thumb = document.createElement('div');
@@ -844,15 +861,56 @@
         ghGrid.appendChild(thumb);
         thumbEls.push(thumb);
       });
+    }
 
-      var navPrev = document.getElementById('gh-nav-prev');
-      var navNext = document.getElementById('gh-nav-next');
-      if (navPrev) {
-        navPrev.addEventListener('click', function () { selectImage(currentIndex - 1); });
-      }
-      if (navNext) {
-        navNext.addEventListener('click', function () { selectImage(currentIndex + 1); });
-      }
+    // NEW: swipe up/down to navigate on mobile, alongside the arrows
+var ghPreview = document.getElementById('gh-preview');
+if (ghPreview && images.length > 1) {
+  var touchStartY = 0;
+  var touchStartX = 0;
+  var swipeThreshold = 40; // px — minimum vertical movement to count as a swipe
+
+  ghPreview.addEventListener('touchstart', function (event) {
+    if (!event.touches || !event.touches.length) {
+      return;
+    }
+    touchStartY = event.touches[0].clientY;
+    touchStartX = event.touches[0].clientX;
+  }, { passive: true });
+
+  ghPreview.addEventListener('touchend', function (event) {
+    if (!event.changedTouches || !event.changedTouches.length) {
+      return;
+    }
+    var touchEndY = event.changedTouches[0].clientY;
+    var touchEndX = event.changedTouches[0].clientX;
+    var deltaY = touchEndY - touchStartY;
+    var deltaX = touchEndX - touchStartX;
+
+    // Only treat it as a swipe if vertical movement dominates —
+    // avoids hijacking horizontal gestures or accidental taps.
+    if (Math.abs(deltaY) < swipeThreshold || Math.abs(deltaY) < Math.abs(deltaX)) {
+      return;
+    }
+
+    if (deltaY < 0) {
+      selectImage(currentIndex + 1); // swiped up -> next image
+    } else {
+      selectImage(currentIndex - 1); // swiped down -> previous image
+    }
+  }, { passive: true });
+}
+
+    // FIX: nav-arrow wiring moved OUT of the `else` branch above so it
+    // runs unconditionally — the arrows now work for painting too,
+    // since they call the same shared selectImage() either way.
+    var navPrev = document.getElementById('gh-nav-prev');
+    var navNext = document.getElementById('gh-nav-next');
+    if (navPrev) {
+      navPrev.addEventListener('click', function () { selectImage(currentIndex - 1); });
+    }
+    if (navNext) {
+      navNext.addEventListener('click', function () { selectImage(currentIndex + 1); });
     }
 
     // Hide the standard gallery chrome — this layout is fully self-contained
