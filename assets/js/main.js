@@ -110,6 +110,90 @@
     });
   }
 
+  // ---- Mobile-only infinite list loop ----
+  // #justin-label is fixed at the vertical center of the viewport on
+  // mobile (see the max-width: 700px block in style.css), so the list
+  // is rendered 3x back-to-back (see LIST_LOOP_SETS/renderList) and,
+  // once the user actually scrolls to a real document edge while still
+  // moving in that direction, silently teleported one set forward/back.
+  // Since all 3 sets are pixel-identical, the teleport is invisible —
+  // it reads as "the list just keeps going", not a jump.
+  //
+  // Nothing here ever calls scrollTo on page load or on the first
+  // scroll event after any (re)render: lastLoopScrollY starts as null,
+  // and the very first scroll event only records a baseline position —
+  // it can never trigger a wrap by itself. A wrap only fires once we
+  // have two data points and can tell the user is actively scrolling
+  // up into scrollY 0, or down into the document's actual max scroll.
+  var LIST_LOOP_SETS = 3;
+  var listLoopScrollHandler = null;
+  var lastLoopScrollY = null;
+
+  function getListSetHeight() {
+    if (!elements.list.children.length) {
+      return 0;
+    }
+    return elements.list.scrollHeight / LIST_LOOP_SETS;
+  }
+
+  function setupListLoop() {
+    var setHeight = getListSetHeight();
+    if (!setHeight) {
+      return;
+    }
+
+    // Reset on every (re)render (e.g. switching category) so a stale
+    // previous position can't cause a false wrap right after the DOM
+    // changes — the next scroll event just re-establishes a baseline.
+    lastLoopScrollY = null;
+
+    if (!listLoopScrollHandler) {
+      listLoopScrollHandler = function () {
+        if (!mobileQuery.matches) {
+          return;
+        }
+
+        var currentSetHeight = getListSetHeight();
+        if (!currentSetHeight) {
+          return;
+        }
+
+        var currentScrollY = window.scrollY;
+        var maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
+
+        if (lastLoopScrollY === null) {
+          lastLoopScrollY = currentScrollY;
+          return;
+        }
+
+        var scrollingUp = currentScrollY < lastLoopScrollY;
+        var scrollingDown = currentScrollY > lastLoopScrollY;
+
+        // Reached the true top of the document while actively
+        // scrolling up — jump forward one set.
+        if (scrollingUp && currentScrollY <= 0) {
+          var newScrollUp = currentScrollY + currentSetHeight;
+          window.scrollTo(0, newScrollUp);
+          lastLoopScrollY = newScrollUp;
+          return;
+        }
+
+        // Reached the true bottom of the document while actively
+        // scrolling down — jump back one set.
+        if (scrollingDown && currentScrollY >= maxScrollY - 1) {
+          var newScrollDown = currentScrollY - currentSetHeight;
+          window.scrollTo(0, newScrollDown);
+          lastLoopScrollY = newScrollDown;
+          return;
+        }
+
+        lastLoopScrollY = currentScrollY;
+      };
+
+      window.addEventListener('scroll', listLoopScrollHandler, { passive: true });
+    }
+  }
+
   function shuffleArray(array) {
     var shuffled = array.slice(); // don't mutate the original
     for (var i = shuffled.length - 1; i > 0; i -= 1) {
@@ -1175,6 +1259,70 @@ function renderBookStage(entry) {
     });
   }
 
+  // Builds a single <li> for one entry. Extracted out of renderList so
+  // it can be called multiple times per entry on mobile (see
+  // LIST_LOOP_SETS above) without duplicating this logic. Behavior is
+  // identical to what used to be inline inside renderList's forEach.
+  function createListItem(entry, index) {
+    var li = document.createElement('li');
+    li.dataset.entryIndex = String(index);
+    li.dataset.category = entry.cat || '';
+
+    var details = document.createElement('details');
+    var summary = document.createElement('summary');
+    summary.appendChild(document.createTextNode(entry.text || 'Untitled'));
+
+    var catDot = document.createElement('span');
+    catDot.className = 'cat-dot';
+    catDot.textContent = '●';
+    summary.appendChild(catDot);
+
+    if (isHoverOnly(entry) || (!getEntryImages(entry).length && !entry.body && !entry.vimeo && !(entry.book && entry.book.images && entry.book.images.length))) {
+      var emptyTag = document.createElement('span');
+      emptyTag.className = 'empty-tag';
+      emptyTag.textContent = isHoverOnly(entry) ? 'hover only' : ' = empty';
+      summary.appendChild(emptyTag);
+    }
+
+    if (state.activeCategory && entry.cat === state.activeCategory) {
+      li.classList.add('category-active');
+      summary.classList.add('category-active');
+    }
+
+    summary.addEventListener('click', function (event) {
+      event.preventDefault();
+      if (isHoverOnly(entry)) {
+        return;
+      }
+      openEntry(index);
+    });
+
+    summary.addEventListener('mouseenter', function () {
+      setBackground(entry.bgImage);
+      summary.classList.add('highlighted');
+      moveJustinLabelToElement(summary);
+    });
+
+    summary.addEventListener('mouseleave', function () {
+      setBackground('');
+      summary.classList.remove('highlighted');
+      clearJustinLabelPosition();
+    });
+
+    if (state.activeEntryIndex === index) {
+      summary.classList.add('is-open');
+    }
+
+    if (state.activeCategory && entry.cat === state.activeCategory) {
+      summary.classList.add('category-active');
+      li.classList.add('category-active');
+    }
+
+    details.appendChild(summary);
+    li.appendChild(details);
+    return li;
+  }
+
   function renderList() {
     elements.list.innerHTML = '';
 
@@ -1186,66 +1334,21 @@ function renderBookStage(entry) {
       return;
     }
 
-    entries.forEach(function (entry) {
-      var index = entries.indexOf(entry);
-      var li = document.createElement('li');
-      li.dataset.entryIndex = String(index);
-      li.dataset.category = entry.cat || '';
+    // Mobile only: render the list 3x back-to-back so it can be looped
+    // infinitely (see setupListLoop above). Desktop always renders a
+    // single copy — identical to the previous behavior.
+    var loopSets = mobileQuery.matches ? LIST_LOOP_SETS : 1;
 
-      var details = document.createElement('details');
-      var summary = document.createElement('summary');
-      summary.appendChild(document.createTextNode(entry.text || 'Untitled'));
-
-      var catDot = document.createElement('span');
-      catDot.className = 'cat-dot';
-      catDot.textContent = '●';
-      summary.appendChild(catDot);
-
-      if (isHoverOnly(entry) || (!getEntryImages(entry).length && !entry.body && !entry.vimeo && !(entry.book && entry.book.images && entry.book.images.length))) {
-        var emptyTag = document.createElement('span');
-        emptyTag.className = 'empty-tag';
-        emptyTag.textContent = isHoverOnly(entry) ? 'hover only' : ' = empty';
-        summary.appendChild(emptyTag);
-      }
-
-      if (state.activeCategory && entry.cat === state.activeCategory) {
-        li.classList.add('category-active');
-        summary.classList.add('category-active');
-      }
-
-      summary.addEventListener('click', function (event) {
-        event.preventDefault();
-        if (isHoverOnly(entry)) {
-          return;
-        }
-        openEntry(index);
+    for (var setIndex = 0; setIndex < loopSets; setIndex += 1) {
+      entries.forEach(function (entry) {
+        var index = entries.indexOf(entry);
+        elements.list.appendChild(createListItem(entry, index));
       });
+    }
 
-      summary.addEventListener('mouseenter', function () {
-        setBackground(entry.bgImage);
-        summary.classList.add('highlighted');
-        moveJustinLabelToElement(summary);
-      });
-
-      summary.addEventListener('mouseleave', function () {
-        setBackground('');
-        summary.classList.remove('highlighted');
-        clearJustinLabelPosition();
-      });
-
-      if (state.activeEntryIndex === index) {
-        summary.classList.add('is-open');
-      }
-
-      if (state.activeCategory && entry.cat === state.activeCategory) {
-        summary.classList.add('category-active');
-        li.classList.add('category-active');
-      }
-
-      details.appendChild(summary);
-      li.appendChild(details);
-      elements.list.appendChild(li);
-    });
+    if (loopSets > 1) {
+      setupListLoop();
+    }
   }
 
   function toggleBioSection() {
@@ -1414,6 +1517,14 @@ function renderBookStage(entry) {
   window.addEventListener('scroll', onScrollOrResize, { passive: true });
   window.addEventListener('resize', onScrollOrResize);
   updateScrollSpy();
+
+  // Mobile-only: rebuild the list when crossing the mobile breakpoint so
+  // it switches cleanly between the looped (mobile) and single-copy
+  // (desktop) versions, and re-centers scroll position for the newly
+  // mobile case. No-op impact on desktop-only sessions.
+  mobileQuery.addEventListener('change', function () {
+    renderList();
+  });
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {

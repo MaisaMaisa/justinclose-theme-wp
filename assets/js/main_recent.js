@@ -327,6 +327,31 @@
     mainImage.addEventListener('load', applyRatio, { once: true });
   }
 
+  // function moveJustinLabelToElement(targetElement) {
+  //   if (!elements.page || !elements.justinLabel || !targetElement || !elements.page.contains(targetElement)) {
+  //     return;
+  //   }
+
+  //   if (justinLabelFrame) {
+  //     window.cancelAnimationFrame(justinLabelFrame);
+  //   }
+
+  //   justinLabelFrame = window.requestAnimationFrame(function () {
+  //     var targetStyles = window.getComputedStyle(targetElement);
+  //     var labelStyles = window.getComputedStyle(elements.justinLabel);
+  //     var targetFontSize = targetStyles.fontSize || labelStyles.fontSize;
+
+  //     elements.justinLabel.style.fontSize = targetFontSize;
+
+  //     var targetRect = targetElement.getBoundingClientRect();
+  //     var labelRect = elements.justinLabel.getBoundingClientRect();
+  //     var labelTop = Math.max(0, targetRect.top + ((targetRect.height - labelRect.height) / 2));
+
+  //     elements.justinLabel.style.top = labelTop + 'px';
+  //     justinLabelFrame = null;
+  //   });
+  // }
+
   function moveJustinLabelToElement(targetElement) {
     if (!elements.page || !elements.justinLabel || !targetElement || !elements.page.contains(targetElement)) {
       return;
@@ -337,17 +362,8 @@
     }
 
     justinLabelFrame = window.requestAnimationFrame(function () {
-      var targetStyles = window.getComputedStyle(targetElement);
-      var labelStyles = window.getComputedStyle(elements.justinLabel);
-      var targetFontSize = targetStyles.fontSize || labelStyles.fontSize;
-
-      elements.justinLabel.style.fontSize = targetFontSize;
-
       var targetRect = targetElement.getBoundingClientRect();
-      var labelRect = elements.justinLabel.getBoundingClientRect();
-      var labelTop = Math.max(0, targetRect.top + ((targetRect.height - labelRect.height) / 2));
-
-      elements.justinLabel.style.top = labelTop + 'px';
+      elements.justinLabel.style.top = targetRect.top + 'px';
       justinLabelFrame = null;
     });
   }

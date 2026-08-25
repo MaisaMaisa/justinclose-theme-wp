@@ -2534,7 +2534,8 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 @media (max-width: 700px) {
   #justin-label {
     position: fixed;
-    top: 50% !important;   // !important needed: JS sets inline `top` for desktop hover-tracking
+    top: 50% !important;   
+    // 48.7%
     transform: translateY(-50%) !important;
     font-size: 12px;
   }
@@ -2553,14 +2554,8 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
     padding-right: 5px;
     }
 
-    #nav-line span.cat{
-        font-size: 12px;
-        color: black!important;
-        padding: 5px 15px;
-    }
-
     #nav-line {
-        display: block;
+        display: none;
         position: fixed;
         left: 0;
         width: 100%;
@@ -2569,6 +2564,12 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
         height: auto;
         text-align: left;
     }
+
+    // #nav-line span.cat{
+    //     font-size: 12px;
+    //     color: black!important;
+    //     padding: 5px 15px;
+    // }
 
     .site-footer{
         flex-direction: row!important;
@@ -2580,6 +2581,22 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
         font-size: 12px;
         flex-shrink: 1;
         text-align: center;
+    }
+
+    .site-footer{
+        bottom: 10px !important;
+    }
+
+    .widget_justin_eyes_link_widget{
+        display: none;
+    }
+
+    .footer-info-popup a {
+        font-size: 12px!important;
+    }
+
+    .footer-info-popup li + li{
+        margin-top: 0!important;
     }
 }
 
@@ -2713,12 +2730,12 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 
 @media (max-width: 640px) {
 	.gm-controls {
-		right: auto;
-		left: 50%;
-		top: auto;
-		bottom: 12px;
-		transform: translateX(-50%);
-		flex-direction: row;
+        right: 15px;
+        /* left: 50%; */
+        top: auto;
+        bottom: -3px;
+        /* transform: translateX(-50%); */
+        flex-direction: row;
 	}
 }
 
