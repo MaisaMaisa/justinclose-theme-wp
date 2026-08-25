@@ -289,13 +289,15 @@ body {
     position: fixed;
     left: 10px;
     top: 50px;
-    font-size: 20px;
+    font-size: 18px;
+    line-height: 1.4;
     pointer-events: none;
     transition: top 0.15s ease;
-    line-height: 1;
+    // line-height: 1;
     display: inline-block;
     white-space: nowrap;
     z-index: 100;
+    text-transform: lowercase;
     // color: #2596be;
     color: #0045bd;
     // color: white;
@@ -1305,17 +1307,51 @@ body {
     padding: 8px 12px 15px;
 }
 
+// @media (max-width: 700px) {
+//     .gh-stage {
+//         flex-direction: column;
+//     }
+
+//     .gh-grid {
+//         width: 100%;
+//         height: 120px;
+//         grid-template-columns: none;
+//         grid-auto-flow: column;
+//         grid-template-rows: repeat(2, 1fr);
+//     }
+// }
+
 @media (max-width: 700px) {
     .gh-stage {
         flex-direction: column;
     }
 
-    .gh-grid {
+    .gh-counter-wrap{
         width: 100%;
-        height: 120px;
-        grid-template-columns: none;
-        grid-auto-flow: column;
-        grid-template-rows: repeat(2, 1fr);
+        bottom: 10px;
+        transform: translateX(-50%);
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        z-index: 4;
+    }
+
+    .gh-grid {
+        display: none; /* thumbnails removed on mobile */
+    }
+
+    .gh-nav-arrow {
+        display: inline-flex!important; /* arrows shown on mobile only */
+    }
+
+    .lightbox-main img:not(.pg-media, .gh-thumb img){
+        width: 90%;
+        height: auto;
+    }
+
+    .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting,
+    .gh-stage[data-variant="collage"] .gh-grid {
+        display: none !important;
     }
 }
 
@@ -2381,17 +2417,48 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 .gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+3) { transform: translateX(-6px) rotate(-1.5deg); }
 .gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n)   { transform: translateX(8px) rotate(2deg); }
 
-.gh-counter {
+// .gh-counter {
+//     position: absolute;
+//     left: 50%;
+//     bottom: 10px;
+//     transform: translateX(-50%);
+//     font-size: 13px;
+//     letter-spacing: 0.08em;
+//     color: white;
+//     text-shadow: #FC0 1px 0 10px;
+//     pointer-events: none;
+//     z-index: 4;
+// }
+
+.gh-counter-wrap {
     position: absolute;
     left: 50%;
     bottom: 10px;
     transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 4;
+}
+
+.gh-counter {
     font-size: 13px;
     letter-spacing: 0.08em;
     color: white;
     text-shadow: #FC0 1px 0 10px;
     pointer-events: none;
-    z-index: 4;
+}
+
+.gh-nav-arrow {
+    display: none; /* desktop: hidden, thumbnails handle navigation */
+    background: transparent;
+    border: none;
+    color: white;
+    text-shadow: #FC0 1px 0 10px;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 10px;
 }
 
 // CIRCULAR BUTTON
