@@ -1317,99 +1317,42 @@ body {
 
 /* OLD -- Books category: two-column stage — text/buy button left, image right */
 /* ── Books: grid + large preview, text/buy button below the image ── */
-.book-stage-v2 {
-  display: flex;
+/* Books v3 — post-editor content as the stage background, buy button
+   floats fixed over everything and keeps its existing spin. */
+.book-stage-v3 {
   width: 100%;
   height: 100%;
-}
-
-.book-grid {
-  width: 250px;
-  flex-shrink: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  height: 100%;
   overflow-y: auto;
-  overflow-x: hidden;
-  gap: 0;
+  padding: 60px 50px;
+  color: #111;
 }
 
-.book-grid::-webkit-scrollbar {
-  width: 10px;
-}
-
-.book-grid::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.book-grid::-webkit-scrollbar-thumb {
-  background: rgb(0, 0, 0);
-}
-
-.book-grid::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.55);
-}
-
-.book-grid .gh-thumb {
-  width: 50%;
-  aspect-ratio: 3/4;
-}
-
-.book-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  height: 100%;
-  overflow: hidden;
-}
-
-.book-main-image-wrap {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  min-height: 0;
-}
-
-.book-main-image-wrap img {
-  max-width: 100%;
-  max-height: 100%;
-  -o-object-fit: contain;
-     object-fit: contain;
-  display: block;
-}
-
-.book-info {
-  flex-shrink: 0;
-  padding: 24px 30px;
+.book-stage-v3 .book-content {
+  margin: 0 auto;
   font-size: 16px;
   line-height: 1.6;
-  color: #111;
-  max-height: 40%;
-  overflow-y: auto;
-  display: flex;
-  align-items: center;
-  gap: 20px;
 }
 
-.book-info .buy-btn {
+.book-stage-v3 .book-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 20px 0;
+}
+
+.buy-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
-  flex: 0 0 100px;
-  margin-top: 0;
+  width: 500px;
+  height: 500px;
   border-radius: 50%;
-  border: 1px solid #000;
+  border: 1px solid white;
   background: transparent;
-  color: #000;
+  color: white;
   padding: 0;
   text-align: center;
-  font-size: 11px;
+  font-size: 40px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   line-height: 1.3;
@@ -1419,27 +1362,71 @@ body {
   transition: font-size 0.25s ease;
 }
 
-.book-info .buy-btn:hover {
-  font-size: 16px;
+.buy-btn:hover {
+  font-size: 50px;
   animation-play-state: paused;
 }
 
+.buy-btn .justin-circ-btn-ring,
+.buy-btn .justin-circ-btn-x {
+  stroke: #fff;
+  mix-blend-mode: difference;
+}
+
+.buy-btn .justin-circ-btn-text {
+  fill: #fff;
+  mix-blend-mode: difference;
+}
+
+/* Wrapper: owns position + scale, independent of the button's own
+   rotation transform so the two don't fight each other. */
+.buy-btn-wrap {
+  position: absolute;
+}
+
+/* Fixed dead-center of the whole viewport, scaled up */
+.buy-btn-wrap-fixed {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.8);
+  z-index: 456785680;
+  mix-blend-mode: difference; /* auto-contrast against the category tint */
+}
+
+/* Close button — auto-contrast against the book category tint, book layout only */
+.book-stage-v3 .book-content,
+.book-stage-v3 .book-content :not(img) {
+  color: #fff;
+  mix-blend-mode: difference;
+}
+
+.book-stage-v3 .book-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 20px 0;
+}
+
+.lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-text {
+  fill: transparent; /* keep existing behavior — this text is invisible by design */
+}
+
+.lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x {
+  stroke: #fff;
+  mix-blend-mode: difference;
+}
+
 @media (max-width: 700px) {
-  .book-stage-v2 {
-    flex-direction: column;
+  .book-stage-v3 {
+    padding: 40px 20px;
   }
-  .book-grid {
-    width: 100%;
-    height: 120px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
+  .buy-btn {
+    width: 200px;
+    height: 200px;
   }
-  .book-grid .gh-thumb {
-    width: auto;
-    height: 100%;
-    aspect-ratio: 3/4;
-    flex-shrink: 0;
+  .buy-btn:hover {
+    font-size: 45px;
   }
 }
 #bg-hover-img {

@@ -741,14 +741,26 @@ add_action('wp_enqueue_scripts', function () {
         }
 
         if ($cat_name === 'Books') {
-            $book_images = justin_extract_image_urls(justin_get_attachment_ids(justin_get_meta($post->ID, 'book_images')));
+            global $post;
+            setup_postdata($post);
 
             $entry['book'] = [
-                'images' => $book_images,
-                'text' => wp_kses_post(justin_get_meta($post->ID, 'book_text')),
-                'buyUrl' => esc_url_raw(justin_get_meta($post->ID, 'buy_url')),
+                'content' => apply_filters('the_content', $post->post_content),
+                'buyUrl'  => esc_url_raw(justin_get_meta($post->ID, 'buy_url')),
             ];
+
+            wp_reset_postdata();
         }
+
+        // if ($cat_name === 'Books') {
+        //     $book_images = justin_extract_image_urls(justin_get_attachment_ids(justin_get_meta($post->ID, 'book_images')));
+
+        //     $entry['book'] = [
+        //         'images' => $book_images,
+        //         'text' => wp_kses_post(justin_get_meta($post->ID, 'book_text')),
+        //         'buyUrl' => esc_url_raw(justin_get_meta($post->ID, 'buy_url')),
+        //     ];
+        // }
 
         $data['entries'][] = $entry;
     }
@@ -780,8 +792,8 @@ add_action('save_post_post', function ($post_id) {
         return;
     }
 
-    // $text_fields = ['info_text', 'film_video_url', 'body_text', 'book_text', 'buy_url', 'teaser_text'];
-    $text_fields = ['info_text', 'film_video_url', 'body_text', 'book_text', 'buy_url'];
+    // $text_fields = ['info_text', 'film_video_url', 'body_text', 'book_text', 'buy_url'];
+    $text_fields = ['info_text', 'film_video_url', 'body_text', 'buy_url'];
     foreach ($text_fields as $field_name) {
         if (isset($_POST[$field_name])) {
             $value = wp_unslash($_POST[$field_name]);
@@ -799,8 +811,8 @@ add_action('save_post_post', function ($post_id) {
         }
     }
 
-    // $image_fields = ['hover_bg_image', 'gallery', 'film_grabs', 'book_images', 'teaser_images'];
-    $image_fields = ['hover_bg_image', 'gallery', 'film_grabs', 'book_images'];
+    // $image_fields = ['hover_bg_image', 'gallery', 'film_grabs', 'book_images'];
+    $image_fields = ['hover_bg_image', 'gallery', 'film_grabs'];
     foreach ($image_fields as $field_name) {
         if (isset($_POST[$field_name])) {
             $value = sanitize_text_field(wp_unslash($_POST[$field_name]));
@@ -958,16 +970,11 @@ function justin_render_project_film_box($post) {
 }
 
 function justin_render_project_books_box($post) {
-    $book_images = justin_get_meta($post->ID, 'book_images');
-    $book_text = justin_get_meta($post->ID, 'book_text');
     $buy_url = justin_get_meta($post->ID, 'buy_url');
     ?>
-    <p>Use this for Books posts.</p>
-    <?php justin_render_media_preview('Book images', 'book_images', $book_images, true); ?>
-    <p>
-        <label for="book_text"><strong>Book text</strong></label><br />
-        <textarea name="book_text" id="book_text" rows="4" style="width:100%;"><?php echo esc_textarea($book_text); ?></textarea>
-    </p>
+    <p>Use this for Books posts. The book's content now comes straight from the
+    main post editor above &mdash; write/format it there (images, paragraphs,
+    etc.) and it will be shown as the lightbox background.</p>
     <p>
         <label for="buy_url"><strong>Buy URL</strong></label><br />
         <input type="url" name="buy_url" id="buy_url" value="<?php echo esc_attr($buy_url); ?>" style="width:100%;" />

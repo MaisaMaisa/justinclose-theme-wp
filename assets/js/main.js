@@ -4,11 +4,19 @@
   }
 
   var data = window.JUSTIN_DATA || {};
+  // var state = {
+  //   activeCategory: '',
+  //   activeEntryIndex: -1,
+  //   activeImageIndex: 0,
+  //   watchMode: false,
+  // };
+
   var state = {
     activeCategory: '',
     activeEntryIndex: -1,
     activeImageIndex: 0,
     watchMode: false,
+    activeBookBuyBtn: null,
   };
 
   var elements = {
@@ -308,10 +316,11 @@
     var hasBody = !!(entry.body && entry.body.length);
     var hasFilmVideo = !!(entry.film && entry.film.videoUrl && String(entry.film.videoUrl).trim().length);
     var hasDirectVideo = !!(entry.videoUrl && String(entry.videoUrl).trim().length);
-    var hasBookText = !!(entry.book && entry.book.text && String(entry.book.text).trim().length);
-    var hasBookImages = !!(entry.book && Array.isArray(entry.book.images) && entry.book.images.length);
+    var hasBookContent = !!(entry.book && entry.book.content && String(entry.book.content).trim().length);
+    // var hasBookText = !!(entry.book && entry.book.text && String(entry.book.text).trim().length);
+    // var hasBookImages = !!(entry.book && Array.isArray(entry.book.images) && entry.book.images.length);
 
-    return !hasImages && !hasBody && !hasFilmVideo && !hasDirectVideo && !hasBookText && !hasBookImages;
+    return !hasImages && !hasBody && !hasFilmVideo && !hasDirectVideo && !hasBookContent;
   }
 
   function getCategoryBio(categoryName) {
@@ -479,9 +488,14 @@
     state.watchMode = false;
     document.body.classList.remove('lb-upside-down');
     elements.lightboxOverlay.style.removeProperty('--lightbox-tint');
+    elements.lightboxOverlay.classList.remove('open', 'watch-mode', 'lb-book');
     if (elements.godModeBtn) {
       elements.godModeBtn.classList.remove('behind-popup');
     }
+    if (state.activeBookBuyBtn && state.activeBookBuyBtn.parentNode) {
+      state.activeBookBuyBtn.parentNode.removeChild(state.activeBookBuyBtn);
+    }
+    state.activeBookBuyBtn = null;
     document.body.style.overflow = '';
     elements.lightboxOverlay.classList.remove('open', 'watch-mode');
     elements.lightboxOverlay.setAttribute('aria-hidden', 'true');
@@ -1049,101 +1063,83 @@ function renderPhotoGridLightbox(entry) {
     elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
 
-  // function renderBookStage(entry) {
-  //   var book = entry.book || {};
-  //   var images = Array.isArray(book.images) ? book.images.slice() : [];
-  //   var teasers = getEntryTeasers(entry);
-  //   var allImages = images.concat(teasers);
-  //   var mainImage = allImages[0] || '';
-  //   var html = '<div class="book-stage" style="position:absolute; inset:0; display:grid; grid-template-columns:42% 58%; width:100%; height:100%; overflow:hidden;">' +
-  //     '<div class="book-text" style="padding:40px 30px; overflow:hidden; display:flex; flex-direction:column; justify-content:center; font-size:16px; line-height:1.6; color:#111;">' + (book.text || '') +
-  //     (book.buyUrl ? '<a class="buy-btn" href="' + book.buyUrl + '" target="_blank" rel="noopener">BUY ME</a>' : '') +
-  //     '</div>' +
-  //     '<div class="book-gallery" style="position:relative; min-width:0; min-height:0;">' +
-  //     '<div class="book-images" style="position:absolute; inset:0 0 110px 0; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#eee;">' +
-  //     (mainImage ? '<img id="book-main-image" src="' + mainImage + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
-  //     '</div>' +
-  //     '<div class="book-thumb-strip" id="book-thumb-strip" style="position:absolute; left:0; right:0; bottom:0; height:110px; display:flex; align-items:center; gap:8px; overflow-x:auto; overflow-y:hidden; padding:10px 12px; background:#efefef; flex-shrink:0;"></div>' +
-  //     '</div></div>';
+// function renderBookStage(entry) {
+//     var book = entry.book || {};
+//     var images = Array.isArray(book.images) ? book.images.slice() : [];
+//     var mainImage = images[0] || '';
 
-  //   elements.lightboxStage.innerHTML = html;
-  //   elements.lightboxStage.style.display = 'block';
-  //   elements.lightboxStage.style.width = '100%';
-  //   elements.lightboxStage.style.height = '100%';
-  //   elements.lightboxStage.style.padding = '0';
-  //   elements.lightboxStage.style.margin = '0';
-  //   elements.lightboxThumbs.innerHTML = '';
+//     var html =
+//       '<div class="book-stage-v2" id="book-stage-v2">' +
+//         '<div class="book-grid" id="book-grid"></div>' +
+//         '<div class="book-main">' +
+//           '<div class="book-main-image-wrap">' +
+//             (mainImage ? '<img id="book-main-image" src="' + mainImage + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
+//           '</div>' +
+//           '<div class="book-info">' +
+//             '<div class="book-text">' + (book.text || '') + '</div>' +
+//             (book.buyUrl ? '<a class="buy-btn" href="' + book.buyUrl + '" target="_blank" rel="noopener">BUY ME</a>' : '') +
+//           '</div>' +
+//         '</div>' +
+//       '</div>';
 
-  //   var bookThumbStrip = document.getElementById('book-thumb-strip');
-  //   for (var i = 0; i < allImages.length; i += 1) {
-  //     var thumb = document.createElement('img');
-  //     thumb.src = allImages[i];
-  //     thumb.alt = entry.text || '';
-  //     thumb.style.height = '100%';
-  //     thumb.style.width = 'auto';
-  //     thumb.style.flexShrink = '0';
-  //     thumb.style.cursor = 'pointer';
-  //     thumb.style.objectFit = 'contain';
-  //     thumb.style.border = '2px solid transparent';
+//     elements.lightboxStage.innerHTML = html;
+//     elements.lightboxStage.style.display = 'block';
+//     elements.lightboxStage.style.width = '100%';
+//     elements.lightboxStage.style.height = '100%';
+//     elements.lightboxStage.style.padding = '0';
+//     elements.lightboxStage.style.margin = '0';
+//     elements.lightboxThumbs.innerHTML = '';
 
-  //     if (i >= images.length) {
-  //       thumb.classList.add('teaser-thumb');
-  //     }
+//     var bookGrid = document.getElementById('book-grid');
 
-  //     if (i === 0) {
-  //       thumb.classList.add('active');
-  //     }
+//     images.forEach(function (imageUrl, index) {
+//       var thumb = document.createElement('div');
+//       thumb.className = 'gh-thumb book-thumb';
+//       if (index === 0) {
+//         thumb.classList.add('gh-active');
+//       }
 
-  //     if (i >= images.length) {
-  //       thumb.classList.add('teaser-thumb');
-  //     }
+//       var thumbImg = document.createElement('img');
+//       thumbImg.src = imageUrl;
+//       thumbImg.alt = entry.text || '';
+//       thumb.appendChild(thumbImg);
 
-  //     (function (index, thumbElement) {
-  //       thumbElement.addEventListener('click', function () {
-  //         var mainImageElement = document.getElementById('book-main-image');
-  //         if (mainImageElement) {
-  //           mainImageElement.src = allImages[index];
-  //           mainImageElement.style.aspectRatio = '';
-  //           syncMainImageAspectRatio(mainImageElement);
-  //         }
+//       var setActive = function () {
+//         var mainImageElement = document.getElementById('book-main-image');
+//         if (mainImageElement) {
+//           mainImageElement.src = imageUrl;
+//         }
+//         bookGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
+//           node.classList.remove('gh-active');
+//         });
+//         thumb.classList.add('gh-active');
+//       };
 
-  //         var activeThumbs = elements.lightboxThumbs.querySelectorAll('img');
-  //         activeThumbs.forEach(function (node) {
-  //           node.classList.remove('active');
-  //         });
-  //         thumbElement.classList.add('active');
-  //       });
-  //     })(i, thumb);
+//       thumb.addEventListener('mouseenter', setActive);
+//       thumb.addEventListener('click', setActive);
+//       thumb.addEventListener('focus', setActive);
+//       thumb.setAttribute('tabindex', '0');
 
-  //     if (bookThumbStrip) {
-  //       bookThumbStrip.appendChild(thumb);
-  //     }
-  //   }
+//       if (bookGrid) {
+//         bookGrid.appendChild(thumb);
+//       }
+//     });
 
-  //   elements.lightboxThumbs.style.display = 'none';
-  //   elements.lightboxInfoToggle.style.display = 'none';
-  //   elements.lightboxInfoPanel.style.display = 'none';
-  //   elements.lightboxPrev.style.display = 'none';
-  //   elements.lightboxNext.style.display = 'none';
-  // }
+//     elements.lightboxThumbs.style.display = 'none';
+//     elements.lightboxInfoToggle.style.display = 'none';
+//     elements.lightboxInfoPanel.style.display = 'none';
+//     elements.lightboxPrev.style.display = 'none';
+//     elements.lightboxNext.style.display = 'none';
+//   }
 
 function renderBookStage(entry) {
     var book = entry.book || {};
-    var images = Array.isArray(book.images) ? book.images.slice() : [];
-    var mainImage = images[0] || '';
+
+    elements.lightboxOverlay.classList.add('lb-book');
 
     var html =
-      '<div class="book-stage-v2" id="book-stage-v2">' +
-        '<div class="book-grid" id="book-grid"></div>' +
-        '<div class="book-main">' +
-          '<div class="book-main-image-wrap">' +
-            (mainImage ? '<img id="book-main-image" src="' + mainImage + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
-          '</div>' +
-          '<div class="book-info">' +
-            '<div class="book-text">' + (book.text || '') + '</div>' +
-            (book.buyUrl ? '<a class="buy-btn" href="' + book.buyUrl + '" target="_blank" rel="noopener">BUY ME</a>' : '') +
-          '</div>' +
-        '</div>' +
+      '<div class="book-stage-v3" id="book-stage-v3">' +
+        '<div class="book-content">' + (book.content || '') + '</div>' +
       '</div>';
 
     elements.lightboxStage.innerHTML = html;
@@ -1154,40 +1150,24 @@ function renderBookStage(entry) {
     elements.lightboxStage.style.margin = '0';
     elements.lightboxThumbs.innerHTML = '';
 
-    var bookGrid = document.getElementById('book-grid');
+    // Fixed, rotating "buy me" button. Appended to the overlay itself
+    // (not the scrolling stage) so it stays put in the corner and keeps
+    // spinning no matter how far the content is scrolled.
+    if (book.buyUrl) {
+      var buyBtnWrap = document.createElement('div');
+      buyBtnWrap.className = 'buy-btn-wrap buy-btn-wrap-fixed';
 
-    images.forEach(function (imageUrl, index) {
-      var thumb = document.createElement('div');
-      thumb.className = 'gh-thumb book-thumb';
-      if (index === 0) {
-        thumb.classList.add('gh-active');
-      }
+      var buyBtn = document.createElement('a');
+      buyBtn.href = book.buyUrl;
+      buyBtn.target = '_blank';
+      buyBtn.rel = 'noopener';
+      buyBtn.className = 'buy-btn';
+      buyBtn.textContent = 'BUY ME';
 
-      var thumbImg = document.createElement('img');
-      thumbImg.src = imageUrl;
-      thumbImg.alt = entry.text || '';
-      thumb.appendChild(thumbImg);
-
-      var setActive = function () {
-        var mainImageElement = document.getElementById('book-main-image');
-        if (mainImageElement) {
-          mainImageElement.src = imageUrl;
-        }
-        bookGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
-          node.classList.remove('gh-active');
-        });
-        thumb.classList.add('gh-active');
-      };
-
-      thumb.addEventListener('mouseenter', setActive);
-      thumb.addEventListener('click', setActive);
-      thumb.addEventListener('focus', setActive);
-      thumb.setAttribute('tabindex', '0');
-
-      if (bookGrid) {
-        bookGrid.appendChild(thumb);
-      }
-    });
+      buyBtnWrap.appendChild(buyBtn);
+      elements.lightboxOverlay.appendChild(buyBtnWrap);
+      state.activeBookBuyBtn = buyBtnWrap;
+    }
 
     elements.lightboxThumbs.style.display = 'none';
     elements.lightboxInfoToggle.style.display = 'none';
@@ -1210,6 +1190,8 @@ function renderBookStage(entry) {
     }
 
     state.activeEntryIndex = index;
+
+    elements.lightboxOverlay.classList.remove('lb-book');
 
     var lightboxColor = categoryLightboxColors[entry.cat] || '';
     elements.lightboxOverlay.style.setProperty('--lightbox-tint', lightboxColor || '');
@@ -1335,8 +1317,7 @@ function renderBookStage(entry) {
     catDot.textContent = '●';
     summary.appendChild(catDot);
 
-    if (isHoverOnly(entry) || (!getEntryImages(entry).length && !entry.body && !entry.vimeo && !(entry.book && entry.book.images && entry.book.images.length))) {
-      var emptyTag = document.createElement('span');
+    if (isHoverOnly(entry) || (!getEntryImages(entry).length && !entry.body && !entry.vimeo && !(entry.book && entry.book.content && entry.book.content.length))) {      var emptyTag = document.createElement('span');
       emptyTag.className = 'empty-tag';
       emptyTag.textContent = isHoverOnly(entry) ? 'hover only' : ' = empty';
       summary.appendChild(emptyTag);
