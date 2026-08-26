@@ -385,107 +385,6 @@ function vgi_instagram_embed_html( $url ) {
 
 /* ===================== END VIDEO GRID ===================== */
 
-/* =====================================================================
- * STRIPE INTEGRATION (test mode) — powers the in-page "BUY ME" modal.
- *
- * How it works:
- *  - Publishable + secret key are stored as options (Appearance >
- *    Justin Settings). Only the publishable key ever reaches the browser.
- *  - Each Book post can have a price ("buy_price") + currency
- *    ("buy_currency"). If both a price and a publishable key are set,
- *    the frontend opens the Stripe modal instead of following buy_url.
- *  - The modal (main.js) calls the justin_create_payment_intent AJAX
- *    action below every time the quantity changes, gets back a fresh
- *    PaymentIntent client secret, and mounts Stripe's Address / Link /
- *    Payment elements against it — all inside one popup, no redirect.
- * ===================================================================== */
-
-add_action('admin_init', function () {
-    register_setting('justin_settings_group', 'justin_stripe_publishable_key', [
-        'type'              => 'string',
-        'sanitize_callback' => 'sanitize_text_field',
-        'default'           => '',
-    ]);
-    register_setting('justin_settings_group', 'justin_stripe_secret_key', [
-        'type'              => 'string',
-        'sanitize_callback' => 'sanitize_text_field',
-        'default'           => '',
-    ]);
-});
-
-if (!function_exists('justin_stripe_currencies')) {
-    function justin_stripe_currencies() {
-        return ['eur' => 'EUR', 'usd' => 'USD', 'gbp' => 'GBP'];
-    }
-}
-
-add_action('wp_ajax_justin_create_payment_intent', 'justin_create_payment_intent');
-add_action('wp_ajax_nopriv_justin_create_payment_intent', 'justin_create_payment_intent');
-
-function justin_create_payment_intent() {
-    check_ajax_referer('justin_stripe_nonce', 'nonce');
-
-    $post_id  = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
-    $quantity = isset($_POST['quantity']) ? max(1, absint($_POST['quantity'])) : 1;
-
-    $secret_key = get_option('justin_stripe_secret_key', '');
-
-    if (!$post_id || !$secret_key) {
-        wp_send_json_error(['message' => 'Stripe is not configured yet.'], 400);
-    }
-
-    $price_major = (float) justin_get_meta($post_id, 'buy_price', 0);
-    $currency    = justin_get_meta($post_id, 'buy_currency', 'eur');
-    $currencies  = justin_stripe_currencies();
-
-    if (!isset($currencies[$currency])) {
-        $currency = 'eur';
-    }
-
-    if ($price_major <= 0) {
-        wp_send_json_error(['message' => 'This item has no price set.'], 400);
-    }
-
-    $unit_amount = (int) round($price_major * 100);
-    $amount      = $unit_amount * $quantity;
-
-    $response = wp_remote_post('https://api.stripe.com/v1/payment_intents', [
-        'headers' => [
-            'Authorization' => 'Bearer ' . $secret_key,
-            'Content-Type'  => 'application/x-www-form-urlencoded',
-        ],
-        'body' => [
-            'amount'                              => $amount,
-            'currency'                            => $currency,
-            'automatic_payment_methods[enabled]'  => 'true',
-            'metadata[post_id]'                   => $post_id,
-            'metadata[quantity]'                  => $quantity,
-            'metadata[site]'                      => home_url(),
-        ],
-        'timeout' => 20,
-    ]);
-
-    if (is_wp_error($response)) {
-        wp_send_json_error(['message' => $response->get_error_message()], 500);
-    }
-
-    $status = wp_remote_retrieve_response_code($response);
-    $body   = json_decode(wp_remote_retrieve_body($response), true);
-
-    if ($status >= 400 || empty($body['client_secret'])) {
-        $message = $body['error']['message'] ?? 'Could not start payment.';
-        wp_send_json_error(['message' => $message], 500);
-    }
-
-    wp_send_json_success([
-        'clientSecret' => $body['client_secret'],
-        'amount'       => $amount,
-        'currency'     => $currency,
-    ]);
-}
-
-/* ===================== END STRIPE INTEGRATION ===================== */
-
 //FOOTER WIDGETS
 
 class Justin_Social_Links_Widget extends WP_Widget {
@@ -729,18 +628,8 @@ add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('justin-style', get_stylesheet_uri(), [], '1.1');
     wp_enqueue_style('justin-font', 'https://fonts.googleapis.com/css2?family=Nothing+You+Could+Do&display=swap', [], null);
 
-    // Stripe's own JS SDK must load before main.js when Stripe is
-    // configured, since main.js calls the global Stripe() constructor.
-    $stripe_publishable_key = get_option('justin_stripe_publishable_key', '');
-    $main_js_deps = [];
-
-    if ($stripe_publishable_key) {
-        wp_enqueue_script('stripe-js', 'https://js.stripe.com/v3/', [], null, true);
-        $main_js_deps[] = 'stripe-js';
-    }
-
     // wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.1', true);
-    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', $main_js_deps, '1.3', true);
+    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.3', true);
 
     // God Mode styling only — the channel logic itself lives in main.js,
     // reusing the existing #god-mode-overlay / #god-mode-btn / #god-mode-frame
@@ -766,11 +655,6 @@ add_action('wp_enqueue_scripts', function () {
         'entries' => [],
         'photoGridTags' => justin_photo_grid_tags(),
         'godModeChannels' => [],
-        // Stripe: only the publishable key ever reaches the browser.
-        // If this is empty, main.js falls back to plain buy_url links.
-        'stripePublishableKey' => $stripe_publishable_key,
-        'ajaxUrl' => admin_url('admin-ajax.php'),
-        'stripeNonce' => wp_create_nonce('justin_stripe_nonce'),
     ];
 
     $terms = get_categories([
@@ -836,7 +720,6 @@ add_action('wp_enqueue_scripts', function () {
             'text' => get_the_title($post),
             'cat' => $cat_name,
             'info' => wp_kses_post(justin_get_meta($post->ID, 'info_text')),
-            'infoDisabled' => justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text')),
             'images' => $images,
             'body' => wp_kses_post(justin_get_meta($post->ID, 'body_text')),
             'bgImage' => $hover_only && $hover_bg_image ? justin_normalize_image_url($hover_bg_image) : '',
@@ -861,17 +744,9 @@ add_action('wp_enqueue_scripts', function () {
             global $post;
             setup_postdata($post);
 
-            $price_major = (float) justin_get_meta($post->ID, 'buy_price', 0);
-            $currency    = justin_get_meta($post->ID, 'buy_currency', 'eur');
-
             $entry['book'] = [
-                'content'    => apply_filters('the_content', $post->post_content),
-                'buyUrl'     => esc_url_raw(justin_get_meta($post->ID, 'buy_url')),
-                // priceCents/currency drive the Stripe modal. If priceCents
-                // is 0, main.js falls back to plain buyUrl behavior.
-                'priceCents' => (int) round($price_major * 100),
-                'currency'   => $currency,
-                'title'      => get_the_title($post),
+                'content' => apply_filters('the_content', $post->post_content),
+                'buyUrl'  => esc_url_raw(justin_get_meta($post->ID, 'buy_url')),
             ];
 
             wp_reset_postdata();
@@ -936,22 +811,8 @@ add_action('save_post_post', function ($post_id) {
         }
     }
 
-    // Book price + currency (Stripe).
-    if (isset($_POST['buy_price'])) {
-        $buy_price = (float) wp_unslash($_POST['buy_price']);
-        update_post_meta($post_id, 'buy_price', max(0, $buy_price));
-    }
-
-    if (isset($_POST['buy_currency'])) {
-        $buy_currency = sanitize_text_field(wp_unslash($_POST['buy_currency']));
-        if (!isset(justin_stripe_currencies()[$buy_currency])) {
-            $buy_currency = 'eur';
-        }
-        update_post_meta($post_id, 'buy_currency', $buy_currency);
-    }
-
     // $image_fields = ['hover_bg_image', 'gallery', 'film_grabs', 'book_images'];
-    $image_fields = ['hover_bg_image', 'gallery'];
+    $image_fields = ['hover_bg_image', 'gallery', 'film_grabs'];
     foreach ($image_fields as $field_name) {
         if (isset($_POST[$field_name])) {
             $value = sanitize_text_field(wp_unslash($_POST[$field_name]));
@@ -960,7 +821,6 @@ add_action('save_post_post', function ($post_id) {
     }
 
     update_post_meta($post_id, 'use_as_hover_only', isset($_POST['use_as_hover_only']) ? '1' : '0');
-    update_post_meta($post_id, 'disable_info_text', isset($_POST['disable_info_text']) ? '1' : '0');
     // update_post_meta($post_id, 'has_teaser', isset($_POST['has_teaser']) ? '1' : '0');
 
     if (isset($_POST['layout_style'])) {
@@ -1053,7 +913,6 @@ function justin_render_project_common_box($post) {
     $info_text = justin_get_meta($post->ID, 'info_text');
     $hover_bg_image = justin_get_meta($post->ID, 'hover_bg_image');
     $use_as_hover_only = justin_parse_bool(justin_get_meta($post->ID, 'use_as_hover_only'));
-    $disable_info_text = justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text'));
     $layout_style = justin_get_meta($post->ID, 'layout_style', 'grid_hover');
     ?>
     <p>Use this for all project types.</p>
@@ -1066,12 +925,6 @@ function justin_render_project_common_box($post) {
         <label>
             <input type="checkbox" name="use_as_hover_only" value="1" <?php checked($use_as_hover_only); ?> />
             Use as hover-only item
-        </label>
-    </p>
-    <p>
-        <label>
-            <input type="checkbox" name="disable_info_text" value="1" <?php checked($disable_info_text); ?> />
-            Disable info text (hides the ⓘ info panel entirely, even if Info text above has content)
         </label>
     </p>
     <p>
@@ -1105,35 +958,25 @@ function justin_render_project_gallery_box($post) {
 }
 
 function justin_render_project_film_box($post) {
+    $film_grabs = justin_get_meta($post->ID, 'film_grabs');
     $film_video_url = justin_get_meta($post->ID, 'film_video_url');
     ?>
     <p>
         <label for="film_video_url"><strong>Vimeo or YouTube URL</strong></label><br />
         <input type="url" name="film_video_url" id="film_video_url" value="<?php echo esc_attr($film_video_url); ?>" style="width:100%;" placeholder="https://vimeo.com/... or https://youtube.com/watch?v=..." />
     </p>
+    <?php justin_render_media_preview('Film grabs', 'film_grabs', $film_grabs, true); ?>
     <?php
 }
 
 function justin_render_project_books_box($post) {
-    $buy_url  = justin_get_meta($post->ID, 'buy_url');
-    $price    = justin_get_meta($post->ID, 'buy_price');
-    $currency = justin_get_meta($post->ID, 'buy_currency', 'eur');
+    $buy_url = justin_get_meta($post->ID, 'buy_url');
     ?>
     <p>Use this for Books posts. The book's content now comes straight from the
     main post editor above &mdash; write/format it there (images, paragraphs,
     etc.) and it will be shown as the lightbox background.</p>
     <p>
-        <label for="buy_price"><strong>Price per copy</strong></label><br />
-        <input type="number" step="0.01" min="0" name="buy_price" id="buy_price" value="<?php echo esc_attr($price); ?>" style="width:150px;" />
-        <select name="buy_currency" id="buy_currency">
-            <?php foreach (justin_stripe_currencies() as $code => $label) : ?>
-                <option value="<?php echo esc_attr($code); ?>" <?php selected($currency, $code); ?>><?php echo esc_html($label); ?></option>
-            <?php endforeach; ?>
-        </select>
-        <br><span style="color:#666;">Set a price + your Stripe publishable/secret keys under Appearance &gt; Justin Settings to enable the in-page BUY ME checkout. Leave the price at 0 to skip Stripe and just use the Buy URL below.</span>
-    </p>
-    <p>
-        <label for="buy_url"><strong>Buy URL (fallback if Stripe isn't configured)</strong></label><br />
+        <label for="buy_url"><strong>Buy URL</strong></label><br />
         <input type="url" name="buy_url" id="buy_url" value="<?php echo esc_attr($buy_url); ?>" style="width:100%;" />
     </p>
     <?php
@@ -1163,19 +1006,6 @@ function justin_render_settings_page() {
         <h1>Justin Settings</h1>
         <form method="post" action="options.php">
             <?php settings_fields('justin_settings_group'); ?>
-
-            <h2>Stripe (test mode)</h2>
-            <p>Paste your <strong>test</strong> keys from the Stripe Dashboard &rarr; Developers &rarr; API keys. Nothing here is live until you swap in your live keys later.</p>
-            <table class="form-table">
-                <tr>
-                    <th><label for="justin_stripe_publishable_key">Publishable key</label></th>
-                    <td><input type="text" style="width:420px;" id="justin_stripe_publishable_key" name="justin_stripe_publishable_key" value="<?php echo esc_attr(get_option('justin_stripe_publishable_key', '')); ?>" placeholder="pk_test_..." /></td>
-                </tr>
-                <tr>
-                    <th><label for="justin_stripe_secret_key">Secret key</label></th>
-                    <td><input type="password" style="width:420px;" id="justin_stripe_secret_key" name="justin_stripe_secret_key" value="<?php echo esc_attr(get_option('justin_stripe_secret_key', '')); ?>" placeholder="sk_test_..." autocomplete="off" /></td>
-                </tr>
-            </table>
 
             <h2>God Mode channels</h2>
             <p>Each row is one channel in the God Mode flip display. Paste a normal Vimeo link (e.g. <code>https://vimeo.com/123456789</code>) — it's converted to an embed automatically. Leave the URL blank to show "no signal" for that channel.</p>

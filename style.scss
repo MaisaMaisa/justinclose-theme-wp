@@ -453,9 +453,9 @@ body {
 //     font-size: 30px;
 // }
 
-#list summary.is-open {
-    font-size: 30px;
-}
+// #list summary.is-open {
+//     font-size: 30px;
+// }
 
 #list li.category-active summary,
 #list summary.category-active {
@@ -1737,6 +1737,44 @@ body {
     stroke: #fff;
     mix-blend-mode: difference;
 }
+
+.stripe-buy-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.stripe-buy-overlay.open { display: flex; }
+.stripe-buy-modal {
+  background: #fff;
+  width: 90%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 28px 24px;
+  position: relative;
+  border-radius: 4px;
+}
+.stripe-buy-close {
+  position: absolute; top: 10px; right: 14px;
+  background: none; border: none; font-size: 22px; cursor: pointer;
+}
+.stripe-buy-title { margin: 0 0 16px; font-size: 18px; }
+.stripe-buy-qty-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.stripe-qty-stepper { display: flex; align-items: center; gap: 8px; }
+.stripe-qty-btn { width: 26px; height: 26px; cursor: pointer; }
+.stripe-buy-total { margin-left: auto; font-weight: 600; }
+.stripe-buy-field { margin-bottom: 14px; }
+.stripe-buy-error { color: #c0392b; font-size: 13px; margin-bottom: 10px; min-height: 16px; }
+.stripe-buy-submit {
+  width: 100%; padding: 12px; background: #111; color: #fff;
+  border: none; cursor: pointer; font-size: 15px;
+}
+.stripe-buy-submit:disabled { opacity: 0.5; cursor: default; }
+.stripe-buy-success { text-align: center; padding: 30px 0; }
 
 @media (max-width: 700px) {
     .book-stage-v3 {

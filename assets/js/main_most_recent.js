@@ -68,255 +68,6 @@
   var scrollActiveSummary = null;
   var scrollSpyFrame = null;
 
-  // ==========================================================
-  // STRIPE "BUY ME" MODAL
-  //
-  // Opens over the existing lightbox as a single self-contained
-  // popup: quantity stepper + Stripe's Link/Address/Payment
-  // elements, all mounted against one PaymentIntent. Nothing here
-  // ever sees your secret key — that lives server-side in
-  // functions.php's justin_create_payment_intent AJAX handler.
-  //
-  // If data.stripePublishableKey is empty, or a given book has no
-  // priceCents set, this whole module is a no-op and the BUY ME
-  // button falls back to opening book.buyUrl in a new tab — so
-  // nothing breaks for books you haven't priced yet.
-  // ==========================================================
-  var stripeState = {
-    stripe: null,
-    elements: null,
-    clientSecret: null,
-    quantity: 1,
-    entry: null,
-    submitting: false,
-    fetchToken: 0,
-  };
-
-  var stripeEls = {};
-
-  function formatStripeMoney(cents, currency) {
-    return (cents / 100).toFixed(2) + ' ' + String(currency || '').toUpperCase();
-  }
-
-  function buildStripeModal() {
-    if (stripeEls.overlay) {
-      return;
-    }
-
-    var overlay = document.createElement('div');
-    overlay.id = 'stripe-buy-overlay';
-    overlay.className = 'stripe-buy-overlay';
-    overlay.innerHTML =
-      '<div class="stripe-buy-modal">' +
-        '<button type="button" class="stripe-buy-close" aria-label="Close">&times;</button>' +
-        '<h3 class="stripe-buy-title"></h3>' +
-        '<div class="stripe-buy-qty-row">' +
-          '<span class="stripe-buy-qty-label">Copies</span>' +
-          '<div class="stripe-qty-stepper">' +
-            '<button type="button" class="stripe-qty-btn stripe-qty-minus" aria-label="Decrease quantity">&minus;</button>' +
-            '<span class="stripe-qty-value">1</span>' +
-            '<button type="button" class="stripe-qty-btn stripe-qty-plus" aria-label="Increase quantity">+</button>' +
-          '</div>' +
-          '<span class="stripe-buy-total"></span>' +
-        '</div>' +
-        '<div id="stripe-link-auth-element" class="stripe-buy-field"></div>' +
-        '<div id="stripe-address-element" class="stripe-buy-field"></div>' +
-        '<div id="stripe-payment-element" class="stripe-buy-field"></div>' +
-        '<div class="stripe-buy-error" id="stripe-buy-error"></div>' +
-        '<button type="button" class="stripe-buy-submit" disabled>Pay</button>' +
-      '</div>';
-
-    document.body.appendChild(overlay);
-
-    stripeEls.overlay = overlay;
-    stripeEls.title = overlay.querySelector('.stripe-buy-title');
-    stripeEls.qtyValue = overlay.querySelector('.stripe-qty-value');
-    stripeEls.total = overlay.querySelector('.stripe-buy-total');
-    stripeEls.error = overlay.querySelector('#stripe-buy-error');
-    stripeEls.submitBtn = overlay.querySelector('.stripe-buy-submit');
-    stripeEls.modal = overlay.querySelector('.stripe-buy-modal');
-
-    overlay.querySelector('.stripe-buy-close').addEventListener('click', closeStripeModal);
-    overlay.addEventListener('click', function (event) {
-      if (event.target === overlay) {
-        closeStripeModal();
-      }
-    });
-
-    overlay.querySelector('.stripe-qty-minus').addEventListener('click', function () {
-      setStripeQuantity(stripeState.quantity - 1);
-    });
-    overlay.querySelector('.stripe-qty-plus').addEventListener('click', function () {
-      setStripeQuantity(stripeState.quantity + 1);
-    });
-
-    stripeEls.submitBtn.addEventListener('click', submitStripePayment);
-  }
-
-  function setStripeQuantity(quantity) {
-    quantity = Math.max(1, quantity);
-    stripeState.quantity = quantity;
-    stripeEls.qtyValue.textContent = String(quantity);
-    refreshStripeIntent();
-  }
-
-  function openStripeModal(entry) {
-    var book = entry && entry.book;
-    var stripeReady = !!(data.stripePublishableKey && book && book.priceCents);
-
-    if (!stripeReady) {
-      if (book && book.buyUrl) {
-        window.open(book.buyUrl, '_blank', 'noopener');
-      }
-      return;
-    }
-
-    buildStripeModal();
-
-    if (!stripeState.stripe) {
-      stripeState.stripe = Stripe(data.stripePublishableKey);
-    }
-
-    stripeState.entry = entry;
-    stripeState.quantity = 1;
-    stripeEls.qtyValue.textContent = '1';
-    stripeEls.title.textContent = book.title || entry.text || 'Order';
-    stripeEls.error.textContent = '';
-
-    overlayOpenStripe();
-    refreshStripeIntent();
-  }
-
-  function overlayOpenStripe() {
-    stripeEls.overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeStripeModal() {
-    if (!stripeEls.overlay) {
-      return;
-    }
-
-    stripeEls.overlay.classList.remove('open');
-    document.body.style.overflow = '';
-    stripeState.elements = null;
-    stripeState.clientSecret = null;
-    stripeState.entry = null;
-
-    var linkEl = document.getElementById('stripe-link-auth-element');
-    var addressEl = document.getElementById('stripe-address-element');
-    var paymentEl = document.getElementById('stripe-payment-element');
-    if (linkEl) linkEl.innerHTML = '';
-    if (addressEl) addressEl.innerHTML = '';
-    if (paymentEl) paymentEl.innerHTML = '';
-  }
-
-  function refreshStripeIntent() {
-    var entry = stripeState.entry;
-    if (!entry) {
-      return;
-    }
-
-    var thisFetch = ++stripeState.fetchToken;
-    stripeEls.total.textContent = 'Calculating…';
-    stripeEls.error.textContent = '';
-    stripeEls.submitBtn.disabled = true;
-
-    var body = new URLSearchParams();
-    body.set('action', 'justin_create_payment_intent');
-    body.set('nonce', data.stripeNonce || '');
-    body.set('post_id', entry.id);
-    body.set('quantity', stripeState.quantity);
-
-    fetch(data.ajaxUrl, { method: 'POST', body: body, credentials: 'same-origin' })
-      .then(function (response) { return response.json(); })
-      .then(function (result) {
-        if (thisFetch !== stripeState.fetchToken) {
-          return; // a newer quantity change superseded this response
-        }
-
-        if (!result || !result.success) {
-          var message = (result && result.data && result.data.message) || 'Could not start payment.';
-          stripeEls.error.textContent = message;
-          stripeEls.total.textContent = '';
-          return;
-        }
-
-        stripeState.clientSecret = result.data.clientSecret;
-        stripeEls.total.textContent = 'Total: ' + formatStripeMoney(result.data.amount, result.data.currency);
-
-        stripeState.elements = stripeState.stripe.elements({
-          clientSecret: stripeState.clientSecret,
-          appearance: { theme: 'stripe' },
-        });
-
-        var linkEl = document.getElementById('stripe-link-auth-element');
-        var addressEl = document.getElementById('stripe-address-element');
-        var paymentEl = document.getElementById('stripe-payment-element');
-        linkEl.innerHTML = '';
-        addressEl.innerHTML = '';
-        paymentEl.innerHTML = '';
-
-        var linkAuthElement = stripeState.elements.create('linkAuthentication');
-        linkAuthElement.on('change', function (event) {
-          stripeState.email = (event && event.value && event.value.email) || '';
-        });
-        linkAuthElement.mount(linkEl);
-
-        stripeState.elements.create('address', { mode: 'shipping' }).mount(addressEl);
-        stripeState.elements.create('payment').mount(paymentEl);
-
-        stripeEls.submitBtn.disabled = false;
-      })
-      .catch(function () {
-        if (thisFetch !== stripeState.fetchToken) {
-          return;
-        }
-        stripeEls.error.textContent = 'Network error — please try again.';
-        stripeEls.total.textContent = '';
-      });
-  }
-
-  function submitStripePayment() {
-    if (stripeState.submitting || !stripeState.elements) {
-      return;
-    }
-
-    stripeState.submitting = true;
-    stripeEls.submitBtn.disabled = true;
-    stripeEls.error.textContent = '';
-
-    var confirmParams = {
-      return_url: window.location.href,
-    };
-    if (stripeState.email) {
-      // Tells Stripe who to email the receipt to (Settings > Business >
-      // Customer emails > "Successful payments" must be enabled for
-      // this to actually send anything).
-      confirmParams.receipt_email = stripeState.email;
-    }
-
-    stripeState.stripe.confirmPayment({
-      elements: stripeState.elements,
-      confirmParams: confirmParams,
-      redirect: 'if_required',
-    }).then(function (result) {
-      stripeState.submitting = false;
-
-      if (result.error) {
-        stripeEls.error.textContent = result.error.message || 'Payment failed. Please try again.';
-        stripeEls.submitBtn.disabled = false;
-        return;
-      }
-
-      // Succeeded without needing to leave the page (e.g. no 3DS challenge).
-      stripeEls.modal.innerHTML =
-        '<button type="button" class="stripe-buy-close" aria-label="Close">&times;</button>' +
-        '<p class="stripe-buy-success">Thank you — a confirmation email was sent to your email address.</p>';
-      stripeEls.modal.querySelector('.stripe-buy-close').addEventListener('click', closeStripeModal);
-    });
-  }
-
   function updateScrollSpy() {
     if (!mobileQuery.matches) {
       if (scrollActiveSummary) {
@@ -500,7 +251,7 @@
   // }
 
   function getEntryInfo(entry) {
-    if (!entry || entry.infoDisabled) {
+    if (!entry) {
       return '';
     }
 
@@ -611,7 +362,7 @@
         '<div class="film-watch-wrap">' +
           '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>' +
         '</div>' +
-        (caption ? '<div class="film-caption">' + caption + '</div>' : '');
+        '<div class="film-caption">' + caption + '</div>';
     } else {
       elements.lightboxStage.innerHTML = '';
     }
@@ -647,12 +398,7 @@
     elements.lightboxNext.style.display = 'none';
     elements.lightboxInfoToggle.style.display = '';
     elements.lightboxInfoPanel.style.display = '';
-    var videoDirectInfo = getEntryInfo(entry);
-    elements.lightboxInfoPanel.innerHTML = videoDirectInfo;
-    if (!videoDirectInfo) {
-      elements.lightboxInfoToggle.style.display = 'none';
-      elements.lightboxInfoPanel.style.display = 'none';
-    }
+    elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
 
   function syncMainImageAspectRatio(mainImage) {
@@ -854,12 +600,7 @@
     }
 
     setLightboxChromeVisible(true);
-    var standardInfo = getEntryInfo(entry);
-    elements.lightboxInfoPanel.innerHTML = standardInfo;
-    if (!standardInfo) {
-      elements.lightboxInfoToggle.style.display = 'none';
-      elements.lightboxInfoPanel.style.display = 'none';
-    }
+    elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
 
   // ============================================================
@@ -1062,11 +803,7 @@
     var ghCounter = document.getElementById('gh-counter');
 
     if (ghInfoPanel) {
-      var ghInfo = getEntryInfo(entry);
-      ghInfoPanel.innerHTML = ghInfo;
-      if (!ghInfo && ghInfoToggle) {
-        ghInfoToggle.style.display = 'none';
-      }
+      ghInfoPanel.innerHTML = getEntryInfo(entry);
     }
 
     if (ghInfoToggle) {
@@ -1323,12 +1060,7 @@ function renderPhotoGridLightbox(entry) {
     elements.lightboxThumbs.style.display = 'none';
     elements.lightboxPrev.style.display = 'none';
     elements.lightboxNext.style.display = 'none';
-    var photoGridInfo = getEntryInfo(entry);
-    elements.lightboxInfoPanel.innerHTML = photoGridInfo;
-    if (!photoGridInfo) {
-      elements.lightboxInfoToggle.style.display = 'none';
-      elements.lightboxInfoPanel.style.display = 'none';
-    }
+    elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
   }
 
 // function renderBookStage(entry) {
@@ -1421,24 +1153,16 @@ function renderBookStage(entry) {
     // Fixed, rotating "buy me" button. Appended to the overlay itself
     // (not the scrolling stage) so it stays put in the corner and keeps
     // spinning no matter how far the content is scrolled.
-    //
-    // If Stripe is configured (publishable key + a priceCents on this
-    // book), clicking opens the in-page Stripe modal instead of
-    // navigating to book.buyUrl. If not, it falls back to the old
-    // "open buyUrl in a new tab" behavior — so this is safe to ship
-    // even before every book has a price set.
-    if (book.buyUrl || book.priceCents) {
+    if (book.buyUrl) {
       var buyBtnWrap = document.createElement('div');
       buyBtnWrap.className = 'buy-btn-wrap buy-btn-wrap-fixed';
 
-      var buyBtn = document.createElement('button');
-      buyBtn.type = 'button';
+      var buyBtn = document.createElement('a');
+      buyBtn.href = book.buyUrl;
+      buyBtn.target = '_blank';
+      buyBtn.rel = 'noopener';
       buyBtn.className = 'buy-btn';
       buyBtn.textContent = 'BUY ME';
-
-      buyBtn.addEventListener('click', function () {
-        openStripeModal(entry);
-      });
 
       buyBtnWrap.appendChild(buyBtn);
       elements.lightboxOverlay.appendChild(buyBtnWrap);
@@ -1587,6 +1311,17 @@ function renderBookStage(entry) {
     var details = document.createElement('details');
     var summary = document.createElement('summary');
     summary.appendChild(document.createTextNode(entry.text || 'Untitled'));
+
+    var catDot = document.createElement('span');
+    catDot.className = 'cat-dot';
+    catDot.textContent = '●';
+    summary.appendChild(catDot);
+
+    if (isHoverOnly(entry) || (!getEntryImages(entry).length && !entry.body && !entry.vimeo && !(entry.book && entry.book.content && entry.book.content.length))) {      var emptyTag = document.createElement('span');
+      emptyTag.className = 'empty-tag';
+      emptyTag.textContent = isHoverOnly(entry) ? 'hover only' : ' = empty';
+      summary.appendChild(emptyTag);
+    }
 
     if (state.activeCategory && entry.cat === state.activeCategory) {
       li.classList.add('category-active');
@@ -1832,11 +1567,6 @@ function renderBookStage(entry) {
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
-      if (stripeEls.overlay && stripeEls.overlay.classList.contains('open')) {
-        closeStripeModal();
-        return;
-      }
-
       if (elements.lightboxOverlay.classList.contains('open')) {
         closeLightbox();
         return;
