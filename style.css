@@ -1067,23 +1067,28 @@ body {
 .gh-grid {
   width: 250px;
   flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  align-content: flex-start;
+  display: grid;
+  grid-template-columns: repeat(var(--gh-cols, 2), 1fr);
+  align-content: end;
   height: 100%;
   padding: 0;
   gap: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+.gh-grid::-webkit-scrollbar {
+  display: none;
 }
 
 .gh-thumb {
   position: relative;
-  width: 50%;
+  width: 100%; /* grid column controls sizing now */
   box-sizing: border-box;
   overflow: hidden;
   cursor: pointer;
-  border: 1px solid #f2f2f2; /* thin gutter between tiles */
+  border: 1px solid #f2f2f2;
 }
 
 .gh-thumb img {
@@ -1219,7 +1224,7 @@ body {
 }
 
 .film-vimeo {
-  width: 80%;
+  width: 90%;
   max-width: 900px;
   height: 500px;
   border: none;
@@ -1311,8 +1316,6 @@ body {
   padding: 8px 16px 14px;
 }
 
-/* OLD -- Books category: two-column stage — text/buy button left, image right */
-/* ── Books: grid + large preview, text/buy button below the image ── */
 /* Books v3 — post-editor content as the stage background, buy button
    floats fixed over everything and keeps its existing spin. */
 .book-stage-v3 {
@@ -1390,7 +1393,6 @@ body {
   mix-blend-mode: difference; /* auto-contrast against the category tint */
 }
 
-/* Close button — auto-contrast against the book category tint, book layout only */
 .book-stage-v3 .book-content,
 .book-stage-v3 .book-content :not(img) {
   color: #fff;
@@ -1908,17 +1910,6 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
     font-size: 9px;
   }
 }
-/* Photography (existing default look) */
-.gh-stage[data-variant=photography] .gh-thumb {
-  aspect-ratio: 3/2;
-}
-
-/* PAINTING — give it its own thumbnail ratio / spacing / accent color */
-/* ── Painting: rigid 3-column grid, each column its own character ── */
-/* ── Painting: JS-driven masonry (main.js's renderPaintingMasonry
-   measures the real container height and only ever places an item into
-   a column that has room left; a new column is added automatically if
-   every existing one is full) ── */
 /* Take the grid out of flex flow entirely so extra columns overlap the
    preview image instead of pushing it over or getting clipped/scrolled */
 .gh-stage[data-variant=painting] {
@@ -1985,7 +1976,6 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
   transform: scale(1.04);
 }
 
-/* COLLAGE — same idea, its own values */
 /* ── Collage: scrollable 2-column scatter grid ── */
 /* Grid itself becomes the scroll container; .gh-preview (image + info
    panel) is a separate flex sibling of .gh-grid inside .gh-stage, so it
@@ -2019,7 +2009,6 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
   transform: scale(1.05) rotate(0deg);
 }
 
-/* ── SIZE control: repeats every 6 tiles — edit these ratios freely ── */
 /* Occasional full-width showcase tile — delete this rule if you don't want it */
 .gh-stage[data-variant=collage] .gh-thumb:nth-child(9n+5) {
   grid-column: span 2;
@@ -2325,6 +2314,16 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
     bottom: -3px;
     /* transform: translateX(-50%); */
     flex-direction: row;
+  }
+  .gm-chnum {
+    font-size: 12px;
+  }
+  .gm-chtitle {
+    font-size: 12px;
+  }
+  .gm-chname {
+    font-size: 12px;
+    color: #ccc;
   }
 }
 .site-footer {

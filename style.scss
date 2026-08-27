@@ -373,40 +373,6 @@ body {
     color: #0045bd;
 }
 
-// #nav-line {
-//     height: 100%;
-//     justify-content: center;
-//     display: flex;
-//     flex-direction: column;
-//     position: fixed;
-//     font-size: 20px;
-//     right: 0;
-//     text-align: right;
-// }
-
-// #nav-line span.cat {
-//     cursor: pointer;
-//     padding: 0 15px;
-//     font-size: 15px;
-//     transition: font-size 0.15s ease;
-//     color: black !important;
-//     text-transform: uppercase;
-// }
-
-// #nav-line span.cat:hover {
-//     /* text-decoration: underline;  */
-//     font-size: 20px;
-// }
-
-// #nav-line span.cat.active {
-//     /* text-decoration: underline;  */
-//     font-size: 20px;
-//     // color: black !important;
-//     // color: #2596be!important;
-//     // color: #F7C346!important;
-//     color: #0045bd!important;
-// }
-
 #list {
     margin: 0;
     padding: 0;
@@ -449,13 +415,6 @@ body {
     // color: #96CC00;
 }
 
-// #list summary.highlighted {
-//     font-size: 30px;
-// }
-
-// #list summary.is-open {
-//     font-size: 30px;
-// }
 
 #list li.category-active summary,
 #list summary.category-active {
@@ -1084,16 +1043,6 @@ body {
     // background: linear-gradient(0deg, rgba(130, 130, 130, 1) 0%, rgba(242, 255, 186, 0) 50%);
 }
 
-// .lightbox-overlay::before {
-//   content: "";
-//   position: absolute;
-//   inset: 0;
-//   z-index: -1;
-//     background: linear-gradient(0deg, rgba(130, 130, 130, 1) 0%, rgba(242, 255, 186, 0) 50%);
-//   backdrop-filter: blur(3px);
-//   -webkit-backdrop-filter: blur(2px); /* Safari */
-// }
-
 .lightbox-overlay::before {
   content: "";
   position: absolute;
@@ -1215,24 +1164,25 @@ body {
 .gh-grid {
     width: 250px;
     flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-content: flex-start;
+    display: grid;
+    grid-template-columns: repeat(var(--gh-cols, 2), 1fr);
+    align-content: end;
     height: 100%;
     padding: 0;
     gap: 0;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
 }
+.gh-grid::-webkit-scrollbar { display: none; }
 
 .gh-thumb {
     position: relative;
-    width: 50%;
+    width: 100%;         /* grid column controls sizing now */
     box-sizing: border-box;
     overflow: hidden;
     cursor: pointer;
-    border: 1px solid #f2f2f2; /* thin gutter between tiles */
-    // background: #ddd;
+    border: 1px solid #f2f2f2;
 }
 
 .gh-thumb img {
@@ -1401,24 +1351,8 @@ body {
     background: #000;
 }
 
-// .film-vimeo {
-//     width: 80%;
-//     max-width: 900px;
-//     height: 500px;
-//     border: none;
-// }
-
-// .film-watch-wrap {
-//     display: flex;
-//     flex-direction: column;
-//     align-items: center;
-//     width: 100%;
-//     height: 100%;
-//     justify-content: center;
-// }
-
 .film-vimeo {
-    width: 80%;
+    width: 90%;
     max-width: 900px;
     height: 500px;
     border: none;
@@ -1450,21 +1384,6 @@ body {
         margin: 0;
     }
 }
-
-// .film-caption {
-//     width: 80%;
-//     max-width: 900px;
-//     margin-top: 14px;
-//     font-size: 15px;
-//     line-height: 1.4;
-//     color: white;
-//     text-shadow: #FC0 1px 0 10px;
-//     text-align: center;
-
-//     p {
-//         margin: 0;
-//     }
-// }
 
 .film-resume-btn {
     position: absolute;
@@ -1526,112 +1445,6 @@ body {
     overflow-y: auto;
     padding: 8px 16px 14px;
 }
-
-/* OLD -- Books category: two-column stage — text/buy button left, image right */
-/* ── Books: grid + large preview, text/buy button below the image ── */
-// .book-stage-v2 {
-//     display: flex;
-//     width: 100%;
-//     height: 100%;
-// }
-
-// .book-grid {
-//     width: 250px;
-//     flex-shrink: 0;
-//     display: flex;
-//     flex-wrap: wrap;
-//     align-content: flex-start;
-//     height: 100%;
-//     overflow-y: auto;
-//     overflow-x: hidden;
-//     gap: 0;
-// }
-
-// .book-grid::-webkit-scrollbar {
-//     width: 10px;
-// }
-
-// .book-grid::-webkit-scrollbar-track {
-//     background: transparent;
-// }
-
-// .book-grid::-webkit-scrollbar-thumb {
-//     background: rgb(0, 0, 0);
-//     // border-radius: 4px;
-// }
-
-// .book-grid::-webkit-scrollbar-thumb:hover {
-//     background: rgba(0, 0, 0, 0.55);
-// }
-
-// .book-grid .gh-thumb {
-//     width: 50%;
-//     aspect-ratio: 3 / 4;
-// }
-
-// .book-main {
-//     flex: 1;
-//     display: flex;
-//     flex-direction: column;
-//     min-width: 0;
-//     height: 100%;
-//     overflow: hidden;
-// }
-
-// .book-main-image-wrap {
-//     flex: 1;
-//     display: flex;
-//     align-items: center;
-//     justify-content: center;
-//     overflow: hidden;
-//     min-height: 0;
-//     // background: #000;
-// }
-
-// .book-main-image-wrap img {
-//     max-width: 100%;
-//     max-height: 100%;
-//     object-fit: contain;
-//     display: block;
-// }
-
-// .book-info {
-//     flex-shrink: 0;
-//     padding: 24px 30px;
-//     // background: #828282;
-//     // background: linear-gradient(0deg, rgba(242, 255, 186, 1) 0%, rgba(130, 130, 130, 0) 100%);
-//     font-size: 16px;
-//     line-height: 1.6;
-//     color: #111;
-//     max-height: 40%;
-//     overflow-y: auto;
-//     display: flex;
-//     align-items: center;
-//     gap: 20px;
-// }
-
-
-
-// @media (max-width: 700px) {
-//     .book-stage-v2 {
-//         flex-direction: column;
-//     }
-
-//     .book-grid {
-//         width: 100%;
-//         height: 120px;
-//         flex-wrap: nowrap;
-//         overflow-x: auto;
-//         overflow-y: hidden;
-//     }
-
-//     .book-grid .gh-thumb {
-//         width: auto;
-//         height: 100%;
-//         aspect-ratio: 3 / 4;
-//         flex-shrink: 0;
-//     }
-// }
 
 /* Books v3 — post-editor content as the stage background, buy button
    floats fixed over everything and keeps its existing spin. */
@@ -1709,12 +1522,6 @@ body {
     z-index: 456785680;
     mix-blend-mode: difference; /* auto-contrast against the category tint */
 }
-
-/* Close button — auto-contrast against the book category tint, book layout only */
-// .lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-ring {
-//     stroke: #fff;
-//     mix-blend-mode: difference;
-// }
 
 .book-stage-v3 .book-content,
 .book-stage-v3 .book-content :not(img) {
@@ -1874,30 +1681,6 @@ body {
     margin: 0.5%;
 }
 
-// #god-mode-btn .justin-circ-btn svg {
-//   animation: justin-circ-spin 18s linear infinite;
-
-//     .justin-circ-btn-x {
-//         stroke: transparent;
-//     }
-// }
-
-// .justin-circ-btn svg {
-//     border-radius: 50%;
-//     box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); // start invisible, same shape as hover target
-//     transition: background-color 0.2s ease, box-shadow 0.35s ease;
-// }
-
-// #god-mode-btn:hover .justin-circ-btn svg {
-//     box-shadow: 0 0 8px 2px rgba(0, 0, 0, 0.8); // blurred "border" fades in
-// }
-
-// .justin-circ-btn-text {
-//     fill: black;
-//     transition: fill 0.2s ease;
-//     font-size: 20px !important;
-// }
-
 #god-mode-btn .justin-circ-btn svg {
 //   border: solid;
   animation: justin-circ-spin 18s linear infinite;
@@ -1907,13 +1690,6 @@ body {
         stroke: transparent;
     }
 }
-
-// #god-mode-btn:hover .justin-circ-btn svg {
-//     // background-color: #000;
-//     // background-color: #0045bd !important;
-//     // box-shadow: inset 0 0 20px 4px rgba(0, 0, 0, 0.6);
-//     // border: solid;
-// }
 
 .justin-circ-btn svg {
     border-radius: 50%;
@@ -1931,10 +1707,6 @@ body {
     fill: #0045bd;
 }
 
-// #god-mode-btn.is-active .justin-circ-btn-ring {
-//   stroke: #fff;
-// }
-
 #god-mode-btn.is-active .justin-circ-btn-text {
   fill: #fff;
 }
@@ -1946,42 +1718,10 @@ body {
     // transition: transform 0.2s ease;
 }
 
-// #god-mode-btn.is-active:hover .justin-circ-btn-x {
-//     transform: scale(5);
-// }
-
-// #god-mode-btn {
-//     position: fixed;
-//     right: 0;
-//     cursor: pointer;
-//     padding: 0 15px;
-//     font-size: 15px;
-//     transition: font-size 0.15s ease, z-index 0s;
-//     color: black !important;
-//     z-index: 456785678;
-//     text-decoration: none;
-// }
-
-// #god-mode-btn:hover {
-//     color: red !important;
-// }
-
 // /* When a popup/lightbox is open, GOD MODE sits behind it like the rest of the page */
 #god-mode-btn.behind-popup {
     z-index: 1;
 }
-
-// #god-mode-btn.is-active .justin-circ-btn-ring {
-//   stroke: #fff;
-// }
-
-// #god-mode-btn.is-active .justin-circ-btn-text {
-//   fill: #fff;
-// }
-
-// #god-mode-btn.is-active .justin-circ-btn-x {
-//   stroke: #fff;
-// }
 
 #god-mode-overlay {
   position: fixed;
@@ -2241,102 +1981,6 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
     }
 }
 
-
-// CHECK IF IT MAKES SENSE FOR LAYOUTS
-
-/* Photography (existing default look) */
-.gh-stage[data-variant="photography"] .gh-thumb {
-  aspect-ratio: 3 / 2;
-}
-
-/* PAINTING — give it its own thumbnail ratio / spacing / accent color */
-// .gh-stage[data-variant="painting"] .gh-thumb {
-//   aspect-ratio: 4 / 5;
-// }
-// .gh-stage[data-variant="painting"] .gh-info-toggle {
-//   background: #7a5c3e; /* example accent */
-// }
-
-/* ── Painting: rigid 3-column grid, each column its own character ── */
-// .gh-stage[data-variant="painting"] .gh-grid {
-//   display: grid;
-//   grid-template-columns: 1.15fr 1fr 0.75fr; /* col widths: tight / floating / sparse */
-//   grid-auto-rows: min-content;
-//   gap: 0;
-//   width: 340px;         /* widen the whole rail if 3 columns feel cramped */
-//   height: 100%;
-//   overflow: hidden;      /* rigid — no scrolling, unlike Collage */
-//   align-content: start;
-//   padding: 0;
-// }
-
-// .gh-stage[data-variant="painting"] .gh-thumb {
-//   width: 100%;
-//   box-sizing: border-box;
-// }
-
-// /* Cycle of 5 across the thumbnail sequence: col1, col2, col1, col2, col3.
-//    Column 3 only gets 1 in every 5 — that's the "fewer of them". */
-
-// /* Column 1 — rigid: edge-to-edge, thin gutter, no floating gaps */
-// .gh-stage[data-variant="painting"] .gh-thumb:nth-child(5n+1) {
-//   grid-column: 1;
-//   border: 1px solid #f2f2f2;
-//   aspect-ratio: 3 / 4;
-// }
-// .gh-stage[data-variant="painting"] .gh-thumb:nth-child(5n+3) {
-//   grid-column: 1;
-//   border: 1px solid #f2f2f2;
-//   aspect-ratio: 1 / 1;
-// }
-
-// /* Column 2 — floating: narrower than its track + margin, so it visibly
-//    detaches from the grid edges instead of touching neighbors */
-// .gh-stage[data-variant="painting"] .gh-thumb:nth-child(5n+2) {
-//   grid-column: 2;
-//   width: 82%;
-//   margin: 18px auto;
-//   aspect-ratio: 4 / 5;
-//   box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.15);
-// }
-// .gh-stage[data-variant="painting"] .gh-thumb:nth-child(5n+4) {
-//   grid-column: 2;
-//   width: 70%;
-//   margin: 24px auto;
-//   aspect-ratio: 1 / 1;
-//   box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.15);
-// }
-
-// /* Column 3 — sparse: only 1 in 5, generous margin, its own size */
-// .gh-stage[data-variant="painting"] .gh-thumb:nth-child(5n) {
-//   grid-column: 3;
-//   width: 90%;
-//   margin: 40px auto;
-//   aspect-ratio: 5 / 6;
-//   box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.15);
-// }
-
-/* ── Painting: JS-driven masonry (main.js's renderPaintingMasonry
-   measures the real container height and only ever places an item into
-   a column that has room left; a new column is added automatically if
-   every existing one is full) ── */
-// .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting {
-//   display: flex;
-//   align-items: flex-start;
-//   gap: 8px;
-//   padding: 12px 10px;
-//   width: auto;         /* grows only as many columns as JS actually adds */
-//   max-width: 420px;    /* hard cap: guarantees it can never push off the page */
-//   height: 100%;
-//   overflow-x: auto;    /* only ever engages if the cap above is hit */
-//   overflow-y: hidden;
-//   scrollbar-width: none;
-// }
-
-// .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting::-webkit-scrollbar {
-//   display: none;
-// }
-
 /* Take the grid out of flex flow entirely so extra columns overlap the
    preview image instead of pushing it over or getting clipped/scrolled */
 .gh-stage[data-variant="painting"] {
@@ -2402,15 +2046,6 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
   transform: scale(1.04);
 }
 
-
-/* COLLAGE — same idea, its own values */
-// .gh-stage[data-variant="collage"] .gh-thumb {
-//   aspect-ratio: 1 / 1;
-// }
-// .gh-stage[data-variant="collage"] .gh-info-toggle {
-//   background: #4a4a4a; /* example accent */
-// }
-
 /* ── Collage: scrollable 2-column scatter grid ── */
 /* Grid itself becomes the scroll container; .gh-preview (image + info
    panel) is a separate flex sibling of .gh-grid inside .gh-stage, so it
@@ -2445,14 +2080,6 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
   transform: scale(1.05) rotate(0deg);
 }
 
-/* ── SIZE control: repeats every 6 tiles — edit these ratios freely ── */
-// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+1) { aspect-ratio: 3 / 4; }
-// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+2) { aspect-ratio: 1 / 1; }
-// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+3) { aspect-ratio: 4 / 3; }
-// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+4) { aspect-ratio: 1 / 1.3; }
-// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+5) { aspect-ratio: 5 / 4; }
-// .gh-stage[data-variant="collage"] .gh-thumb:nth-child(6n+6) { aspect-ratio: 2 / 3; }
-
 /* Occasional full-width showcase tile — delete this rule if you don't want it */
 .gh-stage[data-variant="collage"] .gh-thumb:nth-child(9n+5) {
   grid-column: span 2;
@@ -2464,19 +2091,6 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 .gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+2) { transform: translateX(10px) rotate(2.5deg); }
 .gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+3) { transform: translateX(-6px) rotate(-1.5deg); }
 .gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n)   { transform: translateX(8px) rotate(2deg); }
-
-// .gh-counter {
-//     position: absolute;
-//     left: 50%;
-//     bottom: 10px;
-//     transform: translateX(-50%);
-//     font-size: 13px;
-//     letter-spacing: 0.08em;
-//     color: white;
-//     text-shadow: #FC0 1px 0 10px;
-//     pointer-events: none;
-//     z-index: 4;
-// }
 
 .gh-counter-wrap {
     position: absolute;
@@ -2530,12 +2144,6 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 //   stroke: #000;
   stroke-width: 1;
 }
-
-// .justin-circ-btn-text {
-//   fill: #000;
-//   text-transform: uppercase;
-//   font-family: inherit;
-// }
 
 .justin-circ-btn-x {
   stroke: #000;
@@ -2612,12 +2220,6 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
         height: auto;
         text-align: left;
     }
-
-    // #nav-line span.cat{
-    //     font-size: 12px;
-    //     color: black!important;
-    //     padding: 5px 15px;
-    // }
 
     .site-footer{
         flex-direction: row!important;
@@ -2730,6 +2332,7 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 	z-index: 2;
 }
 
+// turn these into gm-info span
 .gm-chnum {
 	font-size: 18px;
 }
@@ -2785,6 +2388,19 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
         /* transform: translateX(-50%); */
         flex-direction: row;
 	}
+
+    .gm-chnum {
+        font-size: 12px;
+    }
+
+    .gm-chtitle {
+        font-size: 12px;
+    }
+
+    .gm-chname {
+        font-size: 12px;
+        color: #ccc;
+    }
 }
 
 
@@ -2818,14 +2434,6 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
   text-decoration: none;
   color: #000;
 }
-
-// .footer-eyes-link{
-//     font-size: 30px;
-// }
-
-// .footer-eyes-link:hover{
-//     font-size: 35px;
-// }
 
 .footer-eyes-link{
     font-size: 30px;

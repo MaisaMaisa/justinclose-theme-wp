@@ -491,14 +491,6 @@
     return Array.isArray(entry.images) ? entry.images.slice() : [];
   }
 
-  // function getEntryTeasers(entry) {
-  //   if (!entry || !entry.book || !Array.isArray(entry.book.teasers)) {
-  //     return [];
-  //   }
-
-  //   return entry.book.teasers.slice();
-  // }
-
   function getEntryInfo(entry) {
     if (!entry || entry.infoDisabled) {
       return '';
@@ -541,14 +533,6 @@
           ? 'https://player.vimeo.com/video/' + encodeURIComponent(vimeoId) + '?autoplay=1&muted=1&loop=1&title=0&byline=0&portrait=0'
           : rawUrl;
       }
-
-      // if (host.indexOf('vimeo') !== -1) {
-      //   var vimeoMatch = rawUrl.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
-      //   var vimeoId = vimeoMatch ? vimeoMatch[1] : '';
-      //   return vimeoId
-      //     ? 'https://player.vimeo.com/video/' + encodeURIComponent(vimeoId) + '?autoplay=1&muted=1&loop=1&background=1'
-      //     : rawUrl;
-      // }
     } catch (error) {
       return rawUrl;
     }
@@ -566,8 +550,6 @@
     var hasFilmVideo = !!(entry.film && entry.film.videoUrl && String(entry.film.videoUrl).trim().length);
     var hasDirectVideo = !!(entry.videoUrl && String(entry.videoUrl).trim().length);
     var hasBookContent = !!(entry.book && entry.book.content && String(entry.book.content).trim().length);
-    // var hasBookText = !!(entry.book && entry.book.text && String(entry.book.text).trim().length);
-    // var hasBookImages = !!(entry.book && Array.isArray(entry.book.images) && entry.book.images.length);
 
     return !hasImages && !hasBody && !hasFilmVideo && !hasDirectVideo && !hasBookContent;
   }
@@ -619,19 +601,6 @@
     elements.lightboxThumbs.innerHTML = '';
   }
 
-  // function buildVideoStage(entry) {
-  //   var videoUrl = entry && entry.film ? entry.film.videoUrl : '';
-  //   var embedUrl = getVideoEmbedUrl(videoUrl);
-
-  //   if (embedUrl) {
-  //     elements.lightboxStage.innerHTML = '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
-  //   } else {
-  //     elements.lightboxStage.innerHTML = '';
-  //   }
-
-  //   elements.lightboxThumbs.innerHTML = '';
-  // }
-
   function renderVideoDirectLightbox(entry) {
     var embedUrl = getVideoEmbedUrl(entry.videoUrl);
 
@@ -673,31 +642,6 @@
 
     mainImage.addEventListener('load', applyRatio, { once: true });
   }
-
-  // function moveJustinLabelToElement(targetElement) {
-  //   if (!elements.page || !elements.justinLabel || !targetElement || !elements.page.contains(targetElement)) {
-  //     return;
-  //   }
-
-  //   if (justinLabelFrame) {
-  //     window.cancelAnimationFrame(justinLabelFrame);
-  //   }
-
-  //   justinLabelFrame = window.requestAnimationFrame(function () {
-  //     var targetStyles = window.getComputedStyle(targetElement);
-  //     var labelStyles = window.getComputedStyle(elements.justinLabel);
-  //     var targetFontSize = targetStyles.fontSize || labelStyles.fontSize;
-
-  //     elements.justinLabel.style.fontSize = targetFontSize;
-
-  //     var targetRect = targetElement.getBoundingClientRect();
-  //     var labelRect = elements.justinLabel.getBoundingClientRect();
-  //     var labelTop = Math.max(0, targetRect.top + ((targetRect.height - labelRect.height) / 2));
-
-  //     elements.justinLabel.style.top = labelTop + 'px';
-  //     justinLabelFrame = null;
-  //   });
-  // }
 
   function moveJustinLabelToElement(targetElement) {
     if (!elements.page || !elements.justinLabel || !targetElement || !elements.page.contains(targetElement)) {
@@ -764,19 +708,6 @@
     elements.lightboxInfoToggle.style.display = '';
   }
 
-  // function buildVideoStage(entry) {
-  //   var videoUrl = entry && entry.film ? entry.film.videoUrl : '';
-  //   var embedUrl = getVideoEmbedUrl(videoUrl);
-
-  //   if (embedUrl) {
-  //     elements.lightboxStage.innerHTML = '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
-  //   } else {
-  //     elements.lightboxStage.innerHTML = '';
-  //   }
-
-  //   elements.lightboxThumbs.innerHTML = '';
-  // }
-
   function renderImageLightbox(entry) {
     var images = getEntryImages(entry);
     var isFilmEntry = !!(entry && entry.cat === 'Film');
@@ -793,15 +724,6 @@
       setLightboxChromeVisible(false);   // was: true
       return;                            // delete the getEntryInfo line that followed
     }
-
-    // if (!images.length && videoUrl) {
-    //   state.watchMode = true;
-    //   elements.lightboxOverlay.classList.add('watch-mode');
-    //   buildVideoStage(entry);
-    //   setLightboxChromeVisible(true);
-    //   elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
-    //   return;
-    // }
 
     var initialImage = images[0] || '';
     elements.lightboxStage.innerHTML = initialImage ? '<img id="lightbox-main-image" src="' + initialImage + '" alt="' + escapeHtml(entry.text || '') + '">' : '';
@@ -1016,19 +938,28 @@
     }
   }
 
+function computeOptimalGrid(containerWidth, containerHeight, count, aspectRatio, minCols, maxCols) {
+  minCols = minCols || 1;
+  maxCols = maxCols || 8;
+  if (!count) {
+    return { cols: minCols, rows: 1 };
+  }
+
+  for (var cols = minCols; cols <= maxCols; cols += 1) {
+    var thumbWidth = containerWidth / cols;
+    var thumbHeight = thumbWidth / aspectRatio;
+    var rows = Math.ceil(count / cols);
+    var totalHeight = rows * thumbHeight;
+
+    if (totalHeight <= containerHeight || cols === maxCols) {
+      return { cols: cols, rows: rows };
+    }
+  }
+}
+
   function renderGridHoverLightbox(entry) {
     var images = getEntryImages(entry);
     var variant = entry.layoutVariant || 'photography';
-
-    // var html =
-    //   '<div class="gh-stage" id="gh-stage" data-variant="' + escapeHtml(variant) + '">' +
-    //     '<div class="gh-grid" id="gh-grid"></div>' +
-    //     '<div class="gh-preview" id="gh-preview">' +
-    //       (images[0] ? '<img id="gh-preview-img" src="' + images[0] + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
-    //       '<button type="button" class="gh-info-toggle" id="gh-info-toggle" aria-label="Toggle info">ⓘ</button>' +
-    //       '<div class="gh-info-panel" id="gh-info-panel"></div>' +
-    //     '</div>' +
-    //   '</div>';
 
     var html =
       '<div class="gh-stage" id="gh-stage" data-variant="' + escapeHtml(variant) + '">' +
@@ -1049,11 +980,6 @@
       '</div>';
 
     elements.lightboxStage.innerHTML = html;
-
-    // var ghGrid = document.getElementById('gh-grid');
-    // var ghPreviewImg = document.getElementById('gh-preview-img');
-    // var ghInfoToggle = document.getElementById('gh-info-toggle');
-    // var ghInfoPanel = document.getElementById('gh-info-panel');
 
     var ghGrid = document.getElementById('gh-grid');
     var ghPreviewImg = document.getElementById('gh-preview-img');
@@ -1109,74 +1035,83 @@
       // FIX: pass the shared selectImage + thumbEls down so painting
       // thumbnails participate in the same active-state/counter sync.
       renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls);
-    } else {
-      var isCollage = variant === 'collage';
-      var columns = 2;
-      var rows = Math.ceil(images.length / columns);
-      var thumbHeightPercent = rows > 0 ? (100 / rows) : 100;
+      } else {
+        var isCollage = variant === 'collage';
+        var containerWidth = ghGrid.clientWidth || 250;
+        var containerHeight = ghGrid.clientHeight || 600;
+        var aspectRatio = isCollage ? 1 : (3 / 2);
 
-      images.forEach(function (imageUrl, index) {
-        var thumb = document.createElement('div');
-        thumb.className = 'gh-thumb';
+        var columns = 2;
+
         if (!isCollage) {
-          thumb.style.flex = '0 0 ' + thumbHeightPercent + '%';
+          var grid = computeOptimalGrid(containerWidth, containerHeight, images.length, aspectRatio, 2, 6);
+          columns = grid.cols;
+          ghGrid.style.setProperty('--gh-cols', columns);
+          ghGrid.style.gridAutoFlow = 'column';
+          ghGrid.style.gridTemplateRows = 'repeat(' + grid.rows + ', 1fr)';
+        } else {
+          ghGrid.style.setProperty('--gh-cols', columns);
         }
-        if (index === 0) {
-          thumb.classList.add('gh-active');
-        }
 
-        var thumbImg = document.createElement('img');
-        thumbImg.src = imageUrl;
-        thumbImg.alt = entry.text || '';
-        thumb.appendChild(thumbImg);
+        images.forEach(function (imageUrl, index) {
+          var thumb = document.createElement('div');
+          thumb.className = 'gh-thumb';
+          if (index === 0) {
+            thumb.classList.add('gh-active');
+          }
 
-        thumb.addEventListener('mouseenter', function () { selectImage(index); });
-        thumb.addEventListener('click', function () { selectImage(index); });
-        thumb.addEventListener('focus', function () { selectImage(index); });
-        thumb.setAttribute('tabindex', '0');
+          var thumbImg = document.createElement('img');
+          thumbImg.src = imageUrl;
+          thumbImg.alt = entry.text || '';
+          thumb.appendChild(thumbImg);
 
-        ghGrid.appendChild(thumb);
-        thumbEls.push(thumb);
-      });
-    }
+          thumb.addEventListener('mouseenter', function () { selectImage(index); });
+          thumb.addEventListener('click', function () { selectImage(index); });
+          thumb.addEventListener('focus', function () { selectImage(index); });
+          thumb.setAttribute('tabindex', '0');
+
+          ghGrid.appendChild(thumb);
+          thumbEls.push(thumb);
+        });
+      }
 
     // NEW: swipe up/down to navigate on mobile, alongside the arrows
-var ghPreview = document.getElementById('gh-preview');
-if (ghPreview && images.length > 1) {
-  var touchStartY = 0;
-  var touchStartX = 0;
-  var swipeThreshold = 40; // px — minimum vertical movement to count as a swipe
+    var ghPreview = document.getElementById('gh-preview');
+    if (ghPreview && images.length > 1) {
+      var touchStartY = 0;
+      var touchStartX = 0;
+      var swipeThreshold = 40; // px — minimum vertical movement to count as a swipe
 
-  ghPreview.addEventListener('touchstart', function (event) {
-    if (!event.touches || !event.touches.length) {
-      return;
-    }
-    touchStartY = event.touches[0].clientY;
-    touchStartX = event.touches[0].clientX;
-  }, { passive: true });
+      ghPreview.addEventListener('touchstart', function (event) {
+        if (!event.touches || !event.touches.length) {
+          return;
+        }
+        touchStartY = event.touches[0].clientY;
+        touchStartX = event.touches[0].clientX;
+      }, { passive: true });
 
-  ghPreview.addEventListener('touchend', function (event) {
-    if (!event.changedTouches || !event.changedTouches.length) {
-      return;
-    }
-    var touchEndY = event.changedTouches[0].clientY;
-    var touchEndX = event.changedTouches[0].clientX;
-    var deltaY = touchEndY - touchStartY;
-    var deltaX = touchEndX - touchStartX;
+      ghPreview.addEventListener('touchend', function (event) {
+        if (!event.changedTouches || !event.changedTouches.length) {
+          return;
+        }
+        var touchEndY = event.changedTouches[0].clientY;
+        var touchEndX = event.changedTouches[0].clientX;
+        var deltaY = touchEndY - touchStartY;
+        var deltaX = touchEndX - touchStartX;
 
-    // Only treat it as a swipe if vertical movement dominates —
-    // avoids hijacking horizontal gestures or accidental taps.
-    if (Math.abs(deltaY) < swipeThreshold || Math.abs(deltaY) < Math.abs(deltaX)) {
-      return;
-    }
+        // Only treat it as a swipe if vertical movement dominates —
+        // avoids hijacking horizontal gestures or accidental taps.
+        if (Math.abs(deltaY) < swipeThreshold || Math.abs(deltaY) < Math.abs(deltaX)) {
+          return;
+        }
 
-    if (deltaY < 0) {
-      selectImage(currentIndex + 1); // swiped up -> next image
-    } else {
-      selectImage(currentIndex - 1); // swiped down -> previous image
+        if (deltaY < 0) {
+          selectImage(currentIndex + 1); // swiped up -> next image
+        } else {
+          selectImage(currentIndex - 1); // swiped down -> previous image
+        }
+      }, { passive: true });
     }
-  }, { passive: true });
-}
 
     // FIX: nav-arrow wiring moved OUT of the `else` branch above so it
     // runs unconditionally — the arrows now work for painting too,
@@ -1189,8 +1124,6 @@ if (ghPreview && images.length > 1) {
     if (navNext) {
       navNext.addEventListener('click', function () { selectImage(currentIndex + 1); });
     }
-
-    // Hide the standard gallery chrome — this layout is fully self-contained
 
     // Hide the standard gallery chrome — this layout is fully self-contained
     elements.lightboxThumbs.innerHTML = '';
@@ -1330,75 +1263,6 @@ function renderPhotoGridLightbox(entry) {
       elements.lightboxInfoPanel.style.display = 'none';
     }
   }
-
-// function renderBookStage(entry) {
-//     var book = entry.book || {};
-//     var images = Array.isArray(book.images) ? book.images.slice() : [];
-//     var mainImage = images[0] || '';
-
-//     var html =
-//       '<div class="book-stage-v2" id="book-stage-v2">' +
-//         '<div class="book-grid" id="book-grid"></div>' +
-//         '<div class="book-main">' +
-//           '<div class="book-main-image-wrap">' +
-//             (mainImage ? '<img id="book-main-image" src="' + mainImage + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
-//           '</div>' +
-//           '<div class="book-info">' +
-//             '<div class="book-text">' + (book.text || '') + '</div>' +
-//             (book.buyUrl ? '<a class="buy-btn" href="' + book.buyUrl + '" target="_blank" rel="noopener">BUY ME</a>' : '') +
-//           '</div>' +
-//         '</div>' +
-//       '</div>';
-
-//     elements.lightboxStage.innerHTML = html;
-//     elements.lightboxStage.style.display = 'block';
-//     elements.lightboxStage.style.width = '100%';
-//     elements.lightboxStage.style.height = '100%';
-//     elements.lightboxStage.style.padding = '0';
-//     elements.lightboxStage.style.margin = '0';
-//     elements.lightboxThumbs.innerHTML = '';
-
-//     var bookGrid = document.getElementById('book-grid');
-
-//     images.forEach(function (imageUrl, index) {
-//       var thumb = document.createElement('div');
-//       thumb.className = 'gh-thumb book-thumb';
-//       if (index === 0) {
-//         thumb.classList.add('gh-active');
-//       }
-
-//       var thumbImg = document.createElement('img');
-//       thumbImg.src = imageUrl;
-//       thumbImg.alt = entry.text || '';
-//       thumb.appendChild(thumbImg);
-
-//       var setActive = function () {
-//         var mainImageElement = document.getElementById('book-main-image');
-//         if (mainImageElement) {
-//           mainImageElement.src = imageUrl;
-//         }
-//         bookGrid.querySelectorAll('.gh-thumb').forEach(function (node) {
-//           node.classList.remove('gh-active');
-//         });
-//         thumb.classList.add('gh-active');
-//       };
-
-//       thumb.addEventListener('mouseenter', setActive);
-//       thumb.addEventListener('click', setActive);
-//       thumb.addEventListener('focus', setActive);
-//       thumb.setAttribute('tabindex', '0');
-
-//       if (bookGrid) {
-//         bookGrid.appendChild(thumb);
-//       }
-//     });
-
-//     elements.lightboxThumbs.style.display = 'none';
-//     elements.lightboxInfoToggle.style.display = 'none';
-//     elements.lightboxInfoPanel.style.display = 'none';
-//     elements.lightboxPrev.style.display = 'none';
-//     elements.lightboxNext.style.display = 'none';
-//   }
 
 function renderBookStage(entry) {
     var book = entry.book || {};
