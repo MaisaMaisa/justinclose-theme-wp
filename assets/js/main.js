@@ -876,7 +876,7 @@
         thumb.classList.add('gh-active');
       }
       thumb.style.width = style.innerWidthPct + '%';
-      thumb.style.aspectRatio = ratio;
+      // thumb.style.aspectRatio = ratio;
       thumb.style.margin = style.marginY ? style.marginY + 'px auto' : '0';
       if (style.border) {
         thumb.style.border = '1px solid #f2f2f2';

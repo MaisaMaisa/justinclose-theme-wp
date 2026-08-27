@@ -1950,11 +1950,17 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
 
 .gh-stage[data-variant=painting] .gh-painting-right {
   justify-content: end;
+  align-self: flex-end;
+}
+
+.gh-col-floating {
+  align-self: flex-end;
 }
 
 .gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-col,
 .gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-thumb {
   pointer-events: auto; /* ...but the thumbnails themselves stay clickable */
+  gap: 5px;
 }
 
 .gh-stage[data-variant=painting] .gh-col {
@@ -1974,6 +1980,12 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
 
 .gh-stage[data-variant=painting] .gh-thumb:hover {
   transform: scale(1.04);
+}
+
+.gh-stage[data-variant=painting] .gh-thumb img {
+  height: auto;
+  -o-object-fit: unset;
+     object-fit: unset;
 }
 
 /* ── Collage: scrollable 2-column scatter grid ── */
