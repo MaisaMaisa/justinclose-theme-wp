@@ -2050,18 +2050,40 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 /* Grid itself becomes the scroll container; .gh-preview (image + info
    panel) is a separate flex sibling of .gh-grid inside .gh-stage, so it
    never scrolls — this is what keeps the main image/description fixed. */
+// .gh-stage[data-variant="collage"] .gh-grid {
+//   display: grid;
+//   grid-template-columns: repeat(2, 1fr);
+//   grid-auto-rows: min-content;
+//   width: 300px;              /* widen/narrow the whole column here */
+//   height: 100%;
+//   overflow-y: auto;
+//   overflow-x: hidden;
+//   align-content: start;
+//   gap: 18px 10px;
+//   padding: 24px 18px;
+//   scrollbar-width: none;     /* Firefox */
+// }
+
 .gh-stage[data-variant="collage"] .gh-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-auto-rows: min-content;
-  width: 300px;              /* widen/narrow the whole column here */
+  width: 300px;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   align-content: start;
+  align-items: start;   /* NEW — stops shorter thumbs being stretched to match a taller neighbor in the same row */
   gap: 18px 10px;
   padding: 24px 18px;
-  scrollbar-width: none;     /* Firefox */
+  scrollbar-width: none;
+}
+
+/* NEW rule — let each collage thumb keep its natural portrait/landscape
+   shape instead of being force-cropped to fill a stretched box */
+.gh-stage[data-variant="collage"] .gh-thumb img {
+  height: auto;
+  object-fit: unset;
 }
 
 .gh-stage[data-variant="collage"] .gh-grid::-webkit-scrollbar {
@@ -2083,7 +2105,7 @@ body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {
 /* Occasional full-width showcase tile — delete this rule if you don't want it */
 .gh-stage[data-variant="collage"] .gh-thumb:nth-child(9n+5) {
   grid-column: span 2;
-  aspect-ratio: 16 / 9;
+//   aspect-ratio: 16 / 9;
 }
 
 /* ── SCATTER control: diagonal left/right stagger + slight rotation, repeats every 4 ── */
