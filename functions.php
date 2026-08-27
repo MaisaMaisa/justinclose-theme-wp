@@ -500,6 +500,16 @@ class Justin_Social_Links_Widget extends WP_Widget {
     }
 
     public function widget($args, $instance) {
+        // Backend Widgets screen just shows a plain label while collapsed,
+        // instead of live-previewing the real (icon-only) markup.
+        // if (is_admin()) {
+        if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+            echo $args['before_widget'];
+            echo '<p style="margin:0;padding:8px;font-weight:600;">Justin: Social Links</p>';
+            echo $args['after_widget'];
+            return;
+        }
+
         $links = [];
         for ($i = 0; $i < self::MAX_LINKS; $i++) {
             $label = trim($instance['label_' . $i] ?? '');
@@ -550,15 +560,30 @@ class Justin_Social_Links_Widget extends WP_Widget {
 }
 
 class Justin_Eyes_Link_Widget extends WP_Widget {
+    const DEFAULT_EMOJI = '👀';
+
     public function __construct() {
         parent::__construct(
             'justin_eyes_link_widget',
             'Justin: Eyes Emoji Link',
-            ['description' => '👀 emoji linking to a page you choose.']
+            ['description' => 'Emoji linking to a page you choose.']
         );
     }
 
     public function widget($args, $instance) {
+        if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+        // if (is_admin()) {
+            echo $args['before_widget'];
+            echo '<p style="margin:0;padding:8px;font-weight:600;">Justin: Eyes Emoji Link</p>';
+            echo $args['after_widget'];
+            return;
+        }
+
+        $enabled = isset($instance['enabled']) ? (bool) $instance['enabled'] : true;
+        if (!$enabled) {
+            return;
+        }
+
         $page_id = absint($instance['page_id'] ?? 0);
         if (!$page_id || get_post_status($page_id) !== 'publish') {
             return;
@@ -568,19 +593,43 @@ class Justin_Eyes_Link_Widget extends WP_Widget {
             return;
         }
 
+        $emoji = trim((string) ($instance['emoji'] ?? ''));
+        if ($emoji === '') {
+            $emoji = self::DEFAULT_EMOJI;
+        }
+
         echo $args['before_widget'];
         printf(
-            '<a class="footer-eyes-link" href="%s" aria-label="%s">👀</a>',
-            esc_url($url),
-            esc_attr(get_the_title($page_id))
+        '<span class="footer-eyes-link-wrap"><a class="footer-eyes-link" href="%s" aria-label="%s">%s</a></span>',
+        esc_url($url),
+        esc_attr(get_the_title($page_id)),
+        esc_html($emoji)
         );
         echo $args['after_widget'];
     }
 
     public function form($instance) {
-        $page_id = absint($instance['page_id'] ?? 0); ?>
+        $page_id = absint($instance['page_id'] ?? 0);
+        $emoji   = $instance['emoji'] ?? self::DEFAULT_EMOJI;
+        $enabled = isset($instance['enabled']) ? (bool) $instance['enabled'] : true;
+        ?>
         <p>
-            <label for="<?php echo $this->get_field_id('page_id'); ?>">Link to page</label>
+            <label>
+                <input type="checkbox" name="<?php echo esc_attr($this->get_field_name('enabled')); ?>" value="1" <?php checked($enabled); ?> />
+                Show this widget
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('emoji')); ?>">Emoji</label>
+            <input class="widefat" type="text"
+                id="<?php echo esc_attr($this->get_field_id('emoji')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('emoji')); ?>"
+                value="<?php echo esc_attr($emoji); ?>"
+                placeholder="<?php echo esc_attr(self::DEFAULT_EMOJI); ?>" />
+            <span style="color:#666;">Leave blank to use the default (<?php echo esc_html(self::DEFAULT_EMOJI); ?>).</span>
+        </p>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('page_id')); ?>">Link to page</label>
             <?php wp_dropdown_pages([
                 'name'              => $this->get_field_name('page_id'),
                 'id'                => $this->get_field_id('page_id'),
@@ -590,10 +639,16 @@ class Justin_Eyes_Link_Widget extends WP_Widget {
                 'class'             => 'widefat',
             ]); ?>
         </p>
-    <?php }
+        <?php
+    }
 
     public function update($new_instance, $old_instance) {
-        return ['page_id' => absint($new_instance['page_id'] ?? 0)];
+        $emoji = sanitize_text_field($new_instance['emoji'] ?? '');
+        return [
+            'page_id' => absint($new_instance['page_id'] ?? 0),
+            'emoji'   => $emoji !== '' ? $emoji : self::DEFAULT_EMOJI,
+            'enabled' => !empty($new_instance['enabled']),
+        ];
     }
 }
 

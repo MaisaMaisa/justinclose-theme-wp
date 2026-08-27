@@ -2468,14 +2468,32 @@ align-self: flex-end;
   color: #000;
 }
 
-.footer-eyes-link{
+.footer-eyes-link-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.footer-eyes-link {
     font-size: 30px;
     display: inline-block;
     transition: transform 0.3s ease;
 }
 
-.footer-eyes-link:hover{
+/* default eyes widget: starts normal, flips on hover */
+.footer-eyes-link-wrap:hover .footer-eyes-link {
     transform: scaleX(-1);
+}
+
+/* video-grid homepage link: starts flipped, un-flips on hover */
+.footer-eyes-link--video-home {
+    transform: scaleX(-1);
+}
+
+.footer-eyes-link-wrap:hover .footer-eyes-link--video-home {
+    transform: scaleX(1);
 }
 
 .footer-info-popup {
@@ -2649,11 +2667,11 @@ align-self: flex-end;
 /* Video grid footer's homepage link: reuses the site's .footer-eyes-link
    styling/position, but starts flipped and returns to normal on hover —
    the opposite of the default eyes widget used elsewhere on the site. */
-.footer-eyes-link--video-home {
-	transform: scaleX(-1);
-}
+// .footer-eyes-link--video-home {
+// 	transform: scaleX(-1);
+// }
  
-.footer-eyes-link--video-home:hover {
-	transform: scaleX(1);
-}
+// .footer-eyes-link--video-home:hover {
+// 	transform: scaleX(1);
+// }
  
