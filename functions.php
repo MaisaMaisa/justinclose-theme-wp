@@ -206,186 +206,6 @@ if (!function_exists('justin_layout_variant_from_style')) {
 }
 
 /* =====================================================================
- * VIDEO GRID (Google Work page): custom post type, taxonomy, meta box,
- * and YouTube/Instagram helpers. Merged directly into functions.php —
- * no separate inc/ file needed. Everything is prefixed vgi_ so it can't
- * collide with the justin_* functions above.
- *
- * Template file: templates/template-video-grid.php
- * Assets: /video-grid.css (theme root), /assets/js/video-grid.js
- * ===================================================================== */
-
-/** ---------- Custom Post Type: grid_item ---------- */
-function vgi_register_post_type() {
-    register_post_type(
-        'grid_item',
-        array(
-            'labels'       => array(
-                'name'          => 'Video Grid Items',
-                'singular_name' => 'Grid Item',
-                'add_new_item'  => 'Add New Grid Item',
-                'edit_item'     => 'Edit Grid Item',
-                'all_items'     => 'All Grid Items',
-            ),
-            'public'       => false,
-            'show_ui'      => true,
-            'show_in_menu' => true,
-            'menu_icon'    => 'dashicons-grid-view',
-            // 'page-attributes' gives the built-in "Order" field so items
-            // can be arranged left-to-right, top-to-bottom in the grid.
-            'supports'     => array( 'title', 'thumbnail', 'page-attributes' ),
-            'has_archive'  => false,
-        )
-    );
-}
-add_action( 'init', 'vgi_register_post_type' );
-
-/** ---------- Taxonomy: grid_tag (the ROADS / BALCONY / CLOUDS style filters) ---------- */
-function vgi_register_taxonomy() {
-    register_taxonomy(
-        'grid_tag',
-        'grid_item',
-        array(
-            'labels'            => array(
-                'name'          => 'Grid Tags',
-                'singular_name' => 'Grid Tag',
-            ),
-            'hierarchical'      => false, // behaves like Tags, not Categories
-            'show_ui'           => true,
-            'show_admin_column' => true,
-            'show_in_rest'      => true,
-        )
-    );
-}
-add_action( 'init', 'vgi_register_taxonomy' );
-
-/** ---------- Meta box: video URL / external link / description ---------- */
-function vgi_add_meta_box() {
-    add_meta_box(
-        'vgi_details',
-        'Grid Item Details',
-        'vgi_render_meta_box',
-        'grid_item',
-        'normal',
-        'high'
-    );
-}
-add_action( 'add_meta_boxes', 'vgi_add_meta_box' );
-
-function vgi_render_meta_box( $post ) {
-    wp_nonce_field( 'vgi_save_meta', 'vgi_meta_nonce' );
-
-    $video_url    = get_post_meta( $post->ID, '_vgi_video_url', true );
-    $external_url = get_post_meta( $post->ID, '_vgi_external_link', true );
-    $description  = get_post_meta( $post->ID, '_vgi_description', true );
-    $thumbnail_id = get_post_meta( $post->ID, '_vgi_thumbnail_id', true );
-    ?>
-    <p>
-        <label for="vgi_video_url"><strong>YouTube or Instagram URL</strong></label><br>
-        <input type="url" id="vgi_video_url" name="vgi_video_url" style="width:100%;"
-            value="<?php echo esc_attr( $video_url ); ?>"
-            placeholder="https://www.youtube.com/watch?v=... or https://www.instagram.com/p/...">
-        <br><span style="color:#666;">Leave this blank if the item isn't a YouTube/Instagram post (e.g. a Google Drive link or a press article) &mdash; use "External Link" below instead.</span>
-    </p>
-    <p>
-        <label for="vgi_external_link"><strong>External Link (opens in a new tab)</strong></label><br>
-        <input type="url" id="vgi_external_link" name="vgi_external_link" style="width:100%;"
-            value="<?php echo esc_attr( $external_url ); ?>" placeholder="https://...">
-        <br><span style="color:#666;">Used for anything that isn't an embeddable YouTube/Instagram post (Google Drive downloads, press write-ups, etc.) &mdash; the tile will be a plain text tile that opens this link in a new tab. You can also fill this in alongside a video URL if you'd rather clicking send people to the original page instead of playing inline.</span>
-    </p>
-    <p>
-        <label for="vgi_description"><strong>Description</strong></label><br>
-        <textarea id="vgi_description" name="vgi_description" rows="3" style="width:100%;"><?php echo esc_textarea( $description ); ?></textarea>
-        <br><span style="color:#666;">Shown on hover for video tiles, and directly on the tile for plain-link tiles.</span>
-    </p>
-    <?php justin_render_media_preview( 'Thumbnail image', 'vgi_thumbnail_image', $thumbnail_id, false ); ?>
-    <p style="color:#666;">
-        YouTube thumbnails are pulled automatically, so this is optional for YouTube entries. For Instagram entries and plain-link entries, this image (if set) becomes the tile's picture instead of a plain text tile &mdash; Instagram doesn't allow us to auto-fetch a thumbnail without a paid API key, so upload a screenshot of the post here if you want one.
-    </p>
-    <?php
-}
-
-function vgi_save_meta( $post_id ) {
-    if ( ! isset( $_POST['vgi_meta_nonce'] ) || ! wp_verify_nonce( $_POST['vgi_meta_nonce'], 'vgi_save_meta' ) ) {
-        return;
-    }
-    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-        return;
-    }
-    if ( ! current_user_can( 'edit_post', $post_id ) ) {
-        return;
-    }
-
-    if ( isset( $_POST['vgi_video_url'] ) ) {
-        update_post_meta( $post_id, '_vgi_video_url', esc_url_raw( trim( wp_unslash( $_POST['vgi_video_url'] ) ) ) );
-    }
-    if ( isset( $_POST['vgi_external_link'] ) ) {
-        update_post_meta( $post_id, '_vgi_external_link', esc_url_raw( trim( wp_unslash( $_POST['vgi_external_link'] ) ) ) );
-    }
-    if ( isset( $_POST['vgi_description'] ) ) {
-        update_post_meta( $post_id, '_vgi_description', sanitize_textarea_field( wp_unslash( $_POST['vgi_description'] ) ) );
-    }
-    if ( isset( $_POST['vgi_thumbnail_image'] ) ) {
-        update_post_meta( $post_id, '_vgi_thumbnail_id', absint( wp_unslash( $_POST['vgi_thumbnail_image'] ) ) );
-    }
-}
-add_action( 'save_post_grid_item', 'vgi_save_meta' );
-
-/** ---------- Platform detection + YouTube / Instagram helpers ---------- */
-
-/** 'youtube' | 'instagram' | 'other' | 'none' */
-function vgi_detect_platform( $url ) {
-    if ( empty( $url ) ) {
-        return 'none';
-    }
-    if ( preg_match( '#(youtube\.com|youtu\.be)#i', $url ) ) {
-        return 'youtube';
-    }
-    if ( preg_match( '#instagram\.com#i', $url ) ) {
-        return 'instagram';
-    }
-    return 'other';
-}
-
-/** Pulls the video ID out of a watch/shorts/youtu.be/embed URL. */
-function vgi_youtube_id( $url ) {
-    if ( preg_match( '#(?:youtu\.be/|youtube\.com/(?:watch\?v=|shorts/|embed/))([A-Za-z0-9_-]{6,})#', $url, $m ) ) {
-        return $m[1];
-    }
-    return '';
-}
-
-/** Free, no-auth thumbnail — works for regular videos and Shorts. */
-function vgi_youtube_thumbnail( $url ) {
-    $id = vgi_youtube_id( $url );
-    return $id ? 'https://img.youtube.com/vi/' . $id . '/hqdefault.jpg' : '';
-}
-
-function vgi_youtube_embed_html( $url ) {
-    $id = vgi_youtube_id( $url );
-    if ( ! $id ) {
-        return '';
-    }
-    $src = 'https://www.youtube-nocookie.com/embed/' . rawurlencode( $id ) . '?autoplay=1&rel=0';
-    return '<iframe src="' . esc_url( $src ) . '" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:0;"></iframe>';
-}
-
-/**
- * Instagram's public oEmbed API has required a Meta access token since
- * 2020, so we can't auto-fetch a thumbnail without one. What still works
- * with no API key is Instagram's own public embed widget (the same
- * blockquote code you get from a post's "Embed" share option), so that's
- * what we use for the lightbox player. instagram.com/embed.js (enqueued
- * below) turns the blockquote into the real embedded post.
- */
-function vgi_instagram_embed_html( $url ) {
-    $url = esc_url( $url );
-    return '<blockquote class="instagram-media" data-instgrm-permalink="' . $url . '" data-instgrm-version="14" style="margin:0 auto;max-width:540px;width:100%;"></blockquote>';
-}
-
-/* ===================== END VIDEO GRID ===================== */
-
-/* =====================================================================
  * STRIPE INTEGRATION (test mode) — powers the in-page "BUY ME" modal.
  *
  * How it works:
@@ -780,6 +600,21 @@ add_action('admin_enqueue_scripts', function ($hook) {
     }
 });
 
+add_action('admin_enqueue_scripts', function ($hook) {
+    if ($hook !== 'post.php' && $hook !== 'post-new.php') {
+        return;
+    }
+
+    wp_enqueue_style('wp-color-picker');
+    wp_enqueue_script('wp-color-picker');
+
+    wp_add_inline_script('wp-color-picker', "
+        jQuery(function ($) {
+            $('.justin-color-field').wpColorPicker();
+        });
+    ");
+});
+
 add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('justin-style', get_stylesheet_uri(), [], '1.1');
     wp_enqueue_style('justin-font', 'https://fonts.googleapis.com/css2?family=Nothing+You+Could+Do&display=swap', [], null);
@@ -801,17 +636,6 @@ add_action('wp_enqueue_scripts', function () {
     // reusing the existing #god-mode-overlay / #god-mode-btn / #god-mode-frame
     // elements already in the theme's templates.
     wp_enqueue_style('justin-god-mode', get_template_directory_uri() . '/assets/css/god-mode.css', [], '1.0');
-
-    // Video Grid page (templates/template-video-grid.php) — only loaded
-    // on that page template. Checked by filename rather than full path
-    // so this still matches even if the file gets moved between folders.
-    $vgi_template_slug = get_page_template_slug();
-    if ( $vgi_template_slug && false !== strpos( $vgi_template_slug, 'template-video-grid.php' ) ) {
-        wp_enqueue_style( 'vgi-style', get_template_directory_uri() . '/video-grid.css', [], '1.4' );
-        wp_enqueue_script( 'vgi-script', get_template_directory_uri() . '/assets/js/video-grid.js', [], '1.2', true );
-        // Instagram's public embed widget script — no API key required.
-        wp_enqueue_script( 'instagram-embed', 'https://www.instagram.com/embed.js', [], null, true );
-    }
 
     $data = [
         'siteTitle' => get_bloginfo('name'),
@@ -1294,3 +1118,59 @@ function justin_bio_customizer( $wp_customize ) {
     ) );
 }
 add_action( 'customize_register', 'justin_bio_customizer' );
+
+// FOR COMMERCIAL TEMPLATE
+
+if (!function_exists('justin_link_list_meta_box')) {
+    add_action('add_meta_boxes', function () {
+        add_meta_box(
+            'justin-link-list-bg',
+            'Page Background Color',
+            'justin_render_link_list_bg_box',
+            'page',
+            'side',
+            'default'
+        );
+    });
+
+    function justin_render_link_list_bg_box($post) {
+        $template = get_page_template_slug($post->ID);
+
+        // Match by filename only, so this works whether the file lives in
+        // the theme root or inside a subfolder like templates/.
+        if (basename((string) $template) !== 'template-commercial.php') {
+            echo '<p style="color:#777;">Only available on pages using the "Commercial Template".</p>';
+            return;
+        }
+
+        wp_nonce_field('justin_save_link_list_bg', 'justin_link_list_bg_nonce');
+        $color = get_post_meta($post->ID, 'link_list_bg_color', true) ?: '#ffffff';
+        ?>
+        <p>
+            <label for="link_list_bg_color"><strong>Background color</strong></label><br />
+            <input type="text" id="link_list_bg_color" name="link_list_bg_color" value="<?php echo esc_attr($color); ?>" class="justin-color-field" data-default-color="#ffffff" />
+        </p>
+        <?php
+    }
+}
+
+add_action('save_post_page', function ($post_id) {
+    if (!isset($_POST['justin_link_list_bg_nonce']) || !wp_verify_nonce($_POST['justin_link_list_bg_nonce'], 'justin_save_link_list_bg')) {
+        return;
+    }
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    if (!current_user_can('edit_page', $post_id)) {
+        return;
+    }
+
+    if (isset($_POST['link_list_bg_color'])) {
+        $color = sanitize_hex_color(wp_unslash($_POST['link_list_bg_color']));
+        if ($color) {
+            update_post_meta($post_id, 'link_list_bg_color', $color);
+        } else {
+            delete_post_meta($post_id, 'link_list_bg_color');
+        }
+    }
+});

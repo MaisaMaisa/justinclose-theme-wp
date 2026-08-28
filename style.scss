@@ -2519,159 +2519,31 @@ align-self: flex-end;
     text-decoration: underline; 
 }
 
-/*
- * Video Grid additions.
- * Reuses .pg-wrap / .pg-grid / .pg-tile / .pg-tagbar / .pg-tile-caption
- * from the theme's main style.css (the same classes that power the
- * photo grid layout) and adds the pieces needed for video tiles,
- * plain-link tiles, and the playback lightbox.
- */
+// COMMERCIAL WORK PAGE
+//  .page-template-template-commercial{
+//     padding: 0.5%;
+//  }
 
-.pg-tile {
-	cursor: pointer;
+ .link-list-line{
+    padding: 0.5%;
+ }
+
+/* Link List page: eyes start flipped, and un-flip on hover to match
+   the same look the eyes have by DEFAULT on the homepage. */
+.page-template-template-commercial .footer-eyes-link {
+    transform: scaleX(-1);
 }
 
-.pg-tile:focus-visible {
-	outline: 2px solid var(--pg-accent, #f5c518);
-	outline-offset: -2px;
+.page-template-template-commercial .footer-eyes-link-wrap:hover .footer-eyes-link {
+    transform: scaleX(1);
 }
 
-/* Plain-link tiles (no YouTube/Instagram thumbnail available) */
-.pg-tile-empty {
-	background: #111;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 14px;
+/* No default page padding/margin, full-bleed background. */
+body.page-template-template-commercial {
+    padding: 0;
 }
 
-.pg-empty-label {
-	color: #fff;
-	font-size: 13px;
-	line-height: 1.4;
-	text-align: center;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+body.page-template-template-commercial #page {
+    margin-left: 0;
+    padding-right: 0;
 }
-
-/* Play icon shown over tiles that open the lightbox */
-.pg-play-icon {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	color: #fff;
-	font-size: 26px;
-	text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
-	opacity: 0.85;
-	pointer-events: none;
-	transition: opacity 0.15s ease, transform 0.15s ease;
-}
-
-.pg-tile:hover .pg-play-icon,
-.pg-tile:focus-visible .pg-play-icon {
-	opacity: 1;
-	transform: translate(-50%, -50%) scale(1.15);
-}
-
-.pg-tile.pg-hidden {
-	display: none;
-}
-
-/* Hover-preview iframe (muted, looping YouTube embed) that overlays the
-   static thumbnail. Scaled up and centered inside the tile's
-   overflow:hidden bounds so YouTube's own title/branding/control-bar
-   overlay — which it can show on pause/buffering regardless of the
-   controls=0 param — gets physically cropped off, not just hidden by
-   controls=0 (which isn't reliable on its own). pointer-events: none so
-   clicks still reach the tile and open the full lightbox instead. */
-.pg-preview-iframe {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 145%;
-	height: 145%;
-	transform: translate(-50%, -50%);
-	border: 0;
-	pointer-events: none;
-	z-index: 1;
-}
-
-/* ---------- Lightbox ---------- */
-.vgi-lightbox {
-	display: none;
-	position: fixed;
-	inset: 0;
-	background: rgba(0, 0, 0, 0.9);
-	z-index: 9999;
-	align-items: center;
-	justify-content: center;
-}
-
-.vgi-lightbox.open {
-	display: flex;
-}
-
-.vgi-lightbox-inner {
-	width: 80vw;
-	max-width: 900px;
-	max-height: 85vh;
-	overflow-y: auto;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.vgi-lightbox-inner iframe {
-	width: 100%;
-	aspect-ratio: 16 / 9;
-}
-
-/* Controls hidden by default, revealed on hover. YouTube's own player
-   auto-hides its control bar after a couple seconds with no mouse
-   movement — pointer-events: none stops movement from reaching the
-   iframe at all, so it stays hidden until you actually hover the
-   player. Only applied on devices with a real hover/pointer (desktop);
-   touch devices always get normal tap-to-show controls, since there's
-   no hover state to gate on. */
-@media (hover: hover) and (pointer: fine) {
-	.vgi-lightbox-inner iframe {
-		pointer-events: none;
-	}
-
-	.vgi-lightbox-inner:hover iframe {
-		pointer-events: auto;
-	}
-}
-
-.vgi-lightbox-close {
-	position: absolute;
-	top: 16px;
-	right: 24px;
-	background: none;
-	border: none;
-	color: #fff;
-	font-size: 34px;
-	line-height: 1;
-	cursor: pointer;
-	z-index: 1;
-}
-
-@media (max-width: 700px) {
-	.vgi-lightbox-inner {
-		width: 92vw;
-	}
-}
-
-
-/* Video grid footer's homepage link: reuses the site's .footer-eyes-link
-   styling/position, but starts flipped and returns to normal on hover —
-   the opposite of the default eyes widget used elsewhere on the site. */
-// .footer-eyes-link--video-home {
-// 	transform: scaleX(-1);
-// }
- 
-// .footer-eyes-link--video-home:hover {
-// 	transform: scaleX(1);
-// }
- 
