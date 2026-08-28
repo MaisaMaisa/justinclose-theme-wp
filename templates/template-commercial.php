@@ -72,6 +72,17 @@ $font_classes = [
 while (have_posts()) :
     the_post();
 
+    $bg_color = get_post_meta(get_the_ID(), 'link_list_bg_color', true);
+
+    if (post_password_required()) {
+        ?>
+        <div class="link-list-wrap" style="<?php echo $bg_color ? 'background-color:' . esc_attr($bg_color) . ';' : ''; ?>">
+            <?php echo get_the_password_form(); ?>
+        </div>
+        <?php
+        continue;
+    }
+
     $blocks = parse_blocks(get_the_content());
     $lines = [];
 
@@ -92,8 +103,6 @@ while (have_posts()) :
         $raw = wp_strip_all_tags(get_the_content());
         $lines = array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $raw)));
     }
-
-    $bg_color = get_post_meta(get_the_ID(), 'link_list_bg_color', true);
     ?>
 
     <div class="link-list-wrap" style="<?php echo $bg_color ? 'background-color:' . esc_attr($bg_color) . ';' : ''; ?>">
