@@ -8,6 +8,11 @@ Tags: lovely stuff
 Author: Maisa Imamović
 Author URI: https://maisaimamovic.eu/
 */
+/* =====================================================================
+ * 1. TYPOGRAPHY / FONTS
+ * Utility font classes + local @font-face declarations. Candidate for
+ * its own _fonts.scss.
+ * ===================================================================== */
 .syne-mono-regular {
   font-family: "Syne Mono", monospace;
   font-weight: 400;
@@ -159,6 +164,11 @@ Author URI: https://maisaimamovic.eu/
   font-weight: 400; /* Regular */
   font-style: normal;
 }
+/* =====================================================================
+ * 2. GLOBAL RESET & BASE LAYOUT
+ * html/body defaults, box-sizing reset, scrollbar hiding, root vars,
+ * the #page wrapper. Candidate for _reset.scss / _base.scss.
+ * ===================================================================== */
 html {
   background-size: cover;
   scroll-behavior: smooth;
@@ -226,6 +236,16 @@ body {
   padding-top: 0;
 }
 
+@media (max-width: 700px) {
+  #page {
+    margin-left: 50px;
+    padding-right: 5px;
+  }
+}
+/* =====================================================================
+ * 3. JUSTIN LABEL
+ * The fixed label that follows whichever list item is hovered.
+ * ===================================================================== */
 #justin-label {
   position: fixed;
   left: 10px;
@@ -257,6 +277,17 @@ body {
   color: lightgrey;
 }
 
+@media (max-width: 700px) {
+  #justin-label {
+    position: fixed;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    font-size: 12px;
+  }
+}
+/* =====================================================================
+ * 4. NAVIGATION (category nav line)
+ * ===================================================================== */
 #nav-line {
   height: 100%;
   justify-content: center;
@@ -308,6 +339,21 @@ body {
   color: #0045bd;
 }
 
+@media (max-width: 700px) {
+  #nav-line {
+    display: none;
+    position: fixed;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    background: white;
+    height: auto;
+    text-align: left;
+  }
+}
+/* =====================================================================
+ * 5. PROJECT LIST (#list)
+ * ===================================================================== */
 #list {
   margin: 0;
   padding: 0;
@@ -359,572 +405,20 @@ body {
   display: inline;
 }
 
-.detail-body {
-  position: relative;
-  border: solid 0.5px;
-  border-left: none;
-  margin-left: -0.5px;
-}
-
-.project-slideshow {
-  position: relative;
-  background: transparent;
-  color: #fff;
-}
-
-.project-slideshow-track {
-  position: relative;
-  width: 100%;
-  height: 620px;
-  padding: 2%;
-  overflow: hidden;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0 5px 5px 0;
-}
-
-.project-slideshow-track img {
-  width: auto;
-  height: 100%;
-  display: block;
-  max-width: 100%;
-  -o-object-fit: contain;
-     object-fit: contain;
-}
-
-.project-slideshow-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  border: 0;
-  background: transparent;
-  color: blue;
-  width: 38px;
-  height: 38px;
-  font-size: 100px;
-  line-height: 1;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.project-slideshow-button.prev {
-  left: 10px;
-}
-
-.project-slideshow-button.next {
-  right: 10px;
-}
-
-.project-slideshow-button.pause {
-  top: 0;
-  right: 10px;
-  transform: none;
-  width: auto;
-  min-width: 74px;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.project-slideshow-button.pause:hover {
-  color: blue !important;
-}
-
-.project-slideshow-dots {
-  display: none;
-  gap: 8px;
-  justify-content: center;
-  padding: 10px;
-  background: #ffffff;
-}
-
-.project-slideshow-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 0;
-  background: rgba(255, 255, 255, 0.35);
-  cursor: pointer;
-  padding: 0;
-}
-
-.project-slideshow-dot.active {
-  background: #fff;
-}
-
-.project-slideshow-caption {
-  display: none;
-  position: absolute;
-  left: 12px;
-  bottom: 12px;
-  margin: 0;
-  padding: 6px 8px;
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  font-size: 12px;
-  z-index: 1;
-}
-
-.placeholder-img {
-  width: 100%;
-  height: 620px;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: #999;
-}
-
-.detail-body p {
-  display: none;
-  font-size: 13px;
-  color: #555;
-  line-height: 1.5;
-  position: absolute;
-  bottom: 0;
-}
-
-.vimeo-embed {
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%;
-  background: #000;
-}
-
-.vimeo-embed iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-#bio-section {
-  position: fixed;
-  width: 100%;
-  left: 0;
-  bottom: 0;
-  color: black;
-  z-index: 200;
-  transform: translateY(calc(100% - 38px));
-  transition: transform 0.35s ease;
-  background: #CDE562;
-  background: linear-gradient(0deg, rgb(145, 145, 145) 0%, rgba(253, 187, 45, 0) 100%);
-}
-
-#bio-section.is-open {
-  transform: translateY(0);
-}
-
-#bio-section .bio-panel {
-  padding: 55px 8px 10px;
-}
-
-#bio-section p {
-  font-size: 20px;
-  text-align: center;
-  line-height: 1.6;
-}
-
-#bio-section .subscribe-block {
-  display: flex !important;
-}
-
-#bio-section .subscribe-block p {
-  margin-bottom: 0.6em;
-}
-
-#bio-section input[type=email] {
-  font-size: 20px;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid lightgrey;
-  color: black;
-  outline: none;
-  margin-left: 5px;
-  width: 320px;
-  height: 33px;
-}
-
-#bio-section input[type=email]::-moz-placeholder {
-  color: #555;
-}
-
-#bio-section input[type=email]::placeholder {
-  color: #555;
-}
-
-#bio-section button {
-  font-size: 20px;
-  height: 33px;
-  width: 890px;
-  background: transparent;
-  border: 1px solid lightgrey;
-  color: lightgrey;
-  padding: 4px 16px;
-  margin-left: 12px;
-  cursor: pointer;
-}
-
-#bio-section button:hover {
-  border: black solid 0.5px;
-  color: #000;
-}
-
-#bio-section .subscribe-block button {
-  font-size: 20px;
-  height: 33px;
-  width: 890px;
-  background: transparent;
-  border: 1px solid lightgrey;
-  color: black;
-  padding: 4px 16px;
-  margin-left: 12px;
-  cursor: pointer;
-}
-
-#bio-section .subscribe-block button:hover {
-  background: lightgrey;
-  color: #000;
-}
-
-#bio-toggle {
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 30px;
-  margin: 0;
-  border: 1px solid lightgrey;
-  border-radius: 50%;
-  background: transparent;
-  color: lightgrey;
-  font-size: 20px;
-  line-height: 24px;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.hscroll-track {
-  display: flex;
-  gap: 8px;
-  overflow-x: hidden;
-  width: 100%;
-  height: 620px;
-  background: white;
-  transition: overflow 0.2s;
-}
-
-.hscroll-track.paused {
-  overflow-x: scroll;
-}
-
-.hscroll-track img {
-  height: 100%;
-  width: auto;
-  flex-shrink: 0;
-  display: block;
-  -o-object-fit: contain;
-     object-fit: contain;
-}
-
-.hscroll-wrap {
-  position: relative;
-}
-
-.hscroll-pause {
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  background: white;
-  border: 0;
-  cursor: pointer;
-  color: #000;
-  z-index: 4567876;
-}
-
-.split-body {
-  display: flex;
-  flex-direction: column;
-  padding-top: 10%;
-  background: black;
-  height: auto;
-  position: absolute;
-  top: 0;
-  overflow: hidden;
-}
-
-.split-wrapper {
-  display: flex;
-  height: 80%;
-}
-
-.teasers {
-  display: flex;
-  background-color: black;
-  border: solid yellow;
-  height: 100%;
-}
-.teasers img {
-  width: 33%;
-  padding: 10px;
-  filter: blur(3px);
-}
-
-.split-slideshow {
-  width: 50%;
-  flex-shrink: 0;
-  position: relative;
-  background-color: black;
-}
-
-.split-track {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.split-track img {
-  width: auto;
-  height: 100%;
-  max-width: 100%;
-  -o-object-fit: contain;
-     object-fit: contain;
-  display: block;
-}
-
-.split-btn {
-  position: absolute;
-  border: 0;
-  background: transparent;
-  color: blue;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.split-btn.prev {
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 100px;
-  line-height: 1;
-  width: 38px;
-  height: 38px;
-}
-
-.split-btn.next {
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 100px;
-  line-height: 1;
-  width: 38px;
-  height: 38px;
-}
-
-.split-btn.pause {
-  top: 0;
-  right: 0;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.split-text {
-  position: relative;
-  width: 50%;
-  padding: 30px 25px;
-  background: black;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  border-left: 0.5px solid lightgrey;
-}
-
-.split-text button {
-  background-color: black;
-  color: white;
-  border: solid 0.5px white;
-  border-radius: 5px;
-  position: absolute;
-  width: 95%;
-  bottom: 30px;
-  padding: 5px;
-  cursor: pointer;
-}
-
-.split-text button:hover {
-  background-color: white;
-  color: black;
-  border: black;
-}
-
-.oops-btn {
-  position: absolute;
-  text-decoration: none;
-  font-size: 50px;
-  padding: 10px;
-  right: 0;
-}
-
-.gallery-block {
-  position: absolute;
-  top: 0;
-  width: 100%;
-}
-
-.gallery-img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.popup-caption {
-  position: fixed;
-  bottom: 12px;
-  left: 12px;
-  z-index: 20;
-  display: none;
-}
-
-.popup-caption.visible {
-  display: block;
-}
-
-.gallery-caption-toggle {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  color: yellow;
-  cursor: pointer;
-  font-size: 20px;
-  line-height: 1;
-  display: block;
-}
-
-.gallery-caption-text {
-  display: none;
-  margin-top: 8px;
-  font-size: 20px;
-  line-height: 1.5;
-  color: yellow;
-}
-
-.gallery-caption-text.open {
-  display: block;
-}
-
-.popup-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.749);
-  z-index: 500;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-.popup-overlay.open {
-  display: flex;
-}
-
-.popup-window {
-  width: 60vw;
-  height: 80vh;
-  overflow: hidden;
-  position: relative;
-  background: white;
-  border: solid 0.5px #000;
-}
-
-.popup-scroll {
-  position: absolute;
-  inset: 0;
-  overflow-y: auto;
-}
-
-.popup-close {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  font-size: 24px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 30;
-  line-height: 1;
-  color: yellow;
-}
-
-.popup-caption {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  z-index: 20;
-  display: none;
-}
-
-.popup-title {
-  font-size: 30px;
-  margin: 16px 16px 12px;
-  position: sticky;
-  top: 5px;
-  z-index: 45678;
-  color: yellow;
-}
-
-.popup-watch-toggle {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  z-index: 25;
-  background: transparent;
-  color: yellow;
-  border: none;
-  padding: 8px 14px;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  display: none;
-}
-
-.popup-watch-toggle.visible {
-  display: block;
-}
-
-.popup-overlay {
-  transition: background 0.3s ease;
-}
-
-.popup-overlay.watch-mode {
-  background: #000;
-}
-.popup-overlay.watch-mode .popup-window {
-  background: #000;
-}
-
 @media (max-width: 700px) {
-  .popup-window {
-    width: 92vw;
-    height: 85vh;
+  #list summary {
+    font-size: 12px;
+  }
+  #list summary.scroll-active {
+    color: #0045bd;
+    font-size: 12px;
   }
 }
-/* ── Lightbox overlay ── */
+/* =====================================================================
+ * 8. LIGHTBOX — CORE
+ * The overlay shell, stage, arrows, close button, thumbnail strip.
+ * Shared by every lightbox layout.
+ * ===================================================================== */
 .lightbox-overlay {
   position: fixed;
   inset: 0;
@@ -1015,6 +509,7 @@ body {
   gap: 6px;
   overflow-x: auto;
   padding: 8px 12px;
+  /* background: var(--color-medium, #E6F2B1); */
   scrollbar-width: none;
 }
 
@@ -1037,7 +532,18 @@ body {
   border-color: #000;
 }
 
-/* ── Grid + Hover lightbox layout (per-project alternate) ── */
+@media (max-width: 700px) {
+  .lightbox-main img:not(.pg-media, .gh-thumb img) {
+    width: 90%;
+    height: auto;
+  }
+}
+/* =====================================================================
+ * 9. LIGHTBOX — GRID + HOVER LAYOUT
+ * Photography / Painting / Collage / Book Template all share this base
+ * grid+preview layout, with the painting/collage `data-variant` blocks
+ * overriding the thumbnail arrangement.
+ * ===================================================================== */
 .gh-stage {
   display: flex;
   width: 100%;
@@ -1064,7 +570,7 @@ body {
 
 .gh-thumb {
   position: relative;
-  width: 100%;
+  width: 100%; /* grid column controls sizing now */
   box-sizing: border-box;
   overflow: hidden;
   cursor: pointer;
@@ -1257,6 +763,178 @@ body {
   padding: 8px 12px 15px;
 }
 
+/* Take the grid out of flex flow entirely so extra columns overlap the
+   preview image instead of pushing it over or getting clipped/scrolled */
+.gh-stage[data-variant=painting] {
+  position: relative;
+}
+
+.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: -moz-max-content;
+  width: max-content; /* grows freely — no cap, no clipping */
+  overflow: visible;
+  z-index: 3; /* sits above the preview image */
+  pointer-events: none; /* clicks pass through the empty gaps to the preview... */
+}
+
+/* When split (4+ columns), the grid spans full stage width and
+   pushes its two groups to opposite edges — first 3 columns left,
+   remaining columns right. */
+.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting.gh-grid-painting-split {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.gh-stage[data-variant=painting] .gh-painting-left,
+.gh-stage[data-variant=painting] .gh-painting-right {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 50%;
+}
+
+.gh-stage[data-variant=painting] .gh-painting-right {
+  justify-content: end;
+  align-self: flex-end;
+}
+
+.gh-col-floating {
+  align-self: flex-end;
+}
+
+.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-col,
+.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-thumb {
+  pointer-events: auto; /* ...but the thumbnails themselves stay clickable */
+  gap: 5px;
+}
+
+.gh-stage[data-variant=painting] .gh-col {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* Reset the shared .gh-thumb defaults — JS now sets width, aspect-ratio,
+   margin, border, and shadow per item based on which column it landed in */
+.gh-stage[data-variant=painting] .gh-thumb {
+  width: auto;
+  border: none;
+  box-sizing: border-box;
+  transition: transform 0.15s ease;
+}
+
+.gh-stage[data-variant=painting] .gh-thumb:hover {
+  transform: scale(1.04);
+}
+
+.gh-stage[data-variant=painting] .gh-thumb img {
+  height: auto;
+  -o-object-fit: unset;
+     object-fit: unset;
+}
+
+/* ── Collage: scrollable 2-column scatter grid ── */
+/* Grid itself becomes the scroll container; .gh-preview (image + info
+   panel) is a separate flex sibling of .gh-grid inside .gh-stage, so it
+   never scrolls — this is what keeps the main image/description fixed. */
+.gh-stage[data-variant=collage] .gh-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: min-content;
+  width: 300px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-content: start;
+  align-items: start; /* stops shorter thumbs being stretched to match a taller neighbor in the same row */
+  gap: 18px 10px;
+  padding: 24px 18px;
+  scrollbar-width: none;
+}
+
+/* Let each collage thumb keep its natural portrait/landscape shape
+   instead of being force-cropped to fill a stretched box */
+.gh-stage[data-variant=collage] .gh-thumb img {
+  height: auto;
+  -o-object-fit: unset;
+     object-fit: unset;
+}
+
+.gh-stage[data-variant=collage] .gh-grid::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Base tile look: undo the flex-era width:50%, add a light polaroid frame */
+.gh-stage[data-variant=collage] .gh-thumb {
+  width: 100%;
+  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease;
+}
+
+.gh-stage[data-variant=collage] .gh-thumb:hover {
+  transform: scale(1.05) rotate(0deg);
+}
+
+/* Occasional full-width showcase tile — delete this rule if you don't want it */
+.gh-stage[data-variant=collage] .gh-thumb:nth-child(9n+5) {
+  grid-column: span 2;
+}
+
+/* ── SCATTER control: diagonal left/right stagger + slight rotation, repeats every 4 ── */
+.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n+1) {
+  transform: translateX(-8px) rotate(-2deg);
+}
+
+.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n+2) {
+  transform: translateX(10px) rotate(2.5deg);
+}
+
+.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n+3) {
+  transform: translateX(-6px) rotate(-1.5deg);
+}
+
+.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n) {
+  transform: translateX(8px) rotate(2deg);
+}
+
+.gh-counter-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 4;
+}
+
+.gh-counter {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: white;
+  text-shadow: #FC0 1px 0 10px;
+  pointer-events: none;
+}
+
+.gh-nav-arrow {
+  display: none; /* desktop: hidden, thumbnails handle navigation */
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 10px;
+}
+
 @media (max-width: 700px) {
   .gh-stage {
     flex-direction: column;
@@ -1310,15 +988,14 @@ body {
     transform: rotate(0deg);
     bottom: 0;
   }
-  .lightbox-main img:not(.pg-media, .gh-thumb img) {
-    width: 90%;
-    height: auto;
-  }
   .gh-stage[data-variant=painting] .gh-grid.gh-grid-painting,
   .gh-stage[data-variant=collage] .gh-grid {
     display: none !important;
   }
 }
+/* =====================================================================
+ * 10. LIGHTBOX — FILM / WATCH MODE
+ * ===================================================================== */
 /* Film entries: extra "watch" tile at the end of the thumbnail strip */
 .lightbox-watch-thumb {
   height: 100%;
@@ -1395,7 +1072,11 @@ body {
   color: #000;
 }
 
-/* Info icon + sliding description panel, between main image and thumbnails */
+/* =====================================================================
+ * 11. LIGHTBOX — INFO PANEL
+ * The ⓘ toggle + sliding description panel shown between the main
+ * image and thumbnails.
+ * ===================================================================== */
 .lightbox-infobar {
   align-items: center;
   width: 100%;
@@ -1434,8 +1115,18 @@ body {
   padding: 8px 16px 14px;
 }
 
-/* Books v3 — post-editor content as the stage background, buy button
-   floats fixed over everything and keeps its existing spin. */
+@media (max-width: 700px) {
+  .lightbox-info-panel {
+    font-size: 12px;
+    flex-shrink: 1;
+    text-align: center;
+  }
+}
+/* =====================================================================
+ * 12. LIGHTBOX — BOOKS STAGE (v3)
+ * The default Books layout: post-editor content as the stage
+ * background, with the fixed spinning circular "BUY ME" button.
+ * ===================================================================== */
 .book-stage-v3 {
   width: 100%;
   height: 100%;
@@ -1533,6 +1224,21 @@ body {
   mix-blend-mode: difference;
 }
 
+@media (max-width: 700px) {
+  .book-stage-v3 {
+    padding: 40px 20px;
+  }
+  .buy-btn {
+    width: 200px;
+    height: 200px;
+  }
+  .buy-btn:hover {
+    font-size: 45px;
+  }
+}
+/* =====================================================================
+ * 13. STRIPE CHECKOUT MODAL
+ * ===================================================================== */
 .stripe-buy-overlay {
   position: fixed;
   inset: 0;
@@ -1653,18 +1359,11 @@ body {
   padding: 30px 0;
 }
 
-@media (max-width: 700px) {
-  .book-stage-v3 {
-    padding: 40px 20px;
-  }
-  .buy-btn {
-    width: 200px;
-    height: 200px;
-  }
-  .buy-btn:hover {
-    font-size: 45px;
-  }
-}
+/* =====================================================================
+ * 14. HOVER BACKGROUND IMAGE
+ * The full-bleed preview shown behind the page while hovering a
+ * "hover-only" list item.
+ * ===================================================================== */
 #bg-hover-img {
   position: fixed;
   inset: 0;
@@ -1687,8 +1386,15 @@ body {
   z-index: 1;
 }
 
+/* =====================================================================
+ * 15. COLLAGE PROJECT LAYOUT
+ * The Collage category's own scrollable canvas of absolutely
+ * positioned pieces (distinct from the gh-stage[data-variant=collage]
+ * lightbox grid in section 9).
+ * ===================================================================== */
 .collage-body {
   position: relative;
+  /* background: #f5f0e8; */
   min-height: 100%;
   padding: 40px 30px 80px;
   overflow: visible;
@@ -1701,8 +1407,10 @@ body {
 
 .collage-item img {
   display: block;
+  /* box-shadow: 2px 4px 12px rgba(0,0,0,0.18); */
   background: none;
   padding: 6px 6px 22px;
+  /* polaroid style */
 }
 
 .collage-item.text-item {
@@ -1723,8 +1431,90 @@ body {
 .collage-canvas {
   position: relative;
   width: 100%;
+  /* height set by JS based on items */
 }
 
+/* =====================================================================
+ * 16. CIRCULAR TEXT BUTTON COMPONENT
+ * Reusable curved-text ring button (God Mode trigger, lightbox close).
+ * Note: three separate rule blocks below target `.justin-circ-btn svg`
+ * — kept as originally written rather than merged.
+ * ===================================================================== */
+.justin-circ-btn {
+  display: inline-flex;
+  width: 70px !important;
+  height: 70px !important;
+  width: var(--circ-size, 70px);
+  height: var(--circ-size, 70px);
+  cursor: pointer;
+}
+
+.justin-circ-btn svg {
+  display: block;
+}
+
+.justin-circ-btn svg {
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.justin-circ-btn-ring {
+  fill: none;
+  stroke-width: 1;
+}
+
+.justin-circ-btn-x {
+  stroke: #000;
+  stroke-width: 1.4;
+}
+
+.justin-circ-btn:hover .justin-circ-btn-ring {
+  stroke-width: 1.4;
+}
+
+/* ── Slow clockwise rotation for circular text buttons ── */
+@keyframes justin-circ-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Close button's X — its own styling, independent of God Mode */
+.lightbox-close .justin-circ-btn-x {
+  stroke: white;
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
+.lightbox-close:hover .justin-circ-btn-x {
+  transform: scale(2.2);
+}
+
+.lightbox-close .justin-circ-btn-text {
+  fill: transparent;
+}
+
+.justin-circ-btn svg {
+  animation: justin-circ-spin linear infinite;
+  animation-play-state: running;
+}
+
+.justin-circ-btn-text {
+  fill: black;
+  transition: fill 0.2s ease;
+  font-size: 12px !important;
+}
+
+/* =====================================================================
+ * 17. GOD MODE — TRIGGER BUTTON & OVERLAY SHELL
+ * ===================================================================== */
+/* Referenced (commented out) as an alternate animation for the God Mode
+   trigger button below — kept in case it's wired back in later. */
 @keyframes justin-circ-blur {
   0%, 100% {
     filter: blur(0px);
@@ -1750,17 +1540,6 @@ body {
   stroke: transparent;
 }
 
-.justin-circ-btn svg {
-  border-radius: 50%;
-  transition: background-color 0.2s ease;
-}
-
-.justin-circ-btn-text {
-  fill: black;
-  transition: fill 0.2s ease;
-  font-size: 12px !important;
-}
-
 #god-mode-btn:hover .justin-circ-btn-text {
   fill: #0045bd;
 }
@@ -1773,6 +1552,10 @@ body {
   stroke: white !important;
   transform-origin: center;
   transform: scale(1.2);
+}
+
+#god-mode-btn:hover .justin-circ-btn svg {
+  animation-play-state: paused;
 }
 
 #god-mode-btn.behind-popup {
@@ -1813,6 +1596,159 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
   transition: opacity 0.6s ease;
 }
 
+/* =====================================================================
+ * 18. GOD MODE — CHANNEL DISPLAY
+ * Styles for the channel UI rendered inside #god-mode-frame (see
+ * renderGodModeChannel() in main.js). Visibility/backdrop is controlled
+ * by the overlay/trigger rules in section 17.
+ * ===================================================================== */
+#god-mode-frame {
+  width: 100%;
+  height: 100%;
+}
+
+.gm-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  perspective: 700px;
+  transform-style: preserve-3d;
+}
+
+.gm-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 1px, transparent 1px, transparent 3px);
+  mix-blend-mode: overlay;
+}
+
+.gm-iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.gm-static {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-family: monospace;
+  font-size: 13px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  background: repeating-linear-gradient(45deg, #1a1a1a 0px, #1a1a1a 2px, #0a0a0a 2px, #0a0a0a 4px);
+  animation: gm-flicker 6s infinite;
+}
+
+@keyframes gm-flicker {
+  0%, 92%, 100% {
+    opacity: 1;
+  }
+  93% {
+    opacity: 0.6;
+  }
+  94% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 0.7;
+  }
+  96% {
+    opacity: 1;
+  }
+}
+.gm-info {
+  position: absolute;
+  left: 16px;
+  bottom: 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: monospace;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.gm-chnum {
+  font-size: 18px;
+}
+
+.gm-chtitle {
+  font-size: 18px;
+}
+
+.gm-chname {
+  font-size: 18px;
+  color: #ccc;
+}
+
+.gm-controls {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 3;
+}
+
+.gm-controls button {
+  width: 44px;
+  height: 36px;
+  background: rgba(28, 28, 28, 0.85);
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #eee;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gm-controls button:hover {
+  background: #2a2a2a;
+}
+
+.gm-controls button:active {
+  transform: scale(0.94);
+}
+
+@media (max-width: 640px) {
+  .gm-controls {
+    right: 15px;
+    /* left: 50%; */
+    top: auto;
+    bottom: -3px;
+    /* transform: translateX(-50%); */
+    flex-direction: row;
+  }
+  .gm-chnum {
+    font-size: 12px;
+  }
+  .gm-chtitle {
+    font-size: 12px;
+  }
+  .gm-chname {
+    font-size: 12px;
+    color: #ccc;
+  }
+}
+/* =====================================================================
+ * 19. PHOTO GRID LAYOUT
+ * ===================================================================== */
 .pg-wrap {
   --pg-columns: 5;
   --pg-gap: 4px;
@@ -2049,432 +1985,9 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
     font-size: 9px;
   }
 }
-/* Take the grid out of flex flow entirely so extra columns overlap the
-   preview image instead of pushing it over or getting clipped/scrolled */
-.gh-stage[data-variant=painting] {
-  position: relative;
-}
-
-.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 12px 10px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: -moz-max-content;
-  width: max-content;
-  overflow: visible;
-  z-index: 3;
-  pointer-events: none;
-}
-
-/* When split (4+ columns), the grid spans full stage width and
-   pushes its two groups to opposite edges — first 3 columns left,
-   remaining columns right. */
-.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting.gh-grid-painting-split {
-  width: 100%;
-  justify-content: space-between;
-}
-
-.gh-stage[data-variant=painting] .gh-painting-left,
-.gh-stage[data-variant=painting] .gh-painting-right {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  width: 50%;
-}
-
-.gh-stage[data-variant=painting] .gh-painting-right {
-  justify-content: end;
-  align-self: flex-end;
-}
-
-.gh-col-floating {
-  align-self: flex-end;
-}
-
-.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-col,
-.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-thumb {
-  pointer-events: auto;
-  gap: 5px;
-}
-
-.gh-stage[data-variant=painting] .gh-col {
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-
-/* Reset the shared .gh-thumb defaults — JS now sets width, aspect-ratio,
-   margin, border, and shadow per item based on which column it landed in */
-.gh-stage[data-variant=painting] .gh-thumb {
-  width: auto;
-  border: none;
-  box-sizing: border-box;
-  transition: transform 0.15s ease;
-}
-
-.gh-stage[data-variant=painting] .gh-thumb:hover {
-  transform: scale(1.04);
-}
-
-.gh-stage[data-variant=painting] .gh-thumb img {
-  height: auto;
-  -o-object-fit: unset;
-     object-fit: unset;
-}
-
-/* ── Collage: scrollable 2-column scatter grid ── */
-.gh-stage[data-variant=collage] .gh-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: min-content;
-  width: 300px;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  align-content: start;
-  align-items: start;
-  gap: 18px 10px;
-  padding: 24px 18px;
-  scrollbar-width: none;
-}
-
-/* Let each collage thumb keep its natural portrait/landscape shape
-   instead of being force-cropped to fill a stretched box */
-.gh-stage[data-variant=collage] .gh-thumb img {
-  height: auto;
-  -o-object-fit: unset;
-     object-fit: unset;
-}
-
-.gh-stage[data-variant=collage] .gh-grid::-webkit-scrollbar {
-  display: none;
-}
-
-/* Base tile look: undo the flex-era width:50%, add a light polaroid frame */
-.gh-stage[data-variant=collage] .gh-thumb {
-  width: 100%;
-  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.18);
-  transition: transform 0.15s ease;
-}
-
-.gh-stage[data-variant=collage] .gh-thumb:hover {
-  transform: scale(1.05) rotate(0deg);
-}
-
-/* Occasional full-width showcase tile — delete this rule if you don't want it */
-.gh-stage[data-variant=collage] .gh-thumb:nth-child(9n+5) {
-  grid-column: span 2;
-}
-
-/* ── SCATTER control: diagonal left/right stagger + slight rotation, repeats every 4 ── */
-.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n+1) {
-  transform: translateX(-8px) rotate(-2deg);
-}
-
-.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n+2) {
-  transform: translateX(10px) rotate(2.5deg);
-}
-
-.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n+3) {
-  transform: translateX(-6px) rotate(-1.5deg);
-}
-
-.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n) {
-  transform: translateX(8px) rotate(2deg);
-}
-
-.gh-counter-wrap {
-  position: absolute;
-  left: 50%;
-  bottom: 10px;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  z-index: 4;
-}
-
-.gh-counter {
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  color: white;
-  text-shadow: #FC0 1px 0 10px;
-  pointer-events: none;
-}
-
-.gh-nav-arrow {
-  display: none; /* desktop: hidden, thumbnails handle navigation */
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 26px;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0 10px;
-}
-
-/* ── Circular text button (reusable) ── */
-.justin-circ-btn {
-  display: inline-flex;
-  width: 70px !important;
-  height: 70px !important;
-  width: var(--circ-size, 70px);
-  height: var(--circ-size, 70px);
-  cursor: pointer;
-}
-
-.justin-circ-btn svg {
-  display: block;
-}
-
-.justin-circ-btn-ring {
-  fill: none;
-  stroke-width: 1;
-}
-
-.justin-circ-btn-x {
-  stroke: #000;
-  stroke-width: 1.4;
-}
-
-.justin-circ-btn:hover .justin-circ-btn-ring {
-  stroke-width: 1.4;
-}
-
-/* ── Slow clockwise rotation for circular text buttons ── */
-@keyframes justin-circ-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-/* Close button's X — its own styling, independent of God Mode */
-.lightbox-close .justin-circ-btn-x {
-  stroke: white;
-  stroke-width: 1;
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: scale(1.2);
-  transition: transform 0.2s ease;
-}
-
-.lightbox-close:hover .justin-circ-btn-x {
-  transform: scale(2.2);
-}
-
-.lightbox-close .justin-circ-btn-text {
-  fill: transparent;
-}
-
-.justin-circ-btn svg {
-  animation: justin-circ-spin linear infinite;
-  animation-play-state: running;
-}
-
-#god-mode-btn:hover .justin-circ-btn svg {
-  animation-play-state: paused;
-}
-
-@media (max-width: 700px) {
-  #justin-label {
-    position: fixed;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    font-size: 12px;
-  }
-  #list summary {
-    font-size: 12px;
-  }
-  #list summary.scroll-active {
-    color: #0045bd;
-    font-size: 12px;
-  }
-  #page {
-    margin-left: 50px;
-    padding-right: 5px;
-  }
-  #nav-line {
-    display: none;
-    position: fixed;
-    left: 0;
-    width: 100%;
-    bottom: 0;
-    background: white;
-    height: auto;
-    text-align: left;
-  }
-  .site-footer {
-    flex-direction: row !important;
-    bottom: 60px !important;
-    right: 10px !important;
-  }
-  .lightbox-info-panel {
-    font-size: 12px;
-    flex-shrink: 1;
-    text-align: center;
-  }
-  .site-footer {
-    bottom: 10px !important;
-  }
-  .widget_justin_eyes_link_widget {
-    display: none;
-  }
-  .footer-info-popup a {
-    font-size: 12px !important;
-  }
-  .footer-info-popup li + li {
-    margin-top: 0 !important;
-  }
-}
-#god-mode-frame {
-  width: 100%;
-  height: 100%;
-}
-
-.gm-screen {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  overflow: hidden;
-  perspective: 700px;
-  transform-style: preserve-3d;
-}
-
-.gm-screen::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 1px, transparent 1px, transparent 3px);
-  mix-blend-mode: overlay;
-}
-
-.gm-iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-.gm-static {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #666;
-  font-family: monospace;
-  font-size: 13px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  background: repeating-linear-gradient(45deg, #1a1a1a 0px, #1a1a1a 2px, #0a0a0a 2px, #0a0a0a 4px);
-  animation: gm-flicker 6s infinite;
-}
-
-@keyframes gm-flicker {
-  0%, 92%, 100% {
-    opacity: 1;
-  }
-  93% {
-    opacity: 0.6;
-  }
-  94% {
-    opacity: 1;
-  }
-  95% {
-    opacity: 0.7;
-  }
-  96% {
-    opacity: 1;
-  }
-}
-.gm-info {
-  position: absolute;
-  left: 16px;
-  bottom: 12px;
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  font-family: monospace;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  pointer-events: none;
-  z-index: 2;
-}
-
-.gm-chnum {
-  font-size: 18px;
-}
-
-.gm-chtitle {
-  font-size: 18px;
-}
-
-.gm-chname {
-  font-size: 18px;
-  color: #ccc;
-}
-
-.gm-controls {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 3;
-}
-
-.gm-controls button {
-  width: 44px;
-  height: 36px;
-  background: rgba(28, 28, 28, 0.85);
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: #eee;
-  cursor: pointer;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.gm-controls button:hover {
-  background: #2a2a2a;
-}
-
-.gm-controls button:active {
-  transform: scale(0.94);
-}
-
-@media (max-width: 640px) {
-  .gm-controls {
-    right: 15px;
-    top: auto;
-    bottom: -3px;
-    flex-direction: row;
-  }
-  .gm-chnum {
-    font-size: 12px;
-  }
-  .gm-chtitle {
-    font-size: 12px;
-  }
-  .gm-chname {
-    font-size: 12px;
-    color: #ccc;
-  }
-}
+/* =====================================================================
+ * 20. FOOTER WIDGETS
+ * ===================================================================== */
 .site-footer {
   position: fixed;
   bottom: 20px;
@@ -2569,6 +2082,28 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
   text-decoration: underline;
 }
 
+@media (max-width: 700px) {
+  .site-footer {
+    flex-direction: row !important;
+    bottom: 60px !important;
+    right: 10px !important;
+  }
+  .site-footer {
+    bottom: 10px !important;
+  }
+  .widget_justin_eyes_link_widget {
+    display: none;
+  }
+  .footer-info-popup a {
+    font-size: 12px !important;
+  }
+  .footer-info-popup li + li {
+    margin-top: 0 !important;
+  }
+}
+/* =====================================================================
+ * 21. COMMERCIAL WORK PAGE
+ * ===================================================================== */
 .link-list-line {
   padding: 0.5%;
 }

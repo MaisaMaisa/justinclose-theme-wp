@@ -1,0 +1,43 @@
+/* =====================================================================
+ * 3. JUSTIN LABEL
+ * The fixed label that follows whichever list item is hovered.
+ * ===================================================================== */
+#justin-label {
+  position: fixed;
+  left: 10px;
+  top: 50px;
+  font-size: 18px;
+  line-height: 1.4;
+  pointer-events: none;
+  transition: top 0.15s ease;
+  display: inline-block;
+  white-space: nowrap;
+  z-index: 100;
+  text-transform: lowercase;
+  color: #0045bd;
+}
+
+#bio-label {
+  position: fixed;
+  left: 10px;
+  top: 50px;
+  font-size: 20px;
+  pointer-events: none;
+  transition: top 0.15s ease;
+  line-height: 0;
+  display: none;
+  z-index: 100;
+}
+
+#bio-label span {
+  color: lightgrey;
+}
+
+@media (max-width: 700px) {
+  #justin-label {
+    position: fixed;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    font-size: 12px;
+  }
+}/*# sourceMappingURL=j-label.css.map */

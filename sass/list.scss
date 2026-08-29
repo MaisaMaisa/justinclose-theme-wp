@@ -1,0 +1,66 @@
+/* =====================================================================
+ * 5. PROJECT LIST (#list)
+ * ===================================================================== */
+
+#list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#list li {
+    margin: 0;
+    padding: 0;
+}
+
+#list summary {
+    font-size: 18px;
+    line-height: 1.45;
+    cursor: pointer;
+    list-style: none;
+    display: block;
+    color: lightgrey;
+    margin-left: 5px;
+    transition: font-size 0.15s ease;
+}
+
+#list summary:hover {
+    color: #0045bd;
+}
+
+
+#list li.category-active summary,
+#list summary.category-active {
+    color: #0045bd;
+}
+
+.cat-dot {
+    display: none;
+    margin-left: 4px;
+    color: red;
+}
+
+.cat-dot.visible {
+    display: inline;
+}
+
+/* Empty-project tag: only appears on hover of the list item */
+.empty-tag {
+    display: none;
+    color: #999;
+}
+
+#list li:hover .empty-tag {
+    display: inline;
+}
+
+@media (max-width: 700px) {
+  #list summary{
+    font-size: 12px;
+  }
+
+  #list summary.scroll-active {
+    color: #0045bd;
+    font-size: 12px;
+  }
+}

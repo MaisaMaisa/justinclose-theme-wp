@@ -1,0 +1,47 @@
+/* =====================================================================
+ * 15. COLLAGE PROJECT LAYOUT
+ * The Collage category's own scrollable canvas of absolutely
+ * positioned pieces (distinct from the gh-stage[data-variant=collage]
+ * lightbox grid in section 9).
+ * ===================================================================== */
+.collage-body {
+  position: relative;
+  /* background: #f5f0e8; */
+  min-height: 100%;
+  padding: 40px 30px 80px;
+  overflow: visible;
+}
+
+.collage-item {
+  position: absolute;
+  transform-origin: center center;
+}
+
+.collage-item img {
+  display: block;
+  /* box-shadow: 2px 4px 12px rgba(0,0,0,0.18); */
+  background: none;
+  padding: 6px 6px 22px;
+  /* polaroid style */
+}
+
+.collage-item.text-item {
+  font-family: "Nothing You Could Do", cursive;
+  line-height: 1.2;
+  color: #111;
+  pointer-events: none;
+}
+
+.collage-scroll-outer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.collage-canvas {
+  position: relative;
+  width: 100%;
+  /* height set by JS based on items */
+}/*# sourceMappingURL=collage.css.map */

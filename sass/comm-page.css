@@ -1,0 +1,34 @@
+/* =====================================================================
+ * 21. COMMERCIAL WORK PAGE
+ * ===================================================================== */
+.link-list-line {
+  padding: 0.5%;
+}
+
+.link-list-line a {
+  color: black;
+}
+
+.link-list-line a:hover {
+  font-family: "Geist Mono", monospace;
+}
+
+/* Link List page: eyes start flipped, and un-flip on hover to match
+   the same look the eyes have by DEFAULT on the homepage. */
+.page-template-template-commercial .footer-eyes-link {
+  transform: scaleX(-1);
+}
+
+.page-template-template-commercial .footer-eyes-link-wrap:hover .footer-eyes-link {
+  transform: scaleX(1);
+}
+
+/* No default page padding/margin, full-bleed background. */
+body.page-template-template-commercial {
+  padding: 0;
+}
+
+body.page-template-template-commercial #page {
+  margin-left: 0;
+  padding-right: 0;
+}/*# sourceMappingURL=comm-page.css.map */

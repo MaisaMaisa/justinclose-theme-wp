@@ -1,0 +1,2602 @@
+@charset "UTF-8";
+/*
+Theme name: Justin Close Theme
+Text Domain: Justin Close Theme
+Version: 1.0
+Description: made with care
+Tags: lovely stuff
+Author: Maisa Imamović
+Author URI: https://maisaimamovic.eu/
+*/
+.syne-mono-regular {
+  font-family: "Syne Mono", monospace;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.michroma-regular {
+  font-family: "Michroma", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.exo-2-regular {
+  font-family: "Exo 2", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.oxanium-reg {
+  font-family: "Oxanium", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.rubik-spray-paint-regular {
+  font-family: "Rubik Spray Paint", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.big-shoulders-regular {
+  font-family: "Big Shoulders", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.anton-regular {
+  font-family: "Anton", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.six-caps-regular {
+  font-family: "Six Caps", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sirin-stencil-regular {
+  font-family: "Sirin Stencil", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.jura-400 {
+  font-family: "Jura", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.syne-tactile-regular {
+  font-family: "Syne Tactile", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.geist-mono-400 {
+  font-family: "Geist Mono", monospace;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sofia-sans-semi-condensed-regular {
+  font-family: "Sofia Sans Semi Condensed", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.nova-flat-regular {
+  font-family: "Nova Flat", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.matemasie-regular {
+  font-family: "Matemasie", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.nunito-regular {
+  font-family: "Nunito", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.quicksand-REGULAR {
+  font-family: "Quicksand", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.asap-400 {
+  font-family: "Asap", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.sn-pro {
+  font-family: "SN Pro", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.archivo-regular {
+  font-family: "Archivo", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+@font-face {
+  font-family: "Authentic Sans";
+  src: url("./assets/fonts/authentic-sans-master/authentic-sans-60.otf") format("opentype"), url("./assets/fonts/authentic-sans-master/authentic-sans-60.woff") format("woff");
+  font-weight: 400; /* Regular */
+  font-style: normal;
+}
+@font-face {
+  font-family: "Authentic Sans Condensed";
+  src: url("./assets/fonts/authentic-sans-master/authentic-sans-condensed-60.otf") format("opentype"), url("./assets/fonts/authentic-sans-master/authentic-sans-condensed-60.woff") format("woff");
+  font-weight: 400; /* Regular */
+  font-style: normal;
+}
+@font-face {
+  font-family: "Cirruscumulus";
+  src: url("./assets/fonts/cirruscumulus-master/fonts/CirrusCumulus.otf") format("opentype"), url("./assets/fonts/cirruscumulus-master/fonts/CirrusCumulus.woff") format("woff");
+  font-weight: 400; /* Regular */
+  font-style: normal;
+}
+html {
+  background-size: cover;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: "Geist Mono", monospace;
+}
+
+#page {
+  margin-left: 65px;
+  padding-right: 5px;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.no-outline {
+  outline: none !important;
+}
+
+.mobile-off {
+  display: none;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-light: #FFFFFF;
+  --color-medium: #E6F2B1;
+  --color-bright: #CDE562;
+  --color-dark: #889D45;
+  --circ-size: 70px;
+}
+
+body {
+  color: #000;
+  padding: 10px;
+  padding-top: 0;
+}
+
+#justin-label {
+  position: fixed;
+  left: 10px;
+  top: 50px;
+  font-size: 18px;
+  line-height: 1.4;
+  pointer-events: none;
+  transition: top 0.15s ease;
+  display: inline-block;
+  white-space: nowrap;
+  z-index: 100;
+  text-transform: lowercase;
+  color: #0045bd;
+}
+
+#bio-label {
+  position: fixed;
+  left: 10px;
+  top: 50px;
+  font-size: 20px;
+  pointer-events: none;
+  transition: top 0.15s ease;
+  line-height: 0;
+  display: none;
+  z-index: 100;
+}
+
+#bio-label span {
+  color: lightgrey;
+}
+
+#nav-line {
+  height: 100%;
+  justify-content: center;
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  font-size: 20px;
+  right: 0;
+  text-align: right;
+}
+
+#nav-line span.cat {
+  cursor: pointer;
+  padding: 0 15px;
+  font-size: 15px;
+  transition: color 0.2s ease;
+  color: transparent !important;
+  text-transform: lowercase;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#nav-line span.cat::before {
+  content: "+";
+  display: inline-block;
+  color: black;
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+#nav-line span.cat:hover {
+  color: #0045bd !important;
+}
+
+#nav-line span.cat:hover::before {
+  transform: rotate(45deg);
+  color: #0045bd !important;
+}
+
+#nav-line span.cat.active {
+  color: #0045bd !important;
+}
+
+#nav-line span.cat.active::before {
+  transform: rotate(45deg);
+  color: #0045bd;
+}
+
+#list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#list li {
+  margin: 0;
+  padding: 0;
+}
+
+#list summary {
+  font-size: 18px;
+  line-height: 1.45;
+  cursor: pointer;
+  list-style: none;
+  display: block;
+  color: lightgrey;
+  margin-left: 5px;
+  transition: font-size 0.15s ease;
+}
+
+#list summary:hover {
+  color: #0045bd;
+}
+
+#list li.category-active summary,
+#list summary.category-active {
+  color: #0045bd;
+}
+
+.cat-dot {
+  display: none;
+  margin-left: 4px;
+  color: red;
+}
+
+.cat-dot.visible {
+  display: inline;
+}
+
+/* Empty-project tag: only appears on hover of the list item */
+.empty-tag {
+  display: none;
+  color: #999;
+}
+
+#list li:hover .empty-tag {
+  display: inline;
+}
+
+.detail-body {
+  position: relative;
+  border: solid 0.5px;
+  border-left: none;
+  margin-left: -0.5px;
+}
+
+.project-slideshow {
+  position: relative;
+  background: transparent;
+  color: #fff;
+}
+
+.project-slideshow-track {
+  position: relative;
+  width: 100%;
+  height: 620px;
+  padding: 2%;
+  overflow: hidden;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 5px 5px 0;
+}
+
+.project-slideshow-track img {
+  width: auto;
+  height: 100%;
+  display: block;
+  max-width: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
+.project-slideshow-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: blue;
+  width: 38px;
+  height: 38px;
+  font-size: 100px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.project-slideshow-button.prev {
+  left: 10px;
+}
+
+.project-slideshow-button.next {
+  right: 10px;
+}
+
+.project-slideshow-button.pause {
+  top: 0;
+  right: 10px;
+  transform: none;
+  width: auto;
+  min-width: 74px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.project-slideshow-button.pause:hover {
+  color: blue !important;
+}
+
+.project-slideshow-dots {
+  display: none;
+  gap: 8px;
+  justify-content: center;
+  padding: 10px;
+  background: #ffffff;
+}
+
+.project-slideshow-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  padding: 0;
+}
+
+.project-slideshow-dot.active {
+  background: #fff;
+}
+
+.project-slideshow-caption {
+  display: none;
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  margin: 0;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 12px;
+  z-index: 1;
+}
+
+.placeholder-img {
+  width: 100%;
+  height: 620px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #999;
+}
+
+.detail-body p {
+  display: none;
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+  position: absolute;
+  bottom: 0;
+}
+
+.vimeo-embed {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  background: #000;
+}
+
+.vimeo-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+#bio-section {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  bottom: 0;
+  color: black;
+  z-index: 200;
+  transform: translateY(calc(100% - 38px));
+  transition: transform 0.35s ease;
+  background: #CDE562;
+  background: linear-gradient(0deg, rgb(145, 145, 145) 0%, rgba(253, 187, 45, 0) 100%);
+}
+
+#bio-section.is-open {
+  transform: translateY(0);
+}
+
+#bio-section .bio-panel {
+  padding: 55px 8px 10px;
+}
+
+#bio-section p {
+  font-size: 20px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+#bio-section .subscribe-block {
+  display: flex !important;
+}
+
+#bio-section .subscribe-block p {
+  margin-bottom: 0.6em;
+}
+
+#bio-section input[type=email] {
+  font-size: 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid lightgrey;
+  color: black;
+  outline: none;
+  margin-left: 5px;
+  width: 320px;
+  height: 33px;
+}
+
+#bio-section input[type=email]::-moz-placeholder {
+  color: #555;
+}
+
+#bio-section input[type=email]::placeholder {
+  color: #555;
+}
+
+#bio-section button {
+  font-size: 20px;
+  height: 33px;
+  width: 890px;
+  background: transparent;
+  border: 1px solid lightgrey;
+  color: lightgrey;
+  padding: 4px 16px;
+  margin-left: 12px;
+  cursor: pointer;
+}
+
+#bio-section button:hover {
+  border: black solid 0.5px;
+  color: #000;
+}
+
+#bio-section .subscribe-block button {
+  font-size: 20px;
+  height: 33px;
+  width: 890px;
+  background: transparent;
+  border: 1px solid lightgrey;
+  color: black;
+  padding: 4px 16px;
+  margin-left: 12px;
+  cursor: pointer;
+}
+
+#bio-section .subscribe-block button:hover {
+  background: lightgrey;
+  color: #000;
+}
+
+#bio-toggle {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  border: 1px solid lightgrey;
+  border-radius: 50%;
+  background: transparent;
+  color: lightgrey;
+  font-size: 20px;
+  line-height: 24px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.hscroll-track {
+  display: flex;
+  gap: 8px;
+  overflow-x: hidden;
+  width: 100%;
+  height: 620px;
+  background: white;
+  transition: overflow 0.2s;
+}
+
+.hscroll-track.paused {
+  overflow-x: scroll;
+}
+
+.hscroll-track img {
+  height: 100%;
+  width: auto;
+  flex-shrink: 0;
+  display: block;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
+.hscroll-wrap {
+  position: relative;
+}
+
+.hscroll-pause {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: white;
+  border: 0;
+  cursor: pointer;
+  color: #000;
+  z-index: 4567876;
+}
+
+.split-body {
+  display: flex;
+  flex-direction: column;
+  padding-top: 10%;
+  background: black;
+  height: auto;
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+}
+
+.split-wrapper {
+  display: flex;
+  height: 80%;
+}
+
+.teasers {
+  display: flex;
+  background-color: black;
+  border: solid yellow;
+  height: 100%;
+}
+.teasers img {
+  width: 33%;
+  padding: 10px;
+  filter: blur(3px);
+}
+
+.split-slideshow {
+  width: 50%;
+  flex-shrink: 0;
+  position: relative;
+  background-color: black;
+}
+
+.split-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.split-track img {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+  display: block;
+}
+
+.split-btn {
+  position: absolute;
+  border: 0;
+  background: transparent;
+  color: blue;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.split-btn.prev {
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 100px;
+  line-height: 1;
+  width: 38px;
+  height: 38px;
+}
+
+.split-btn.next {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 100px;
+  line-height: 1;
+  width: 38px;
+  height: 38px;
+}
+
+.split-btn.pause {
+  top: 0;
+  right: 0;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.split-text {
+  position: relative;
+  width: 50%;
+  padding: 30px 25px;
+  background: black;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  border-left: 0.5px solid lightgrey;
+}
+
+.split-text button {
+  background-color: black;
+  color: white;
+  border: solid 0.5px white;
+  border-radius: 5px;
+  position: absolute;
+  width: 95%;
+  bottom: 30px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.split-text button:hover {
+  background-color: white;
+  color: black;
+  border: black;
+}
+
+.oops-btn {
+  position: absolute;
+  text-decoration: none;
+  font-size: 50px;
+  padding: 10px;
+  right: 0;
+}
+
+.gallery-block {
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.gallery-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.popup-caption {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  z-index: 20;
+  display: none;
+}
+
+.popup-caption.visible {
+  display: block;
+}
+
+.gallery-caption-toggle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: yellow;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  display: block;
+}
+
+.gallery-caption-text {
+  display: none;
+  margin-top: 8px;
+  font-size: 20px;
+  line-height: 1.5;
+  color: yellow;
+}
+
+.gallery-caption-text.open {
+  display: block;
+}
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.749);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-overlay.open {
+  display: flex;
+}
+
+.popup-window {
+  width: 60vw;
+  height: 80vh;
+  overflow: hidden;
+  position: relative;
+  background: white;
+  border: solid 0.5px #000;
+}
+
+.popup-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+}
+
+.popup-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 30;
+  line-height: 1;
+  color: yellow;
+}
+
+.popup-caption {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 20;
+  display: none;
+}
+
+.popup-title {
+  font-size: 30px;
+  margin: 16px 16px 12px;
+  position: sticky;
+  top: 5px;
+  z-index: 45678;
+  color: yellow;
+}
+
+.popup-watch-toggle {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 25;
+  background: transparent;
+  color: yellow;
+  border: none;
+  padding: 8px 14px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  display: none;
+}
+
+.popup-watch-toggle.visible {
+  display: block;
+}
+
+.popup-overlay {
+  transition: background 0.3s ease;
+}
+
+.popup-overlay.watch-mode {
+  background: #000;
+}
+.popup-overlay.watch-mode .popup-window {
+  background: #000;
+}
+
+@media (max-width: 700px) {
+  .popup-window {
+    width: 92vw;
+    height: 85vh;
+  }
+}
+/* ── Lightbox overlay ── */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+}
+
+.lightbox-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--lightbox-tint);
+}
+
+.lightbox-overlay.open {
+  display: flex;
+}
+
+.lightbox-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+#lightbox-stage {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+}
+
+.lightbox-main img:not(.pg-media, .gh-thumb img) {
+  height: 90%;
+  max-width: none;
+  -o-object-fit: cover;
+     object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
+
+.lightbox-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: #000;
+  font-size: 80px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  width: 60px;
+  padding: 0;
+}
+
+.lightbox-arrow.prev {
+  left: 0;
+}
+
+.lightbox-arrow.next {
+  right: 0;
+}
+
+.lightbox-close {
+  position: absolute;
+  margin: 0.5%;
+  right: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 556785678;
+  display: flex;
+  align-items: center;
+}
+
+.lightbox-thumbs {
+  height: 100px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px 12px;
+  scrollbar-width: none;
+}
+
+.lightbox-thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.lightbox-thumbs img {
+  height: 100%;
+  width: auto;
+  flex-shrink: 0;
+  cursor: pointer;
+  -o-object-fit: cover;
+     object-fit: cover;
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.lightbox-thumbs img.active {
+  border-color: #000;
+}
+
+/* ── Grid + Hover lightbox layout (per-project alternate) ── */
+.gh-stage {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.gh-grid {
+  width: 250px;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--gh-cols, 2), 1fr);
+  align-content: end;
+  height: 100%;
+  padding: 0;
+  gap: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+.gh-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.gh-thumb {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid #f2f2f2;
+}
+
+.gh-thumb img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  display: block;
+}
+
+.gh-thumb.gh-active {
+  outline: 2px solid white;
+  outline-offset: -2px;
+}
+
+.gh-preview {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.gh-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+  display: block;
+}
+
+.gh-stage-book .gh-right-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.gh-stage-book .gh-right-col .gh-preview {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Wraps the book text and buy button so they can sit side by side
+   (row) instead of stacked. Adjust align-items/gap here to change how
+   they line up against each other. */
+.gh-book-footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 0 24px 16px;
+}
+
+.gh-book-text {
+  flex: 1;
+  min-width: 0;
+  max-height: 30vh;
+  overflow-y: auto;
+  padding: 16px 0;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: white;
+  scrollbar-width: none;
+}
+
+.gh-book-text::-webkit-scrollbar {
+  display: none;
+}
+
+/* Restores normal paragraph/list/heading spacing inside book text.
+   The site-wide `* { margin: 0; padding: 0; }` reset above strips out
+   every margin the block editor writes into post_content — that's why
+   paragraphs were running together with no gap between them. These
+   rules bring standard block spacing back, scoped to this container
+   only so nothing else on the site is affected. */
+.gh-book-text p,
+.gh-book-text ul,
+.gh-book-text ol,
+.gh-book-text blockquote,
+.gh-book-text h1,
+.gh-book-text h2,
+.gh-book-text h3,
+.gh-book-text h4,
+.gh-book-text h5,
+.gh-book-text h6,
+.gh-book-text figure {
+  margin: 0 0 1em;
+}
+
+.gh-book-text ul,
+.gh-book-text ol {
+  padding-left: 1.4em;
+}
+
+.gh-book-text li {
+  margin: 0 0 0.4em;
+}
+
+.gh-book-text > *:last-child {
+  margin-bottom: 0;
+}
+
+.gh-book-text img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 0 1em;
+}
+
+/* New independent Book Template buy button — smaller, non-circular, sits
+   inside .gh-book-footer next to the text (in normal flex flow), unlike
+   the default Books layout's fixed, floating, spinning "BUY ME" circle.
+   Different class on purpose so it never inherits .buy-btn's
+   styling/animation. flex-shrink: 0 keeps it from getting squeezed by
+   the text column. */
+.book-template-buy-btn {
+  flex-shrink: 0;
+  align-self: anchor-center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 22px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 1px solid white;
+  background: transparent;
+  border: 1px solid white;
+  border-radius: 999px;
+  background: transparent;
+  color: white;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+  animation: justin-circ-spin 8s linear infinite;
+  transition: font-size 0.25s ease;
+}
+
+.book-template-buy-btn:hover {
+  font-size: 20px;
+}
+
+.gh-info-toggle {
+  display: none;
+  position: absolute;
+  bottom: 8px;
+  left: 7%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 30px;
+  line-height: 1;
+  color: white;
+  text-shadow: #FC0 1px 0 10px;
+  padding: 2px 4px;
+}
+
+.gh-info-panel {
+  position: absolute;
+  bottom: 0;
+  left: 9%;
+  right: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  font-size: 15px;
+  line-height: 1.4;
+  color: white;
+  text-shadow: #FC0 1px 0 10px;
+  padding: 0 15px;
+}
+
+.gh-info-panel.open {
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 8px 12px 15px;
+}
+
+@media (max-width: 700px) {
+  .gh-stage {
+    flex-direction: column;
+  }
+  .gh-counter-wrap {
+    width: 100%;
+    height: 100%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+    z-index: 4;
+  }
+  .gh-counter {
+    position: absolute;
+    bottom: 5%;
+  }
+  .gh-grid {
+    display: none; /* thumbnails removed on mobile */
+  }
+  .gh-stage-book .gh-right-col {
+    height: 100%;
+  }
+  .gh-book-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 0 16px 12px;
+  }
+  .gh-book-text {
+    max-height: 35vh;
+    font-size: 13px;
+    padding: 12px 0;
+  }
+  .book-template-buy-btn {
+    align-self: anchor-center;
+    margin: 0;
+    font-size: 11px;
+    padding: 8px 18px;
+  }
+  .gh-nav-arrow {
+    display: inline-flex !important;
+    position: fixed;
+  }
+  .gh-nav-prev {
+    transform: rotate(0deg) scaleX(-1);
+    top: 2%;
+  } /* points up */
+  .gh-nav-next {
+    transform: rotate(0deg);
+    bottom: 0;
+  }
+  .lightbox-main img:not(.pg-media, .gh-thumb img) {
+    width: 90%;
+    height: auto;
+  }
+  .gh-stage[data-variant=painting] .gh-grid.gh-grid-painting,
+  .gh-stage[data-variant=collage] .gh-grid {
+    display: none !important;
+  }
+}
+/* Film entries: extra "watch" tile at the end of the thumbnail strip */
+.lightbox-watch-thumb {
+  height: 100%;
+  aspect-ratio: 1/1;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  font-size: 11px;
+  text-align: center;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Watch mode: overlay goes dark and plays the film */
+.lightbox-overlay.watch-mode {
+  background: #000;
+}
+
+.film-vimeo {
+  width: 90%;
+  max-width: 900px;
+  height: 500px;
+  border: none;
+  flex-shrink: 0;
+}
+
+.film-watch-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.film-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 30px;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.4;
+  color: black;
+  padding: 0 40px;
+  pointer-events: none;
+}
+.film-caption p {
+  margin: 0;
+}
+
+.film-resume-btn {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: transparent;
+  color: #fff;
+  border: 1px solid #fff;
+  padding: 8px 18px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.film-resume-btn:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* Info icon + sliding description panel, between main image and thumbnails */
+.lightbox-infobar {
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+  position: fixed;
+  bottom: 0;
+  flex-shrink: 0;
+  display: flex;
+  padding: 2px 12px;
+}
+
+.lightbox-info-toggle {
+  display: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 30px;
+  line-height: 1;
+  color: black;
+  padding: 2px 4px;
+}
+
+.lightbox-info-panel {
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  font-size: 15px;
+  line-height: 1.4;
+  color: black;
+  padding: 0 16px;
+}
+
+.lightbox-info-panel.open {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 8px 16px 14px;
+}
+
+/* Books v3 — post-editor content as the stage background, buy button
+   floats fixed over everything and keeps its existing spin. */
+.book-stage-v3 {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 60px 50px;
+  color: #111;
+}
+
+.book-stage-v3 .book-content {
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.book-stage-v3 .book-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 20px 0;
+}
+
+.buy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  border: 1px solid white;
+  background: transparent;
+  color: white;
+  padding: 0;
+  text-align: center;
+  font-size: 40px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  cursor: pointer;
+  text-decoration: none;
+  animation: justin-circ-spin 8s linear infinite;
+  transition: font-size 0.25s ease;
+}
+
+.buy-btn:hover {
+  font-size: 50px;
+  animation-play-state: paused;
+}
+
+.buy-btn .justin-circ-btn-ring,
+.buy-btn .justin-circ-btn-x {
+  stroke: #fff;
+  mix-blend-mode: difference;
+}
+
+.buy-btn .justin-circ-btn-text {
+  fill: #fff;
+  mix-blend-mode: difference;
+}
+
+/* Wrapper: owns position + scale, independent of the button's own
+   rotation transform so the two don't fight each other. */
+.buy-btn-wrap {
+  position: absolute;
+}
+
+/* Fixed dead-center of the whole viewport, scaled up */
+.buy-btn-wrap-fixed {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.8);
+  z-index: 456785680;
+  mix-blend-mode: difference; /* auto-contrast against the category tint */
+}
+
+.book-stage-v3 .book-content,
+.book-stage-v3 .book-content :not(img) {
+  color: #fff;
+  mix-blend-mode: difference;
+}
+
+.book-stage-v3 .book-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 20px 0;
+}
+
+.lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-text {
+  fill: transparent; /* keep existing behavior — this text is invisible by design */
+}
+
+.lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x {
+  stroke: #fff;
+  mix-blend-mode: difference;
+}
+
+.stripe-buy-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.stripe-buy-overlay.open {
+  display: flex;
+}
+
+.stripe-buy-modal {
+  background: #fff;
+  width: 90%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 28px 24px;
+  position: relative;
+  border-radius: 4px;
+  /* Firefox */
+  scrollbar-width: auto;
+  scrollbar-color: transparent transparent;
+}
+
+/* Custom scrollbar: transparent fill, black border, 10px wide.
+   Overrides the site-wide `::-webkit-scrollbar { width: 0px; }` rule,
+   scoped to this modal only. */
+.stripe-buy-modal::-webkit-scrollbar {
+  width: 10px;
+  background-color: transparent;
+}
+
+.stripe-buy-modal::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.stripe-buy-modal::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border: 1px solid #000;
+  border-radius: 5px;
+}
+
+.stripe-buy-modal::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.stripe-buy-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.stripe-buy-title {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.stripe-buy-qty-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stripe-qty-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stripe-qty-btn {
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+}
+
+.stripe-buy-total {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.stripe-buy-field {
+  margin-bottom: 14px;
+}
+
+.stripe-buy-error {
+  color: #c0392b;
+  font-size: 13px;
+  margin-bottom: 10px;
+  min-height: 16px;
+}
+
+.stripe-buy-submit {
+  width: 100%;
+  padding: 12px;
+  background: #111;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.stripe-buy-submit:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.stripe-buy-success {
+  text-align: center;
+  padding: 30px 0;
+}
+
+@media (max-width: 700px) {
+  .book-stage-v3 {
+    padding: 40px 20px;
+  }
+  .buy-btn {
+    width: 200px;
+    height: 200px;
+  }
+  .buy-btn:hover {
+    font-size: 45px;
+  }
+}
+#bg-hover-img {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+#bg-hover-img.visible {
+  opacity: 1;
+}
+
+/* make sure the list sits above the bg image */
+#page {
+  position: relative;
+  z-index: 1;
+}
+
+.collage-body {
+  position: relative;
+  min-height: 100%;
+  padding: 40px 30px 80px;
+  overflow: visible;
+}
+
+.collage-item {
+  position: absolute;
+  transform-origin: center center;
+}
+
+.collage-item img {
+  display: block;
+  background: none;
+  padding: 6px 6px 22px;
+}
+
+.collage-item.text-item {
+  font-family: "Nothing You Could Do", cursive;
+  line-height: 1.2;
+  color: #111;
+  pointer-events: none;
+}
+
+.collage-scroll-outer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.collage-canvas {
+  position: relative;
+  width: 100%;
+}
+
+@keyframes justin-circ-blur {
+  0%, 100% {
+    filter: blur(0px);
+  }
+  50% {
+    filter: blur(4px);
+  }
+}
+#god-mode-btn {
+  position: fixed;
+  right: 0;
+  cursor: pointer;
+  color: black !important;
+  z-index: 456785678;
+  text-decoration: none;
+  margin: 0.5%;
+}
+
+#god-mode-btn .justin-circ-btn svg {
+  animation: justin-circ-spin 18s linear infinite;
+}
+#god-mode-btn .justin-circ-btn svg .justin-circ-btn-x {
+  stroke: transparent;
+}
+
+.justin-circ-btn svg {
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.justin-circ-btn-text {
+  fill: black;
+  transition: fill 0.2s ease;
+  font-size: 12px !important;
+}
+
+#god-mode-btn:hover .justin-circ-btn-text {
+  fill: #0045bd;
+}
+
+#god-mode-btn.is-active .justin-circ-btn-text {
+  fill: #fff;
+}
+
+#god-mode-btn.is-active .justin-circ-btn-x {
+  stroke: white !important;
+  transform-origin: center;
+  transform: scale(1.2);
+}
+
+#god-mode-btn.behind-popup {
+  z-index: 1;
+}
+
+#god-mode-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+#god-mode-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#god-mode-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+#god-mode-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.6s ease;
+}
+
+.pg-wrap {
+  --pg-columns: 5;
+  --pg-gap: 4px;
+  --pg-bg: #ffffff;
+  --pg-nav-bg: #111111;
+  --pg-nav-fg: #f5f5f5;
+  --pg-accent: #f5c518;
+  max-width: 100%;
+  margin: 0 auto;
+  background: transparent;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* ---------- Top nav ---------- */
+.pg-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  background: var(--pg-nav-bg);
+  padding: 6px;
+}
+
+.pg-reset {
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--pg-nav-fg);
+  text-shadow: #FC0 1px 0 10px;
+  border: none;
+  border-radius: 3px;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.pg-info-btn {
+  background: var(--pg-accent);
+  color: #111;
+}
+
+.pg-info-btn:hover,
+.pg-reset:hover,
+.pg-dropdown-toggle:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.pg-info-btn:hover {
+  background: #ffd23f;
+}
+
+.pg-dropdown {
+  position: relative;
+}
+
+.pg-dropdown-toggle::after {
+  content: "▾";
+  margin-left: 6px;
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.pg-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 180px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #1c1c1c;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  z-index: 20;
+  padding: 4px;
+}
+
+.pg-dropdown.pg-open .pg-dropdown-menu {
+  display: block;
+}
+
+.pg-filter-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--pg-nav-fg);
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.pg-filter-option:hover,
+.pg-filter-option.pg-active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.pg-filter-option.pg-active {
+  color: var(--pg-accent);
+}
+
+.pg-info-panel {
+  padding: 10px 14px;
+  font-size: 13px;
+  background: #f4f4f4;
+  color: #333;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+/* ---------- Grid ---------- */
+.pg-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--pg-columns), 1fr);
+  gap: var(--pg-gap);
+}
+
+.pg-tile {
+  position: relative;
+  aspect-ratio: 2.5/3;
+  overflow: hidden;
+  background: #ddd;
+}
+
+.pg-tile.pg-hidden {
+  display: none;
+}
+
+.pg-media {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  display: block;
+}
+
+.pg-mute-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pg-empty {
+  grid-column: 1/-1;
+  padding: 40px 20px;
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+}
+
+.pg-tagbar {
+  position: fixed;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  z-index: 10;
+  height: 100%;
+  flex-direction: column;
+  align-items: end;
+  justify-content: center;
+  right: 0;
+}
+
+.pg-tag-btn {
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  text-shadow: #FC0 1px 0 10px;
+  background: var(--pg-nav-bg);
+  border: none;
+  border-radius: 3px;
+  padding: 6px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.pg-tag-btn.pg-active {
+  background: var(--pg-accent);
+  color: #111;
+}
+
+.pg-tile-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 6px 8px;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.3;
+  text-shadow: #FC0 1px 0 10px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  text-align: center;
+}
+
+.pg-tile:hover .pg-tile-caption {
+  opacity: 1;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .pg-grid {
+    grid-template-columns: repeat(min(3, var(--pg-columns)), 1fr);
+  }
+}
+@media (max-width: 560px) {
+  .pg-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pg-info-btn, .pg-reset, .pg-dropdown-toggle {
+    font-size: 9px;
+    padding: 7px 10px;
+  }
+  .pg-tag-btn {
+    font-size: 9px;
+  }
+}
+/* Take the grid out of flex flow entirely so extra columns overlap the
+   preview image instead of pushing it over or getting clipped/scrolled */
+.gh-stage[data-variant=painting] {
+  position: relative;
+}
+
+.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: -moz-max-content;
+  width: max-content;
+  overflow: visible;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* When split (4+ columns), the grid spans full stage width and
+   pushes its two groups to opposite edges — first 3 columns left,
+   remaining columns right. */
+.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting.gh-grid-painting-split {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.gh-stage[data-variant=painting] .gh-painting-left,
+.gh-stage[data-variant=painting] .gh-painting-right {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 50%;
+}
+
+.gh-stage[data-variant=painting] .gh-painting-right {
+  justify-content: end;
+  align-self: flex-end;
+}
+
+.gh-col-floating {
+  align-self: flex-end;
+}
+
+.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-col,
+.gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-thumb {
+  pointer-events: auto;
+  gap: 5px;
+}
+
+.gh-stage[data-variant=painting] .gh-col {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* Reset the shared .gh-thumb defaults — JS now sets width, aspect-ratio,
+   margin, border, and shadow per item based on which column it landed in */
+.gh-stage[data-variant=painting] .gh-thumb {
+  width: auto;
+  border: none;
+  box-sizing: border-box;
+  transition: transform 0.15s ease;
+}
+
+.gh-stage[data-variant=painting] .gh-thumb:hover {
+  transform: scale(1.04);
+}
+
+.gh-stage[data-variant=painting] .gh-thumb img {
+  height: auto;
+  -o-object-fit: unset;
+     object-fit: unset;
+}
+
+/* ── Collage: scrollable 2-column scatter grid ── */
+.gh-stage[data-variant=collage] .gh-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: min-content;
+  width: 300px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-content: start;
+  align-items: start;
+  gap: 18px 10px;
+  padding: 24px 18px;
+  scrollbar-width: none;
+}
+
+/* Let each collage thumb keep its natural portrait/landscape shape
+   instead of being force-cropped to fill a stretched box */
+.gh-stage[data-variant=collage] .gh-thumb img {
+  height: auto;
+  -o-object-fit: unset;
+     object-fit: unset;
+}
+
+.gh-stage[data-variant=collage] .gh-grid::-webkit-scrollbar {
+  display: none;
+}
+
+/* Base tile look: undo the flex-era width:50%, add a light polaroid frame */
+.gh-stage[data-variant=collage] .gh-thumb {
+  width: 100%;
+  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease;
+}
+
+.gh-stage[data-variant=collage] .gh-thumb:hover {
+  transform: scale(1.05) rotate(0deg);
+}
+
+/* Occasional full-width showcase tile — delete this rule if you don't want it */
+.gh-stage[data-variant=collage] .gh-thumb:nth-child(9n+5) {
+  grid-column: span 2;
+}
+
+/* ── SCATTER control: diagonal left/right stagger + slight rotation, repeats every 4 ── */
+.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n+1) {
+  transform: translateX(-8px) rotate(-2deg);
+}
+
+.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n+2) {
+  transform: translateX(10px) rotate(2.5deg);
+}
+
+.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n+3) {
+  transform: translateX(-6px) rotate(-1.5deg);
+}
+
+.gh-stage[data-variant=collage] .gh-thumb:nth-child(4n) {
+  transform: translateX(8px) rotate(2deg);
+}
+
+.gh-counter-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 4;
+}
+
+.gh-counter {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: white;
+  text-shadow: #FC0 1px 0 10px;
+  pointer-events: none;
+}
+
+.gh-nav-arrow {
+  display: none; /* desktop: hidden, thumbnails handle navigation */
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 10px;
+}
+
+/* ── Circular text button (reusable) ── */
+.justin-circ-btn {
+  display: inline-flex;
+  width: 70px !important;
+  height: 70px !important;
+  width: var(--circ-size, 70px);
+  height: var(--circ-size, 70px);
+  cursor: pointer;
+}
+
+.justin-circ-btn svg {
+  display: block;
+}
+
+.justin-circ-btn-ring {
+  fill: none;
+  stroke-width: 1;
+}
+
+.justin-circ-btn-x {
+  stroke: #000;
+  stroke-width: 1.4;
+}
+
+.justin-circ-btn:hover .justin-circ-btn-ring {
+  stroke-width: 1.4;
+}
+
+/* ── Slow clockwise rotation for circular text buttons ── */
+@keyframes justin-circ-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Close button's X — its own styling, independent of God Mode */
+.lightbox-close .justin-circ-btn-x {
+  stroke: white;
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
+.lightbox-close:hover .justin-circ-btn-x {
+  transform: scale(2.2);
+}
+
+.lightbox-close .justin-circ-btn-text {
+  fill: transparent;
+}
+
+.justin-circ-btn svg {
+  animation: justin-circ-spin linear infinite;
+  animation-play-state: running;
+}
+
+#god-mode-btn:hover .justin-circ-btn svg {
+  animation-play-state: paused;
+}
+
+@media (max-width: 700px) {
+  #justin-label {
+    position: fixed;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    font-size: 12px;
+  }
+  #list summary {
+    font-size: 12px;
+  }
+  #list summary.scroll-active {
+    color: #0045bd;
+    font-size: 12px;
+  }
+  #page {
+    margin-left: 50px;
+    padding-right: 5px;
+  }
+  #nav-line {
+    display: none;
+    position: fixed;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    background: white;
+    height: auto;
+    text-align: left;
+  }
+  .site-footer {
+    flex-direction: row !important;
+    bottom: 60px !important;
+    right: 10px !important;
+  }
+  .lightbox-info-panel {
+    font-size: 12px;
+    flex-shrink: 1;
+    text-align: center;
+  }
+  .site-footer {
+    bottom: 10px !important;
+  }
+  .widget_justin_eyes_link_widget {
+    display: none;
+  }
+  .footer-info-popup a {
+    font-size: 12px !important;
+  }
+  .footer-info-popup li + li {
+    margin-top: 0 !important;
+  }
+}
+#god-mode-frame {
+  width: 100%;
+  height: 100%;
+}
+
+.gm-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  perspective: 700px;
+  transform-style: preserve-3d;
+}
+
+.gm-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 1px, transparent 1px, transparent 3px);
+  mix-blend-mode: overlay;
+}
+
+.gm-iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.gm-static {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-family: monospace;
+  font-size: 13px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  background: repeating-linear-gradient(45deg, #1a1a1a 0px, #1a1a1a 2px, #0a0a0a 2px, #0a0a0a 4px);
+  animation: gm-flicker 6s infinite;
+}
+
+@keyframes gm-flicker {
+  0%, 92%, 100% {
+    opacity: 1;
+  }
+  93% {
+    opacity: 0.6;
+  }
+  94% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 0.7;
+  }
+  96% {
+    opacity: 1;
+  }
+}
+.gm-info {
+  position: absolute;
+  left: 16px;
+  bottom: 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: monospace;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.gm-chnum {
+  font-size: 18px;
+}
+
+.gm-chtitle {
+  font-size: 18px;
+}
+
+.gm-chname {
+  font-size: 18px;
+  color: #ccc;
+}
+
+.gm-controls {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 3;
+}
+
+.gm-controls button {
+  width: 44px;
+  height: 36px;
+  background: rgba(28, 28, 28, 0.85);
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #eee;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gm-controls button:hover {
+  background: #2a2a2a;
+}
+
+.gm-controls button:active {
+  transform: scale(0.94);
+}
+
+@media (max-width: 640px) {
+  .gm-controls {
+    right: 15px;
+    top: auto;
+    bottom: -3px;
+    flex-direction: row;
+  }
+  .gm-chnum {
+    font-size: 12px;
+  }
+  .gm-chtitle {
+    font-size: 12px;
+  }
+  .gm-chname {
+    font-size: 12px;
+    color: #ccc;
+  }
+}
+.site-footer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 50;
+}
+
+.footer-widget {
+  position: relative;
+}
+
+.footer-info-toggle,
+.footer-eyes-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  color: #000;
+}
+
+.footer-eyes-link-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.footer-eyes-link {
+  font-size: 30px;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+/* default eyes widget: starts normal, flips on hover */
+.footer-eyes-link-wrap:hover .footer-eyes-link {
+  transform: scaleX(-1);
+}
+
+/* video-grid homepage link: starts flipped, un-flips on hover */
+.footer-eyes-link--video-home {
+  transform: scaleX(-1);
+}
+
+.footer-eyes-link-wrap:hover .footer-eyes-link--video-home {
+  transform: scaleX(1);
+}
+
+.footer-info-popup {
+  position: absolute;
+  bottom: 100%;
+  right: 50px;
+  margin-bottom: 8px;
+  background: #fff;
+  border: 1px solid #000;
+  padding: 10px 14px;
+  min-width: 140px;
+}
+
+.footer-info-popup[hidden] {
+  display: none;
+}
+
+.footer-info-popup ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-info-popup li + li {
+  margin-top: 6px;
+}
+
+.footer-info-popup a {
+  text-decoration: none;
+  color: #000;
+  font-size: 15px;
+}
+
+.footer-info-popup a:hover {
+  text-decoration: underline;
+}
+
+.link-list-line {
+  padding: 0.5%;
+}
+
+.link-list-line a {
+  color: black;
+}
+
+.link-list-line a:hover {
+  font-family: "Geist Mono", monospace;
+}
+
+/* Link List page: eyes start flipped, and un-flip on hover to match
+   the same look the eyes have by DEFAULT on the homepage. */
+.page-template-template-commercial .footer-eyes-link {
+  transform: scaleX(-1);
+}
+
+.page-template-template-commercial .footer-eyes-link-wrap:hover .footer-eyes-link {
+  transform: scaleX(1);
+}
+
+/* No default page padding/margin, full-bleed background. */
+body.page-template-template-commercial {
+  padding: 0;
+}
+
+body.page-template-template-commercial #page {
+  margin-left: 0;
+  padding-right: 0;
+}/*# sourceMappingURL=style copy.css.map */

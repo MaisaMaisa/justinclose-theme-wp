@@ -1,0 +1,164 @@
+/* =====================================================================
+ * 1. TYPOGRAPHY / FONTS
+ * Utility font classes + local @font-face declarations. Candidate for
+ * its own _fonts.scss.
+ * ===================================================================== */
+
+.syne-mono-regular {
+  font-family: "Syne Mono", monospace;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.michroma-regular {
+  font-family: "Michroma", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.exo-2-regular {
+  font-family: "Exo 2", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.oxanium-reg {
+  font-family: "Oxanium", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.rubik-spray-paint-regular {
+  font-family: "Rubik Spray Paint", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.big-shoulders-regular {
+  font-family: "Big Shoulders", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.anton-regular {
+  font-family: "Anton", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.six-caps-regular {
+  font-family: "Six Caps", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sirin-stencil-regular {
+  font-family: "Sirin Stencil", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.jura-400 {
+  font-family: "Jura", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.syne-tactile-regular {
+  font-family: "Syne Tactile", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.geist-mono-400 {
+  font-family: "Geist Mono", monospace;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sofia-sans-semi-condensed-regular {
+  font-family: "Sofia Sans Semi Condensed", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.nova-flat-regular {
+  font-family: "Nova Flat", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.matemasie-regular {
+  font-family: "Matemasie", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.nunito-regular {
+  font-family: "Nunito", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.quicksand-REGULAR {
+  font-family: "Quicksand", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.asap-400 {
+  font-family: "Asap", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.sn-pro {
+  font-family: "SN Pro", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.archivo-regular {
+  font-family: "Archivo", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+@font-face {
+    font-family: "Authentic Sans";
+    src: url("./assets/fonts/authentic-sans-master/authentic-sans-60.otf") format("opentype"),
+         url("./assets/fonts/authentic-sans-master/authentic-sans-60.woff") format("woff");
+    font-weight: 400; /* Regular */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Authentic Sans Condensed";
+    src: url("./assets/fonts/authentic-sans-master/authentic-sans-condensed-60.otf") format("opentype"),
+         url("./assets/fonts/authentic-sans-master/authentic-sans-condensed-60.woff") format("woff");
+    font-weight: 400; /* Regular */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Cirruscumulus";
+    src: url("./assets/fonts/cirruscumulus-master/fonts/CirrusCumulus.otf") format("opentype"),
+         url("./assets/fonts/cirruscumulus-master/fonts/CirrusCumulus.woff") format("woff");
+    font-weight: 400; /* Regular */
+    font-style: normal;
+}

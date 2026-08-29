@@ -1,0 +1,27 @@
+/* =====================================================================
+ * 14. HOVER BACKGROUND IMAGE
+ * The full-bleed preview shown behind the page while hovering a
+ * "hover-only" list item.
+ * ===================================================================== */
+
+#bg-hover-img {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+#bg-hover-img.visible {
+    opacity: 1;
+}
+
+/* make sure the list sits above the bg image */
+#page {
+    position: relative;
+    z-index: 1;
+}

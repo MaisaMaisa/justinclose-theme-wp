@@ -1,0 +1,76 @@
+@charset "UTF-8";
+/* =====================================================================
+ * 16. CIRCULAR TEXT BUTTON COMPONENT
+ * Reusable curved-text ring button (God Mode trigger, lightbox close).
+ * Note: three separate rule blocks below target `.justin-circ-btn svg`
+ * — kept as originally written rather than merged.
+ * ===================================================================== */
+.justin-circ-btn {
+  display: inline-flex;
+  width: 70px !important;
+  height: 70px !important;
+  width: var(--circ-size, 70px);
+  height: var(--circ-size, 70px);
+  cursor: pointer;
+}
+
+.justin-circ-btn svg {
+  display: block;
+}
+
+.justin-circ-btn svg {
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.justin-circ-btn-ring {
+  fill: none;
+  stroke-width: 1;
+}
+
+.justin-circ-btn-x {
+  stroke: #000;
+  stroke-width: 1.4;
+}
+
+.justin-circ-btn:hover .justin-circ-btn-ring {
+  stroke-width: 1.4;
+}
+
+/* ── Slow clockwise rotation for circular text buttons ── */
+@keyframes justin-circ-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Close button's X — its own styling, independent of God Mode */
+.lightbox-close .justin-circ-btn-x {
+  stroke: white;
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
+.lightbox-close:hover .justin-circ-btn-x {
+  transform: scale(2.2);
+}
+
+.lightbox-close .justin-circ-btn-text {
+  fill: transparent;
+}
+
+.justin-circ-btn svg {
+  animation: justin-circ-spin linear infinite;
+  animation-play-state: running;
+}
+
+.justin-circ-btn-text {
+  fill: black;
+  transition: fill 0.2s ease;
+  font-size: 12px !important;
+}/*# sourceMappingURL=circ-btn.css.map */

@@ -1,0 +1,67 @@
+/* =====================================================================
+ * 4. NAVIGATION (category nav line)
+ * ===================================================================== */
+
+#nav-line {
+    height: 100%;
+    justify-content: center;
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    font-size: 20px;
+    right: 0;
+    text-align: right;
+}
+
+#nav-line span.cat {
+    cursor: pointer;
+    padding: 0 15px;
+    font-size: 15px;
+    transition: color 0.2s ease;
+    color: transparent !important;
+    text-transform: lowercase;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#nav-line span.cat::before {
+    content: "+";
+    display: inline-block;
+    color: black;
+    font-size: 14px;
+    transition: transform 0.2s ease;
+}
+
+#nav-line span.cat:hover {
+    color: #0045bd !important;
+}
+
+#nav-line span.cat:hover::before {
+    transform: rotate(45deg);
+    color: #0045bd !important;
+}
+
+#nav-line span.cat.active {
+    color: #0045bd !important;
+}
+
+#nav-line span.cat.active::before {
+    transform: rotate(45deg);
+    color: #0045bd;
+}
+
+@media (max-width: 700px) {
+    #nav-line {
+        display: none;
+        position: fixed;
+        left: 0;
+        width: 100%;
+        bottom: 0;
+        background: white;
+        height: auto;
+        text-align: left;
+    }
+}
