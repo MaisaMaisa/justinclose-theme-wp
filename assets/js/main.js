@@ -1343,6 +1343,20 @@
 
     state.activeEntryIndex = index;
 
+    // Reset any inline layout overrides a previous render may have left
+    // on #lightbox-stage. Photo Grid / Book / Book Template / Grid-Hover
+    // all set display:block + explicit width/height so their own custom
+    // layouts can fill the stage — but #lightbox-stage is one persistent
+    // element reused across every open, and those inline styles were
+    // never cleaned up. Without this reset, they silently carry over
+    // into the NEXT entry — e.g. opening a Film video right after a
+    // Photo Grid entry would inherit display:block, breaking the flex
+    // centering the video depends on and pushing it to the top-left
+    // instead of the center. Clearing the style attribute here restores
+    // the CSS-defined flex-centered default before any render function
+    // decides whether it needs to override it again.
+    elements.lightboxStage.removeAttribute('style');
+
     elements.lightboxOverlay.classList.remove('lb-book');
 
     var lightboxColor = categoryLightboxColors[entry.cat] || '';
