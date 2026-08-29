@@ -232,13 +232,13 @@ if (!function_exists('justin_register_meta_boxes')) {
         add_meta_box('justin-project-common', 'Lightbox Layout', 'justin_render_project_common_box', 'post', 'normal', 'high');
         add_meta_box('justin-project-gallery', 'Gallery / Visuals', 'justin_render_project_gallery_box', 'post', 'normal', 'default');
         add_meta_box('justin-project-film', 'Film', 'justin_render_project_film_box', 'post', 'normal', 'default');
-        add_meta_box('justin-project-books', 'Books', 'justin_render_project_books_box', 'post', 'normal', 'default');
+        add_meta_box('justin-project-books', 'Book Template 1', 'justin_render_project_books_box', 'post', 'normal', 'default');
         // Separate box for Book Template's own thumbnail set, kept
         // apart from Gallery/Visuals so its Photo Grid tag UI never shows
         // up here. Only relevant when Lightbox Layout = Book Template
         // (hidden otherwise via justin_layout_admin_polish() below, along
         // with every other layout-specific meta box).
-        add_meta_box('justin-project-book-template', 'Book Template', 'justin_render_project_book_template_box', 'post', 'normal', 'default');
+        add_meta_box('justin-project-book-template', 'Book Template 2', 'justin_render_project_book_template_box', 'post', 'normal', 'default');
     }
 }
 
@@ -435,9 +435,8 @@ add_action('admin_enqueue_scripts', function ($hook) {
 //   - Photo Grid (Misc) -> Gallery / Visuals box AND its Photo Grid
 //     tag checklist.
 //   - Video (Film) -> Film box.
-//   - Book Template -> Book Template box.
-// The Books box is intentionally left untouched (always visible) since
-// it's tied to the Books category workflow, not to Lightbox Layout.
+//   - Book Template -> Book Template 1 (Books box) AND Book Template 2
+//     (Book Template box), together.
 add_action('admin_head-post.php', 'justin_layout_admin_polish');
 add_action('admin_head-post-new.php', 'justin_layout_admin_polish');
 
@@ -497,6 +496,7 @@ function justin_layout_admin_polish() {
             var galleryBox = document.getElementById('justin-project-gallery');
             var tagAssign = document.getElementById('justin-gallery-tag-assign');
             var filmBox = document.getElementById('justin-project-film');
+            var booksBox = document.getElementById('justin-project-books');
             var bookTemplateBox = document.getElementById('justin-project-book-template');
             var hoverOnlyField = document.getElementById('justin-hover-only-field');
             var autoSelectCheckbox = document.getElementById('auto_select_layout_category');
@@ -521,6 +521,13 @@ function justin_layout_admin_polish() {
 
                 if (filmBox) {
                     filmBox.style.display = (value === 'video_direct') ? '' : 'none';
+                }
+
+                // Book Template 1 (Books box) and Book Template 2 (Book Template
+                // box) are a pair — both only relevant when Lightbox Layout =
+                // Book Template, so both hide/show together with it now.
+                if (booksBox) {
+                    booksBox.style.display = (value === 'book_template') ? '' : 'none';
                 }
 
                 if (bookTemplateBox) {
