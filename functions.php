@@ -268,7 +268,7 @@ function justin_render_project_common_box($post) {
             <option value="book_template" <?php selected($layout_style, 'book_template'); ?>>Book (beta)</option>
             <option value="video_direct" <?php selected($layout_style, 'video_direct'); ?>>Film</option>
             <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid (Misc)</option>
-            <option value="hover_only" <?php selected($layout_style, 'hover_only'); ?>>Hover-only Item (background image on hover)</option>
+            <option value="hover_only" <?php selected($layout_style, 'hover_only'); ?>>Background Hover</option>
         </select>
     </p>
     <p>
