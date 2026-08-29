@@ -188,19 +188,12 @@ if (!function_exists('justin_render_media_preview')) {
 
 if (!function_exists('justin_photo_grid_tags')) {
     function justin_photo_grid_tags() {
-        $base_tags = [
+        return [
             'Roads', 'Balcony', 'Clouds', 'Street People', 'Nature', 'Food',
             'Rejections', 'Cats', 'Dogs', 'Rocks', 'Architecture', 'Myself',
             'Beds', 'Signs', 'StudioGirls', 'Guys', 'Friends', 'Home',
             'Drawings', 'Other',
         ];
-
-        $custom_tags = get_option('justin_custom_photo_grid_tags', []);
-        if (!is_array($custom_tags)) {
-            $custom_tags = [];
-        }
-
-        return array_values(array_unique(array_merge($base_tags, $custom_tags)));
     }
 }
 
@@ -295,22 +288,12 @@ function justin_render_project_gallery_box($post) {
     $gallery = justin_get_meta($post->ID, 'gallery');
     $gallery_tags_json = justin_get_meta($post->ID, 'gallery_image_tags', '{}');
     $all_tags = justin_photo_grid_tags();
-    $custom_tags = get_option('justin_custom_photo_grid_tags', []);
-    if (!is_array($custom_tags)) {
-        $custom_tags = [];
-    }
     ?>
     <p>Used for Photography, Painting, and Collage posts.</p>
     <?php justin_render_media_preview('Gallery images', 'gallery', $gallery, true); ?>
 
-    <div id="justin-gallery-tag-assign" data-tags='<?php echo esc_attr(wp_json_encode($all_tags)); ?>' data-custom-tags='<?php echo esc_attr(wp_json_encode($custom_tags)); ?>'>
+    <div id="justin-gallery-tag-assign" data-tags='<?php echo esc_attr(wp_json_encode($all_tags)); ?>'>
         <p><strong>Photo Grid tags</strong> <span style="color:#777;">(only used when Lightbox Layout = Photo Grid)</span></p>
-        <div class="justin-add-tag-row" style="margin:10px 0;">
-            <input type="text" id="justin-new-tag-input" placeholder="New tag name" style="width:200px;" />
-            <button type="button" class="button" id="justin-add-tag-btn">Add tag</button>
-            <span id="justin-add-tag-error" style="color:#c00;"></span>
-        </div>
-        <div id="justin-custom-tag-manager" style="margin-bottom:14px;"></div>
         <input type="hidden" id="gallery_image_tags" name="gallery_image_tags" value='<?php echo esc_attr($gallery_tags_json); ?>' />
         <div class="justin-gallery-tag-list"></div>
     </div>
@@ -392,20 +375,9 @@ add_action('admin_enqueue_scripts', function ($hook) {
     if ($hook === 'post.php' || $hook === 'post-new.php') {
         wp_enqueue_media();
         wp_enqueue_script('jquery');
-        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.2', true);
-        wp_localize_script('justin-admin-metaboxes', 'JUSTIN_ADMIN', [
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce'   => wp_create_nonce('justin_photo_grid_tag_nonce'),
-        ]);
+        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.0', true);
     }
 });
-// add_action('admin_enqueue_scripts', function ($hook) {
-//     if ($hook === 'post.php' || $hook === 'post-new.php') {
-//         wp_enqueue_media();
-//         wp_enqueue_script('jquery');
-//         wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.0', true);
-//     }
-// });
 
 // Admin-side color picker (used by the Commercial Template's background
 // color field, see section 11 below), also post edit screens only.
@@ -808,110 +780,6 @@ function justin_create_payment_intent() {
         'currency'     => $currency,
     ]);
 }
-
-add_action('wp_ajax_justin_add_photo_grid_tag', function () {
-    check_ajax_referer('justin_photo_grid_tag_nonce', 'nonce');
-
-    if (!current_user_can('edit_posts')) {
-        wp_send_json_error(['message' => 'Not allowed.'], 403);
-    }
-
-    $new_tag = trim(sanitize_text_field(wp_unslash($_POST['tag'] ?? '')));
-
-    if ($new_tag === '') {
-        wp_send_json_error(['message' => 'Tag cannot be empty.'], 400);
-    }
-
-    $existing = justin_photo_grid_tags();
-    foreach ($existing as $tag) {
-        if (strcasecmp($tag, $new_tag) === 0) {
-            wp_send_json_success(['tags' => $existing, 'added' => $tag]);
-        }
-    }
-
-    $custom_tags = get_option('justin_custom_photo_grid_tags', []);
-    if (!is_array($custom_tags)) {
-        $custom_tags = [];
-    }
-    $custom_tags[] = $new_tag;
-    update_option('justin_custom_photo_grid_tags', array_values(array_unique($custom_tags)));
-
-    wp_send_json_success([
-        'tags'  => justin_photo_grid_tags(),
-        'added' => $new_tag,
-    ]);
-});
-
-add_action('wp_ajax_justin_delete_photo_grid_tag', function () {
-    check_ajax_referer('justin_photo_grid_tag_nonce', 'nonce');
-
-    if (!current_user_can('edit_posts')) {
-        wp_send_json_error(['message' => 'Not allowed.'], 403);
-    }
-
-    $tag_to_delete = trim(sanitize_text_field(wp_unslash($_POST['tag'] ?? '')));
-
-    if ($tag_to_delete === '') {
-        wp_send_json_error(['message' => 'No tag specified.'], 400);
-    }
-
-    $custom_tags = get_option('justin_custom_photo_grid_tags', []);
-    if (!is_array($custom_tags)) {
-        $custom_tags = [];
-    }
-
-    $filtered = array_values(array_filter($custom_tags, function ($tag) use ($tag_to_delete) {
-        return strcasecmp($tag, $tag_to_delete) !== 0;
-    }));
-
-    if (count($filtered) === count($custom_tags)) {
-        wp_send_json_error(['message' => 'That tag is a built-in tag and cannot be deleted.'], 400);
-    }
-
-    update_option('justin_custom_photo_grid_tags', $filtered);
-
-    // Best-effort cleanup: strip the deleted tag from any post that
-    // already has it saved against an image, so it doesn't linger in
-    // gallery_image_tags until that post happens to be re-saved.
-    $posts_with_tags = get_posts([
-        'post_type'    => 'post',
-        'post_status'  => 'any',
-        'numberposts'  => -1,
-        'meta_key'     => 'gallery_image_tags',
-        'fields'       => 'ids',
-    ]);
-
-    foreach ($posts_with_tags as $post_id) {
-        $raw = get_post_meta($post_id, 'gallery_image_tags', true);
-        $decoded = json_decode($raw, true);
-        if (!is_array($decoded)) {
-            continue;
-        }
-
-        $changed = false;
-        foreach ($decoded as $image_id => $tags) {
-            if (!is_array($tags)) {
-                continue;
-            }
-            $new_tags = array_values(array_filter($tags, function ($tag) use ($tag_to_delete) {
-                return strcasecmp($tag, $tag_to_delete) !== 0;
-            }));
-            if (count($new_tags) !== count($tags)) {
-                $decoded[$image_id] = $new_tags;
-                $changed = true;
-            }
-        }
-
-        if ($changed) {
-            update_post_meta($post_id, 'gallery_image_tags', wp_json_encode($decoded));
-        }
-    }
-
-    wp_send_json_success([
-        'tags'    => justin_photo_grid_tags(),
-        'deleted' => $tag_to_delete,
-    ]);
-});
 
 
 /* =====================================================================

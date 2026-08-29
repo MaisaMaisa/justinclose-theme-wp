@@ -80,6 +80,77 @@ jQuery(function ($) {
     allTags = [];
   }
 
+  var customTags = [];
+  try {
+    customTags = JSON.parse($tagsWrap.attr('data-custom-tags') || '[]');
+  } catch (e) {
+    customTags = [];
+  }
+
+  var $customTagManager = $('#justin-custom-tag-manager');
+
+  function renderCustomTagManager() {
+    $customTagManager.empty();
+
+    if (!customTags.length) {
+      return;
+    }
+
+    $customTagManager.append($('<p />', { style: 'margin-bottom:6px; color:#555;', text: 'Your custom tags (click × to delete):' }));
+
+    var $chips = $('<div />', { style: 'display:flex; flex-wrap:wrap; gap:6px;' });
+
+    customTags.forEach(function (tag) {
+      var $chip = $('<span />', {
+        style: 'display:inline-flex; align-items:center; gap:6px; padding:4px 8px; background:#f0f0f1; border-radius:3px; font-size:12px;'
+      }).text(tag);
+
+      var $delBtn = $('<button />', {
+        type: 'button',
+        text: '×',
+        style: 'border:none; background:none; cursor:pointer; font-weight:bold; color:#c00; line-height:1;'
+      });
+
+      $delBtn.on('click', function () {
+        deleteTag(tag);
+      });
+
+      $chip.append($delBtn);
+      $chips.append($chip);
+    });
+
+    $customTagManager.append($chips);
+  }
+
+  function deleteTag(tagName) {
+    if (!window.confirm('Delete "' + tagName + '"? This removes it from every image it\'s currently assigned to.')) {
+      return;
+    }
+
+    $.post(JUSTIN_ADMIN.ajaxUrl, {
+      action: 'justin_delete_photo_grid_tag',
+      nonce: JUSTIN_ADMIN.nonce,
+      tag: tagName
+    }).done(function (response) {
+      if (response && response.success) {
+        allTags = response.data.tags;
+        customTags = customTags.filter(function (tag) {
+          return tag.toLowerCase() !== tagName.toLowerCase();
+        });
+        $tagsWrap.attr('data-tags', JSON.stringify(allTags));
+        $tagsWrap.attr('data-custom-tags', JSON.stringify(customTags));
+        renderCustomTagManager();
+        renderTagList();
+      } else {
+        window.alert((response && response.data && response.data.message) || 'Could not delete tag.');
+      }
+    }).fail(function () {
+      window.alert('Network error — please try again.');
+    });
+  }
+
+  renderCustomTagManager();
+
   var $tagsInput = $('#gallery_image_tags');
   var $tagList = $tagsWrap.find('.justin-gallery-tag-list');
   var $galleryValueInput = $('input.justin-media-value[name="gallery"]');
@@ -177,6 +248,60 @@ jQuery(function ($) {
   }
 
   renderTagList();
+
+  var $newTagInput = $('#justin-new-tag-input');
+  var $addTagBtn = $('#justin-add-tag-btn');
+  var $addTagError = $('#justin-add-tag-error');
+
+  function addNewTag() {
+    var tagName = ($newTagInput.val() || '').trim();
+    $addTagError.text('');
+
+    if (!tagName) {
+      return;
+    }
+
+    var alreadyExists = allTags.some(function (tag) {
+      return tag.toLowerCase() === tagName.toLowerCase();
+    });
+
+    if (alreadyExists) {
+      $addTagError.text('That tag already exists.');
+      return;
+    }
+
+    $addTagBtn.prop('disabled', true);
+
+    $.post(JUSTIN_ADMIN.ajaxUrl, {
+      action: 'justin_add_photo_grid_tag',
+      nonce: JUSTIN_ADMIN.nonce,
+      tag: tagName
+    }).done(function (response) {
+    if (response && response.success) {
+      allTags = response.data.tags;
+      customTags.push(response.data.added);
+      $tagsWrap.attr('data-tags', JSON.stringify(allTags));
+      $tagsWrap.attr('data-custom-tags', JSON.stringify(customTags));
+      $newTagInput.val('');
+      renderCustomTagManager();
+      renderTagList();
+    } else {
+        $addTagError.text((response && response.data && response.data.message) || 'Could not add tag.');
+      }
+    }).fail(function () {
+      $addTagError.text('Network error — please try again.');
+    }).always(function () {
+      $addTagBtn.prop('disabled', false);
+    });
+  }
+
+  $addTagBtn.on('click', addNewTag);
+  $newTagInput.on('keydown', function (event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      addNewTag();
+    }
+  });
 
   // Polling instead of hooking into the existing wp.media select/clear
   // handlers, so this never touches that shared code path.
