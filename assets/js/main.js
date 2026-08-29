@@ -4,13 +4,6 @@
   }
 
   var data = window.JUSTIN_DATA || {};
-  // var state = {
-  //   activeCategory: '',
-  //   activeEntryIndex: -1,
-  //   activeImageIndex: 0,
-  //   watchMode: false,
-  // };
-
   var state = {
     activeCategory: '',
     activeEntryIndex: -1,
@@ -46,7 +39,6 @@
   }
 
   var entries = Array.isArray(data.entries) ? data.entries : [];
-  // var categories = Array.isArray(data.cats) ? data.cats : [];
   var categories = shuffleArray(Array.isArray(data.cats) ? data.cats : []);
   var categoryLightboxColors = {};
   (Array.isArray(data.cats) ? data.cats : []).forEach(function (item) {
@@ -77,10 +69,19 @@
   // ever sees your secret key — that lives server-side in
   // functions.php's justin_create_payment_intent AJAX handler.
   //
-  // If data.stripePublishableKey is empty, or a given book has no
-  // priceCents set, this whole module is a no-op and the BUY ME
-  // button falls back to opening book.buyUrl in a new tab — so
-  // nothing breaks for books you haven't priced yet.
+  // Two independent "sources" can open this modal:
+  //   - 'book'          -> reads price/currency from the Books box
+  //                        (entry.book), used by the default Books layout.
+  //   - 'book_template' -> reads price/currency from the Book Template
+  //                        box (entry.bookTemplate), used by the Book
+  //                        Template layout. Fully independent data, so
+  //                        Book Template keeps working even if the
+  //                        Books box/category is removed entirely.
+  //
+  // If data.stripePublishableKey is empty, or the relevant source has no
+  // priceCents set, this whole module is a no-op and the button falls
+  // back to opening its buyUrl in a new tab — so nothing breaks for
+  // items you haven't priced yet.
   // ==========================================================
   var stripeState = {
     stripe: null,
@@ -88,6 +89,7 @@
     clientSecret: null,
     quantity: 1,
     entry: null,
+    source: 'book',
     submitting: false,
     fetchToken: 0,
   };
@@ -160,8 +162,14 @@
     refreshStripeIntent();
   }
 
-  function openStripeModal(entry) {
-    var book = entry && entry.book;
+  // source: 'book' (default) or 'book_template'.
+  // sourceData: the object actually carrying priceCents/currency/buyUrl/title
+  // — pass it explicitly so callers never have to guess which entry.* field
+  // to read. Falls back to entry.book for backward compatibility when only
+  // entry is passed (the default Books layout's existing call site).
+  function openStripeModal(entry, source, sourceData) {
+    source = source || 'book';
+    var book = sourceData || (source === 'book_template' ? (entry && entry.bookTemplate) : (entry && entry.book));
     var stripeReady = !!(data.stripePublishableKey && book && book.priceCents);
 
     if (!stripeReady) {
@@ -178,6 +186,7 @@
     }
 
     stripeState.entry = entry;
+    stripeState.source = source;
     stripeState.quantity = 1;
     stripeEls.qtyValue.textContent = '1';
     stripeEls.title.textContent = book.title || entry.text || 'Order';
@@ -227,6 +236,7 @@
     body.set('nonce', data.stripeNonce || '');
     body.set('post_id', entry.id);
     body.set('quantity', stripeState.quantity);
+    body.set('source', stripeState.source || 'book');
 
     fetch(data.ajaxUrl, { method: 'POST', body: body, credentials: 'same-origin' })
       .then(function (response) { return response.json(); })
@@ -290,9 +300,6 @@
       return_url: window.location.href,
     };
     if (stripeState.email) {
-      // Tells Stripe who to email the receipt to (Settings > Business >
-      // Customer emails > "Successful payments" must be enabled for
-      // this to actually send anything).
       confirmParams.receipt_email = stripeState.email;
     }
 
@@ -309,7 +316,6 @@
         return;
       }
 
-      // Succeeded without needing to leave the page (e.g. no 3DS challenge).
       stripeEls.modal.innerHTML =
         '<button type="button" class="stripe-buy-close" aria-label="Close">&times;</button>' +
         '<p class="stripe-buy-success">Thank you — a confirmation email was sent to your email address.</p>';
@@ -368,20 +374,6 @@
   }
 
   // ---- Mobile-only infinite list loop ----
-  // #justin-label is fixed at the vertical center of the viewport on
-  // mobile (see the max-width: 700px block in style.css), so the list
-  // is rendered 3x back-to-back (see LIST_LOOP_SETS/renderList) and,
-  // once the user actually scrolls to a real document edge while still
-  // moving in that direction, silently teleported one set forward/back.
-  // Since all 3 sets are pixel-identical, the teleport is invisible —
-  // it reads as "the list just keeps going", not a jump.
-  //
-  // Nothing here ever calls scrollTo on page load or on the first
-  // scroll event after any (re)render: lastLoopScrollY starts as null,
-  // and the very first scroll event only records a baseline position —
-  // it can never trigger a wrap by itself. A wrap only fires once we
-  // have two data points and can tell the user is actively scrolling
-  // up into scrollY 0, or down into the document's actual max scroll.
   var LIST_LOOP_SETS = 3;
   var listLoopScrollHandler = null;
   var lastLoopScrollY = null;
@@ -399,9 +391,6 @@
       return;
     }
 
-    // Reset on every (re)render (e.g. switching category) so a stale
-    // previous position can't cause a false wrap right after the DOM
-    // changes — the next scroll event just re-establishes a baseline.
     lastLoopScrollY = null;
 
     if (!listLoopScrollHandler) {
@@ -426,8 +415,6 @@
         var scrollingUp = currentScrollY < lastLoopScrollY;
         var scrollingDown = currentScrollY > lastLoopScrollY;
 
-        // Reached the true top of the document while actively
-        // scrolling up — jump forward one set.
         if (scrollingUp && currentScrollY <= 0) {
           var newScrollUp = currentScrollY + currentSetHeight;
           window.scrollTo(0, newScrollUp);
@@ -435,8 +422,6 @@
           return;
         }
 
-        // Reached the true bottom of the document while actively
-        // scrolling down — jump back one set.
         if (scrollingDown && currentScrollY >= maxScrollY - 1) {
           var newScrollDown = currentScrollY - currentSetHeight;
           window.scrollTo(0, newScrollDown);
@@ -452,7 +437,7 @@
   }
 
   function shuffleArray(array) {
-    var shuffled = array.slice(); // don't mutate the original
+    var shuffled = array.slice();
     for (var i = shuffled.length - 1; i > 0; i -= 1) {
       var j = Math.floor(Math.random() * (i + 1));
       var temp = shuffled[i];
@@ -475,6 +460,9 @@
     return !!(entry && entry.hoverOnly && entry.bgImage);
   }
 
+  // Book Template's own images (entry.bookTemplate.images) take priority
+  // over the default Books images (entry.book.images), so Book Template
+  // is fully independent of the Books data.
   function getEntryImages(entry) {
     if (!entry) {
       return [];
@@ -482,6 +470,10 @@
 
     if (entry.film && Array.isArray(entry.film.images)) {
       return entry.film.images.slice();
+    }
+
+    if (entry.bookTemplate && Array.isArray(entry.bookTemplate.images)) {
+      return entry.bookTemplate.images.slice();
     }
 
     if (entry.book && Array.isArray(entry.book.images)) {
@@ -549,7 +541,10 @@
     var hasBody = !!(entry.body && entry.body.length);
     var hasFilmVideo = !!(entry.film && entry.film.videoUrl && String(entry.film.videoUrl).trim().length);
     var hasDirectVideo = !!(entry.videoUrl && String(entry.videoUrl).trim().length);
-    var hasBookContent = !!(entry.book && entry.book.content && String(entry.book.content).trim().length);
+    var hasBookContent = !!(
+      (entry.book && entry.book.content && String(entry.book.content).trim().length) ||
+      (entry.bookTemplate && entry.bookTemplate.content && String(entry.bookTemplate.content).trim().length)
+    );
 
     return !hasImages && !hasBody && !hasFilmVideo && !hasDirectVideo && !hasBookContent;
   }
@@ -643,6 +638,60 @@
     mainImage.addEventListener('load', applyRatio, { once: true });
   }
 
+  // Shared swipe/drag navigation for any mobile layout that has a
+  // "current image": dragging bottom-to-top (up) advances to the next
+  // image, top-to-bottom (down) goes back. Built on Pointer Events
+  // rather than Touch Events, so it responds identically to a real
+  // finger swipe on a phone AND a plain mouse drag — which also makes
+  // it testable by dragging with the mouse in a normal desktop browser,
+  // not just in a DevTools device emulation profile.
+  function attachSwipeNavigation(el, onSwipeUp, onSwipeDown) {
+    if (!el) {
+      return;
+    }
+
+    var startY = 0;
+    var startX = 0;
+    var tracking = false;
+    var swipeThreshold = 40; // px — minimum vertical movement to count as a swipe
+
+    el.addEventListener('pointerdown', function (event) {
+      tracking = true;
+      startY = event.clientY;
+      startX = event.clientX;
+    });
+
+    el.addEventListener('pointerup', function (event) {
+      if (!tracking) {
+        return;
+      }
+      tracking = false;
+
+      var deltaY = event.clientY - startY;
+      var deltaX = event.clientX - startX;
+
+      // Only treat it as a swipe if vertical movement dominates —
+      // avoids hijacking horizontal gestures or accidental taps/clicks.
+      if (Math.abs(deltaY) < swipeThreshold || Math.abs(deltaY) < Math.abs(deltaX)) {
+        return;
+      }
+
+      if (deltaY < 0) {
+        onSwipeUp(); // dragged bottom-to-top -> next
+      } else {
+        onSwipeDown(); // dragged top-to-bottom -> previous
+      }
+    });
+
+    el.addEventListener('pointercancel', function () {
+      tracking = false;
+    });
+
+    el.addEventListener('pointerleave', function () {
+      tracking = false;
+    });
+  }
+
   function moveJustinLabelToElement(targetElement) {
     if (!elements.page || !elements.justinLabel || !targetElement || !elements.page.contains(targetElement)) {
       return;
@@ -721,8 +770,8 @@
       state.watchMode = true;
       elements.lightboxOverlay.classList.add('watch-mode');
       buildVideoStage(entry);
-      setLightboxChromeVisible(false);   // was: true
-      return;                            // delete the getEntryInfo line that followed
+      setLightboxChromeVisible(false);
+      return;
     }
 
     var initialImage = images[0] || '';
@@ -770,9 +819,15 @@
         elements.lightboxOverlay.classList.add('watch-mode');
         buildVideoStage(entry);
         setLightboxChromeVisible(false);
-        // elements.lightboxInfoPanel.innerHTML = getEntryInfo(entry);
       });
       elements.lightboxThumbs.appendChild(watchThumb);
+    }
+
+    // Swipe up/down on the main image, same gesture as the grid-hover
+    // layouts. Reuses showNextImage/showPreviousImage directly so it
+    // stays perfectly in sync with the thumbnails and arrow buttons.
+    if (images.length > 1) {
+      attachSwipeNavigation(document.getElementById('lightbox-main-image'), showNextImage, showPreviousImage);
     }
 
     setLightboxChromeVisible(true);
@@ -784,22 +839,11 @@
     }
   }
 
-  // ============================================================
-  // FIX (mobile prev/next arrows not working for the "painting"
-  // layout): renderPaintingMasonry now takes the shared
-  // `selectImage` function and `thumbEls` array from
-  // renderGridHoverLightbox instead of keeping its own local
-  // `setActive`/index state. This means clicking/hovering a
-  // painting thumbnail — and clicking the mobile nav arrows,
-  // which call the SAME `selectImage` — now stay in sync with
-  // each other and with the counter (gh-counter) text.
-  // ============================================================
   function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls) {
     ghGrid.classList.add('gh-grid-painting');
 
     var containerHeight = ghGrid.clientHeight || 600;
 
-    // 4 distinct personalities now, so a 4th column never repeats the 1st.
     var styleCycle = [
       { name: 'rigid',    colWidth: 120, innerWidthPct: 100, marginY: 0,  ratios: [3 / 4, 1 / 1],       border: true,  shadow: false, rotate: 0 },
       { name: 'floating', colWidth: 120, innerWidthPct: 80,  marginY: 20, ratios: [4 / 5, 1 / 1],       border: false, shadow: true,  rotate: 0 },
@@ -811,11 +855,9 @@
 
     function addColumn() {
       var cycleIndex = columns.length % styleCycle.length;
-      var lap = Math.floor(columns.length / styleCycle.length); // 0 on first pass, 1+ on repeats
+      var lap = Math.floor(columns.length / styleCycle.length);
       var base = styleCycle[cycleIndex];
 
-      // On repeat laps, vary width/margin slightly so a 2nd trip through
-      // the cycle doesn't look like a duplicate of the 1st.
       var style = {
         name: base.name,
         colWidth: base.colWidth - lap * 6,
@@ -842,8 +884,6 @@
       var target = null;
       var targetHeight = 0;
 
-      // Only consider a column if this specific item would actually fit
-      // inside it — not just whether the column has started.
       for (var i = 0; i < columns.length; i += 1) {
         var col = columns[i];
         var style = col.style;
@@ -876,7 +916,6 @@
         thumb.classList.add('gh-active');
       }
       thumb.style.width = style.innerWidthPct + '%';
-      // thumb.style.aspectRatio = ratio;
       thumb.style.margin = style.marginY ? style.marginY + 'px auto' : '0';
       if (style.border) {
         thumb.style.border = '1px solid #f2f2f2';
@@ -894,9 +933,6 @@
       thumbImg.alt = entry.text || '';
       thumb.appendChild(thumbImg);
 
-      // FIX: use the shared selectImage(index) from renderGridHoverLightbox
-      // instead of a local setActive closure, so this stays in sync with
-      // the mobile prev/next arrows and the gh-counter text.
       thumb.addEventListener('mouseenter', function () { selectImage(index); });
       thumb.addEventListener('click', function () { selectImage(index); });
       thumb.addEventListener('focus', function () { selectImage(index); });
@@ -906,17 +942,11 @@
       target.height += targetHeight;
       target.count += 1;
 
-      // FIX: register this thumb into the shared thumbEls array (by
-      // image index) so selectImage() can toggle .gh-active on it,
-      // exactly like it already does for photography/collage thumbs.
       if (thumbEls) {
         thumbEls[index] = thumb;
       }
     });
 
-    // If more than 3 columns exist, push column 4 onward to the far
-    // right — first 3 columns stay left, the rest anchor to the right
-    // edge of the stage, leaving a gap in the middle.
     if (columns.length > 3) {
       var leftWrap = document.createElement('div');
       leftWrap.className = 'gh-painting-left';
@@ -938,37 +968,40 @@
     }
   }
 
-function computeOptimalGrid(containerWidth, containerHeight, count, aspectRatio, minCols, maxCols) {
-  minCols = minCols || 1;
-  maxCols = maxCols || 8;
-  if (!count) {
-    return { cols: minCols, rows: 1 };
-  }
+  function computeOptimalGrid(containerWidth, containerHeight, count, aspectRatio, minCols, maxCols) {
+    minCols = minCols || 1;
+    maxCols = maxCols || 8;
+    if (!count) {
+      return { cols: minCols, rows: 1 };
+    }
 
-  for (var cols = minCols; cols <= maxCols; cols += 1) {
-    var thumbWidth = containerWidth / cols;
-    var thumbHeight = thumbWidth / aspectRatio;
-    var rows = Math.ceil(count / cols);
-    var totalHeight = rows * thumbHeight;
+    for (var cols = minCols; cols <= maxCols; cols += 1) {
+      var thumbWidth = containerWidth / cols;
+      var thumbHeight = thumbWidth / aspectRatio;
+      var rows = Math.ceil(count / cols);
+      var totalHeight = rows * thumbHeight;
 
-    if (totalHeight <= containerHeight || cols === maxCols) {
-      return { cols: cols, rows: rows };
+      if (totalHeight <= containerHeight || cols === maxCols) {
+        return { cols: cols, rows: rows };
+      }
     }
   }
-}
 
   function renderGridHoverLightbox(entry) {
     var images = getEntryImages(entry);
     var variant = entry.layoutVariant || 'photography';
+    var isBookTemplate = entry.layoutStyle === 'book_template';
+    // Book Template reads from entry.bookTemplate — its own independent
+    // data, completely separate from entry.book (the default Books layout).
+    var bookForTemplate = entry.bookTemplate || {};
+    var bookText = bookForTemplate.content || '';
+    var hasBookTemplateBuy = !!(bookForTemplate.buyUrl || bookForTemplate.priceCents);
 
-    var html =
-      '<div class="gh-stage" id="gh-stage" data-variant="' + escapeHtml(variant) + '">' +
-        '<div class="gh-grid" id="gh-grid"></div>' +
+    var previewHtml =
         '<div class="gh-preview" id="gh-preview">' +
           (images[0] ? '<img id="gh-preview-img" src="' + images[0] + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
           '<button type="button" class="gh-info-toggle" id="gh-info-toggle" aria-label="Toggle info">ⓘ</button>' +
           '<div class="gh-info-panel" id="gh-info-panel"></div>' +
-          // (images.length ? '<div class="gh-counter" id="gh-counter">1/' + images.length + '</div>' : '') +
           (images.length ?
           '<div class="gh-counter-wrap" id="gh-counter-wrap">' +
             (images.length > 1 ? '<button type="button" class="gh-nav-arrow gh-nav-prev" id="gh-nav-prev" aria-label="Previous image">↑</button>' : '') +
@@ -976,8 +1009,29 @@ function computeOptimalGrid(containerWidth, containerHeight, count, aspectRatio,
             (images.length > 1 ? '<button type="button" class="gh-nav-arrow gh-nav-next" id="gh-nav-next" aria-label="Next image">↓</button>' : '') +
           '</div>'
           : '') +
-        '</div>' +
-      '</div>';
+        '</div>';
+
+    var html;
+
+    if (isBookTemplate) {
+      html =
+        '<div class="gh-stage gh-stage-book" id="gh-stage" data-variant="' + escapeHtml(variant) + '">' +
+          '<div class="gh-grid" id="gh-grid"></div>' +
+          '<div class="gh-right-col" id="gh-right-col">' +
+            previewHtml +
+            '<div class="gh-book-footer">' +
+              '<div class="gh-book-text">' + bookText + '</div>' +
+              (hasBookTemplateBuy ? '<button type="button" class="book-template-buy-btn" id="book-template-buy-btn">Buy</button>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    } else {
+      html =
+        '<div class="gh-stage" id="gh-stage" data-variant="' + escapeHtml(variant) + '">' +
+          '<div class="gh-grid" id="gh-grid"></div>' +
+          previewHtml +
+        '</div>';
+    }
 
     elements.lightboxStage.innerHTML = html;
 
@@ -986,6 +1040,16 @@ function computeOptimalGrid(containerWidth, containerHeight, count, aspectRatio,
     var ghInfoToggle = document.getElementById('gh-info-toggle');
     var ghInfoPanel = document.getElementById('gh-info-panel');
     var ghCounter = document.getElementById('gh-counter');
+
+    // New, smaller, non-circular Book Template buy button — sits under
+    // the text inside .gh-right-col (not fixed/floating like the default
+    // Books "BUY ME" circle), and uses its own independent price data.
+    var bookTemplateBuyBtn = document.getElementById('book-template-buy-btn');
+    if (bookTemplateBuyBtn) {
+      bookTemplateBuyBtn.addEventListener('click', function () {
+        openStripeModal(entry, 'book_template', bookForTemplate);
+      });
+    }
 
     if (ghInfoPanel) {
       var ghInfo = getEntryInfo(entry);
@@ -1001,14 +1065,6 @@ function computeOptimalGrid(containerWidth, containerHeight, count, aspectRatio,
       });
     }
 
-    // ============================================================
-    // FIX: currentIndex / thumbEls / selectImage used to be declared
-    // ONLY inside the `else` (photography/collage) branch below, so
-    // the mobile gh-nav-prev/gh-nav-next arrows — which are rendered
-    // for EVERY variant, including painting — had no selectImage to
-    // call when variant === 'painting'. They're hoisted here so both
-    // branches (and the nav buttons) share the same state.
-    // ============================================================
     var currentIndex = 0;
     var thumbEls = [];
 
@@ -1032,90 +1088,56 @@ function computeOptimalGrid(containerWidth, containerHeight, count, aspectRatio,
     };
 
     if (variant === 'painting') {
-      // FIX: pass the shared selectImage + thumbEls down so painting
-      // thumbnails participate in the same active-state/counter sync.
       renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls);
+    } else {
+      var isCollage = variant === 'collage';
+      var containerWidth = ghGrid.clientWidth || 250;
+      var containerHeight = ghGrid.clientHeight || 600;
+      var aspectRatio = isCollage ? 1 : (3 / 2);
+
+      var columns = 2;
+
+      if (!isCollage) {
+        var grid = computeOptimalGrid(containerWidth, containerHeight, images.length, aspectRatio, 2, 6);
+        columns = grid.cols;
+        ghGrid.style.setProperty('--gh-cols', columns);
+        ghGrid.style.gridAutoFlow = 'column';
+        ghGrid.style.gridTemplateRows = 'repeat(' + grid.rows + ', 1fr)';
       } else {
-        var isCollage = variant === 'collage';
-        var containerWidth = ghGrid.clientWidth || 250;
-        var containerHeight = ghGrid.clientHeight || 600;
-        var aspectRatio = isCollage ? 1 : (3 / 2);
-
-        var columns = 2;
-
-        if (!isCollage) {
-          var grid = computeOptimalGrid(containerWidth, containerHeight, images.length, aspectRatio, 2, 6);
-          columns = grid.cols;
-          ghGrid.style.setProperty('--gh-cols', columns);
-          ghGrid.style.gridAutoFlow = 'column';
-          ghGrid.style.gridTemplateRows = 'repeat(' + grid.rows + ', 1fr)';
-        } else {
-          ghGrid.style.setProperty('--gh-cols', columns);
-        }
-
-        images.forEach(function (imageUrl, index) {
-          var thumb = document.createElement('div');
-          thumb.className = 'gh-thumb';
-          if (index === 0) {
-            thumb.classList.add('gh-active');
-          }
-
-          var thumbImg = document.createElement('img');
-          thumbImg.src = imageUrl;
-          thumbImg.alt = entry.text || '';
-          thumb.appendChild(thumbImg);
-
-          thumb.addEventListener('mouseenter', function () { selectImage(index); });
-          thumb.addEventListener('click', function () { selectImage(index); });
-          thumb.addEventListener('focus', function () { selectImage(index); });
-          thumb.setAttribute('tabindex', '0');
-
-          ghGrid.appendChild(thumb);
-          thumbEls.push(thumb);
-        });
+        ghGrid.style.setProperty('--gh-cols', columns);
       }
 
-    // NEW: swipe up/down to navigate on mobile, alongside the arrows
-    var ghPreview = document.getElementById('gh-preview');
-    if (ghPreview && images.length > 1) {
-      var touchStartY = 0;
-      var touchStartX = 0;
-      var swipeThreshold = 40; // px — minimum vertical movement to count as a swipe
-
-      ghPreview.addEventListener('touchstart', function (event) {
-        if (!event.touches || !event.touches.length) {
-          return;
-        }
-        touchStartY = event.touches[0].clientY;
-        touchStartX = event.touches[0].clientX;
-      }, { passive: true });
-
-      ghPreview.addEventListener('touchend', function (event) {
-        if (!event.changedTouches || !event.changedTouches.length) {
-          return;
-        }
-        var touchEndY = event.changedTouches[0].clientY;
-        var touchEndX = event.changedTouches[0].clientX;
-        var deltaY = touchEndY - touchStartY;
-        var deltaX = touchEndX - touchStartX;
-
-        // Only treat it as a swipe if vertical movement dominates —
-        // avoids hijacking horizontal gestures or accidental taps.
-        if (Math.abs(deltaY) < swipeThreshold || Math.abs(deltaY) < Math.abs(deltaX)) {
-          return;
+      images.forEach(function (imageUrl, index) {
+        var thumb = document.createElement('div');
+        thumb.className = 'gh-thumb';
+        if (index === 0) {
+          thumb.classList.add('gh-active');
         }
 
-        if (deltaY < 0) {
-          selectImage(currentIndex + 1); // swiped up -> next image
-        } else {
-          selectImage(currentIndex - 1); // swiped down -> previous image
-        }
-      }, { passive: true });
+        var thumbImg = document.createElement('img');
+        thumbImg.src = imageUrl;
+        thumbImg.alt = entry.text || '';
+        thumb.appendChild(thumbImg);
+
+        thumb.addEventListener('mouseenter', function () { selectImage(index); });
+        thumb.addEventListener('click', function () { selectImage(index); });
+        thumb.addEventListener('focus', function () { selectImage(index); });
+        thumb.setAttribute('tabindex', '0');
+
+        ghGrid.appendChild(thumb);
+        thumbEls.push(thumb);
+      });
     }
 
-    // FIX: nav-arrow wiring moved OUT of the `else` branch above so it
-    // runs unconditionally — the arrows now work for painting too,
-    // since they call the same shared selectImage() either way.
+    var ghPreview = document.getElementById('gh-preview');
+    if (images.length > 1) {
+      attachSwipeNavigation(ghPreview, function () {
+        selectImage(currentIndex + 1); // swiped up -> next image
+      }, function () {
+        selectImage(currentIndex - 1); // swiped down -> previous image
+      });
+    }
+
     var navPrev = document.getElementById('gh-nav-prev');
     var navNext = document.getElementById('gh-nav-next');
     if (navPrev) {
@@ -1125,7 +1147,6 @@ function computeOptimalGrid(containerWidth, containerHeight, count, aspectRatio,
       navNext.addEventListener('click', function () { selectImage(currentIndex + 1); });
     }
 
-    // Hide the standard gallery chrome — this layout is fully self-contained
     elements.lightboxThumbs.innerHTML = '';
     elements.lightboxThumbs.style.display = 'none';
     elements.lightboxInfoToggle.style.display = 'none';
@@ -1134,18 +1155,18 @@ function computeOptimalGrid(containerWidth, containerHeight, count, aspectRatio,
     elements.lightboxNext.style.display = 'none';
   }
 
-function getEntryPhotoGridImages(entry) {
-  if (!entry || !Array.isArray(entry.photoGrid)) {
-    return [];
+  function getEntryPhotoGridImages(entry) {
+    if (!entry || !Array.isArray(entry.photoGrid)) {
+      return [];
+    }
+    return entry.photoGrid;
   }
-  return entry.photoGrid;
-}
 
-function isGridHoverLayout(layoutStyle) {
-    return layoutStyle === 'grid_hover' || layoutStyle === 'grid_hover_painting' || layoutStyle === 'grid_hover_collage';
-}
+  function isGridHoverLayout(layoutStyle) {
+    return layoutStyle === 'grid_hover' || layoutStyle === 'grid_hover_painting' || layoutStyle === 'grid_hover_collage' || layoutStyle === 'book_template';
+  }
 
-function renderPhotoGridLightbox(entry) {
+  function renderPhotoGridLightbox(entry) {
     var photoGridImages = getEntryPhotoGridImages(entry);
     var allTags = Array.isArray(data.photoGridTags) ? data.photoGridTags : [];
     var activeFilters = [];
@@ -1264,7 +1285,7 @@ function renderPhotoGridLightbox(entry) {
     }
   }
 
-function renderBookStage(entry) {
+  function renderBookStage(entry) {
     var book = entry.book || {};
 
     elements.lightboxOverlay.classList.add('lb-book');
@@ -1282,15 +1303,6 @@ function renderBookStage(entry) {
     elements.lightboxStage.style.margin = '0';
     elements.lightboxThumbs.innerHTML = '';
 
-    // Fixed, rotating "buy me" button. Appended to the overlay itself
-    // (not the scrolling stage) so it stays put in the corner and keeps
-    // spinning no matter how far the content is scrolled.
-    //
-    // If Stripe is configured (publishable key + a priceCents on this
-    // book), clicking opens the in-page Stripe modal instead of
-    // navigating to book.buyUrl. If not, it falls back to the old
-    // "open buyUrl in a new tab" behavior — so this is safe to ship
-    // even before every book has a price set.
     if (book.buyUrl || book.priceCents) {
       var buyBtnWrap = document.createElement('div');
       buyBtnWrap.className = 'buy-btn-wrap buy-btn-wrap-fixed';
@@ -1301,7 +1313,7 @@ function renderBookStage(entry) {
       buyBtn.textContent = 'BUY ME';
 
       buyBtn.addEventListener('click', function () {
-        openStripeModal(entry);
+        openStripeModal(entry, 'book', book);
       });
 
       buyBtnWrap.appendChild(buyBtn);
@@ -1343,15 +1355,19 @@ function renderBookStage(entry) {
     }
     document.body.style.overflow = 'hidden';
 
-    if (entry.cat === 'Books') {
+    // Book Template is checked first and is independent of category —
+    // driven purely by layoutStyle, so it works whether or not the post
+    // is in the 'Books' category (or if 'Books' is removed entirely).
+    if (entry.layoutStyle === 'book_template' && getEntryImages(entry).length) {
+      document.body.classList.remove('lb-upside-down');
+      renderGridHoverLightbox(entry);
+    } else if (entry.cat === 'Books') {
       document.body.classList.remove('lb-upside-down');
       renderBookStage(entry);
     } else if (entry.cat === 'Text') {
       document.body.classList.remove('lb-upside-down');
       renderTextStage(entry);
     } else {
-
-      // NEW: branch on layoutStyle, fall back to standard if no images
       if (isGridHoverLayout(entry.layoutStyle) && getEntryImages(entry).length) {
         renderGridHoverLightbox(entry);
       } else if (entry.layoutStyle === 'photo_grid' && getEntryPhotoGridImages(entry).length) {
@@ -1422,7 +1438,6 @@ function renderBookStage(entry) {
       nav.className = 'cat';
       nav.dataset.category = item.name;
       nav.textContent = item.name;
-      // nav.style.color = item.color || '#000000';
 
       if (item.name === state.activeCategory) {
         nav.classList.add('active');
@@ -1439,10 +1454,6 @@ function renderBookStage(entry) {
     });
   }
 
-  // Builds a single <li> for one entry. Extracted out of renderList so
-  // it can be called multiple times per entry on mobile (see
-  // LIST_LOOP_SETS above) without duplicating this logic. Behavior is
-  // identical to what used to be inline inside renderList's forEach.
   function createListItem(entry, index) {
     var li = document.createElement('li');
     li.dataset.entryIndex = String(index);
@@ -1502,9 +1513,6 @@ function renderBookStage(entry) {
       return;
     }
 
-    // Mobile only: render the list 3x back-to-back so it can be looped
-    // infinitely (see setupListLoop above). Desktop always renders a
-    // single copy — identical to the previous behavior.
     var loopSets = mobileQuery.matches ? LIST_LOOP_SETS : 1;
 
     for (var setIndex = 0; setIndex < loopSets; setIndex += 1) {
@@ -1526,12 +1534,6 @@ function renderBookStage(entry) {
       elements.bioToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
   }
-
-  // ---- GOD MODE: channel flip display ----
-  // Renders a single "channel" (video + title/name/number + up/down
-  // controls) inside the theme's existing #god-mode-frame element.
-  // Channel data comes from data.godModeChannels, localized in
-  // functions.php from the Appearance > Justin Settings repeater.
 
   function padChannelNumber(number) {
     return number < 10 ? '0' + number : String(number);
@@ -1686,10 +1688,6 @@ function renderBookStage(entry) {
   window.addEventListener('resize', onScrollOrResize);
   updateScrollSpy();
 
-  // Mobile-only: rebuild the list when crossing the mobile breakpoint so
-  // it switches cleanly between the looped (mobile) and single-copy
-  // (desktop) versions, and re-centers scroll position for the newly
-  // mobile case. No-op impact on desktop-only sessions.
   mobileQuery.addEventListener('change', function () {
     renderList();
   });
@@ -1742,38 +1740,37 @@ function renderBookStage(entry) {
 }());
 
 // FOOTER STUFF
-  // ---- Footer: social-links info popup ----
-  document.querySelectorAll('.footer-info-toggle').forEach(function (toggle) {
-    var popup = toggle.nextElementSibling;
-    if (!popup || !popup.classList.contains('footer-info-popup')) {
-      return;
-    }
+document.querySelectorAll('.footer-info-toggle').forEach(function (toggle) {
+  var popup = toggle.nextElementSibling;
+  if (!popup || !popup.classList.contains('footer-info-popup')) {
+    return;
+  }
 
-    toggle.addEventListener('click', function (event) {
-      event.stopPropagation();
-      var isOpen = !popup.hasAttribute('hidden');
+  toggle.addEventListener('click', function (event) {
+    event.stopPropagation();
+    var isOpen = !popup.hasAttribute('hidden');
 
-      document.querySelectorAll('.footer-info-popup').forEach(function (p) {
-        p.setAttribute('hidden', '');
-      });
-      document.querySelectorAll('.footer-info-toggle').forEach(function (t) {
-        t.setAttribute('aria-expanded', 'false');
-      });
-
-      if (!isOpen) {
-        popup.removeAttribute('hidden');
-        toggle.setAttribute('aria-expanded', 'true');
-      }
+    document.querySelectorAll('.footer-info-popup').forEach(function (p) {
+      p.setAttribute('hidden', '');
     });
-  });
+    document.querySelectorAll('.footer-info-toggle').forEach(function (t) {
+      t.setAttribute('aria-expanded', 'false');
+    });
 
-  document.addEventListener('click', function (event) {
-    if (!event.target.closest('.footer-widget')) {
-      document.querySelectorAll('.footer-info-popup').forEach(function (p) {
-        p.setAttribute('hidden', '');
-      });
-      document.querySelectorAll('.footer-info-toggle').forEach(function (t) {
-        t.setAttribute('aria-expanded', 'false');
-      });
+    if (!isOpen) {
+      popup.removeAttribute('hidden');
+      toggle.setAttribute('aria-expanded', 'true');
     }
   });
+});
+
+document.addEventListener('click', function (event) {
+  if (!event.target.closest('.footer-widget')) {
+    document.querySelectorAll('.footer-info-popup').forEach(function (p) {
+      p.setAttribute('hidden', '');
+    });
+    document.querySelectorAll('.footer-info-toggle').forEach(function (t) {
+      t.setAttribute('aria-expanded', 'false');
+    });
+  }
+});

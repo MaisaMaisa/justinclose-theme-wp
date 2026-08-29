@@ -178,6 +178,11 @@ if (!function_exists('justin_register_meta_boxes')) {
         add_meta_box('justin-project-gallery', 'Gallery / Visuals', 'justin_render_project_gallery_box', 'post', 'normal', 'default');
         add_meta_box('justin-project-film', 'Film', 'justin_render_project_film_box', 'post', 'normal', 'default');
         add_meta_box('justin-project-books', 'Books', 'justin_render_project_books_box', 'post', 'normal', 'default');
+        // NEW: separate box for Book Template's own thumbnail set, kept
+        // apart from Gallery/Visuals so its Photo Grid tag UI never shows
+        // up here. Only relevant when Lightbox Layout = Book Template
+        // (hidden otherwise via justin_book_template_admin_polish() below).
+        add_meta_box('justin-project-book-template', 'Book Template', 'justin_render_project_book_template_box', 'post', 'normal', 'default');
         add_meta_box('justin-project-text', 'Text-only Body', 'justin_render_project_text_box', 'post', 'normal', 'default');
     }
 }
@@ -199,6 +204,8 @@ if (!function_exists('justin_layout_variant_from_style')) {
             'grid_hover'          => 'photography',
             'grid_hover_painting' => 'painting',
             'grid_hover_collage'  => 'collage',
+            // NEW: Book Template reuses the "photography" grid math/CSS.
+            'book_template'       => 'photography',
         ];
 
         return $map[$layout_style] ?? '';
@@ -247,6 +254,9 @@ function justin_create_payment_intent() {
 
     $post_id  = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
     $quantity = isset($_POST['quantity']) ? max(1, absint($_POST['quantity'])) : 1;
+    // 'book' (default) reads the shared Books price fields; 'book_template'
+    // reads the independent Book Template price fields instead.
+    $source   = isset($_POST['source']) ? sanitize_text_field(wp_unslash($_POST['source'])) : 'book';
 
     $secret_key = get_option('justin_stripe_secret_key', '');
 
@@ -254,8 +264,14 @@ function justin_create_payment_intent() {
         wp_send_json_error(['message' => 'Stripe is not configured yet.'], 400);
     }
 
-    $price_major = (float) justin_get_meta($post_id, 'buy_price', 0);
-    $currency    = justin_get_meta($post_id, 'buy_currency', 'eur');
+    if ($source === 'book_template') {
+        $price_major = (float) justin_get_meta($post_id, 'book_template_price', 0);
+        $currency    = justin_get_meta($post_id, 'book_template_currency', 'eur');
+    } else {
+        $price_major = (float) justin_get_meta($post_id, 'buy_price', 0);
+        $currency    = justin_get_meta($post_id, 'buy_currency', 'eur');
+    }
+
     $currencies  = justin_stripe_currencies();
 
     if (!isset($currencies[$currency])) {
@@ -280,6 +296,7 @@ function justin_create_payment_intent() {
             'automatic_payment_methods[enabled]'  => 'true',
             'metadata[post_id]'                   => $post_id,
             'metadata[quantity]'                  => $quantity,
+            'metadata[source]'                    => $source,
             'metadata[site]'                      => home_url(),
         ],
         'timeout' => 20,
@@ -615,6 +632,60 @@ add_action('admin_enqueue_scripts', function ($hook) {
     ");
 });
 
+// NEW: keeps the post-edit screen tidy for Book Template, WITHOUT
+// touching the Photo Grid tag checklist — that checklist is built by
+// admin-metaboxes.js and hiding its container via display:none broke
+// its rendering, so it's left exactly as it always was (always visible).
+//  - Forces every media-field preview thumbnail (Gallery/Visuals AND the
+//    new Book Template box) to a small, consistent size instead of
+//    whatever native size wp_get_attachment_image_url() returns.
+//  - Hides the whole "Book Template" meta box unless Lightbox Layout is
+//    "Book Template", so it doesn't clutter every other post type. This
+//    box is brand new, so nothing else depends on its visibility.
+add_action('admin_head-post.php', 'justin_book_template_admin_polish');
+add_action('admin_head-post-new.php', 'justin_book_template_admin_polish');
+
+function justin_book_template_admin_polish() {
+    global $post;
+    if (!$post || $post->post_type !== 'post') {
+        return;
+    }
+    ?>
+    <style>
+        .justin-media-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .justin-media-preview img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            display: block;
+        }
+    </style>
+    <script>
+    (function () {
+        document.addEventListener('DOMContentLoaded', function () {
+            var layoutSelect = document.getElementById('layout_style');
+            var bookTemplateBox = document.getElementById('justin-project-book-template');
+
+            if (!layoutSelect || !bookTemplateBox) {
+                return;
+            }
+
+            function sync() {
+                bookTemplateBox.style.display = (layoutSelect.value === 'book_template') ? '' : 'none';
+            }
+
+            layoutSelect.addEventListener('change', sync);
+            sync();
+        });
+    })();
+    </script>
+    <?php
+}
+
 add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('justin-style', get_stylesheet_uri(), [], '1.1');
     wp_enqueue_style('justin-font', 'https://fonts.googleapis.com/css2?family=Nothing+You+Could+Do&display=swap', [], null);
@@ -737,11 +808,16 @@ add_action('wp_enqueue_scripts', function () {
         }
 
         if ($cat_name === 'Books') {
-            global $post;
             setup_postdata($post);
 
             $price_major = (float) justin_get_meta($post->ID, 'buy_price', 0);
             $currency    = justin_get_meta($post->ID, 'buy_currency', 'eur');
+
+            // NEW: Book Template's own thumbnail set, completely separate
+            // from the regular 'gallery' field. getEntryImages() in
+            // main.js checks entry.book.images first, so Book Template
+            // posts use these instead of falling back to entry.images.
+            $book_template_ids = justin_get_attachment_ids(justin_get_meta($post->ID, 'book_template_images'));
 
             $entry['book'] = [
                 'content'    => apply_filters('the_content', $post->post_content),
@@ -751,6 +827,7 @@ add_action('wp_enqueue_scripts', function () {
                 'priceCents' => (int) round($price_major * 100),
                 'currency'   => $currency,
                 'title'      => get_the_title($post),
+                'images'     => justin_extract_image_urls($book_template_ids),
             ];
 
             wp_reset_postdata();
@@ -765,6 +842,29 @@ add_action('wp_enqueue_scripts', function () {
         //         'buyUrl' => esc_url_raw(justin_get_meta($post->ID, 'buy_url')),
         //     ];
         // }
+
+        // Book Template: fully independent of the 'Books' category — driven
+        // only by layout_style, so this keeps working even on non-Books
+        // posts, and even if the Books box/category is removed entirely.
+        if ($layout_style === 'book_template') {
+            setup_postdata($post);
+
+            $bt_price_major = (float) justin_get_meta($post->ID, 'book_template_price', 0);
+            $bt_currency    = justin_get_meta($post->ID, 'book_template_currency', 'eur');
+            $bt_buy_url     = esc_url_raw(justin_get_meta($post->ID, 'book_template_buy_url'));
+            $bt_image_ids   = justin_get_attachment_ids(justin_get_meta($post->ID, 'book_template_images'));
+
+            $entry['bookTemplate'] = [
+                'content'    => apply_filters('the_content', $post->post_content),
+                'images'     => justin_extract_image_urls($bt_image_ids),
+                'buyUrl'     => $bt_buy_url,
+                'priceCents' => (int) round($bt_price_major * 100),
+                'currency'   => $bt_currency,
+                'title'      => get_the_title($post),
+            ];
+
+            wp_reset_postdata();
+        }
 
         $data['entries'][] = $entry;
     }
@@ -829,8 +929,29 @@ add_action('save_post_post', function ($post_id) {
         update_post_meta($post_id, 'buy_currency', $buy_currency);
     }
 
+    // Book Template price + currency + buy url — independent of the Books
+    // box above, saved under its own meta keys.
+    if (isset($_POST['book_template_price'])) {
+        $bt_price = (float) wp_unslash($_POST['book_template_price']);
+        update_post_meta($post_id, 'book_template_price', max(0, $bt_price));
+    }
+
+    if (isset($_POST['book_template_currency'])) {
+        $bt_currency = sanitize_text_field(wp_unslash($_POST['book_template_currency']));
+        if (!isset(justin_stripe_currencies()[$bt_currency])) {
+            $bt_currency = 'eur';
+        }
+        update_post_meta($post_id, 'book_template_currency', $bt_currency);
+    }
+
+    if (isset($_POST['book_template_buy_url'])) {
+        update_post_meta($post_id, 'book_template_buy_url', esc_url_raw(wp_unslash($_POST['book_template_buy_url'])));
+    }
+
     // $image_fields = ['hover_bg_image', 'gallery', 'film_grabs', 'book_images'];
-    $image_fields = ['hover_bg_image', 'gallery'];
+    // NEW: 'book_template_images' added — separate field from 'gallery',
+    // saved via the new Book Template meta box.
+    $image_fields = ['hover_bg_image', 'gallery', 'book_template_images'];
     foreach ($image_fields as $field_name) {
         if (isset($_POST[$field_name])) {
             $value = sanitize_text_field(wp_unslash($_POST[$field_name]));
@@ -851,6 +972,8 @@ add_action('save_post_post', function ($post_id) {
             'photo_grid',
             'video_direct',
             'standard',
+            // NEW
+            'book_template',
         ];
         if (!in_array($layout_style, $allowed_layout_styles, true)) {
             $layout_style = 'grid_hover';
@@ -959,6 +1082,7 @@ function justin_render_project_common_box($post) {
             <option value="grid_hover" <?php selected($layout_style, 'grid_hover'); ?>>Grid + Hover Preview (Photography)</option>
             <option value="grid_hover_painting" <?php selected($layout_style, 'grid_hover_painting'); ?>>Grid + Hover Preview (Painting)</option>
             <option value="grid_hover_collage" <?php selected($layout_style, 'grid_hover_collage'); ?>>Grid + Hover Preview (Collage)</option>
+            <option value="book_template" <?php selected($layout_style, 'book_template'); ?>>Book Template (Grid + Hover + Text + Buy)</option>
             <option value="video_direct" <?php selected($layout_style, 'video_direct'); ?>>Video (Film)</option>
             <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid (Misc)</option>
             <option value="standard" <?php selected($layout_style, 'standard'); ?>>Standard (image slideshow)</option>
@@ -1014,6 +1138,40 @@ function justin_render_project_books_box($post) {
     <p>
         <label for="buy_url"><strong>Buy URL (fallback if Stripe isn't configured)</strong></label><br />
         <input type="url" name="buy_url" id="buy_url" value="<?php echo esc_attr($buy_url); ?>" style="width:100%;" />
+    </p>
+    <?php
+}
+
+// NEW: Book Template's own image picker. Completely separate from
+// Gallery/Visuals ('gallery' field) so its Photo Grid tag UI never
+// shows up here. Price/Buy URL stay in the Books box above — shared,
+// not duplicated.
+function justin_render_project_book_template_box($post) {
+    $book_template_images = justin_get_meta($post->ID, 'book_template_images');
+    $bt_price    = justin_get_meta($post->ID, 'book_template_price');
+    $bt_currency = justin_get_meta($post->ID, 'book_template_currency', 'eur');
+    $bt_buy_url  = justin_get_meta($post->ID, 'book_template_buy_url');
+    ?>
+    <p>Use this ONLY when <strong>Lightbox Layout</strong> above is set to
+    <strong>Book Template</strong>. These are the thumbnails shown on the left
+    of that layout, plus this layout's own price and checkout link &mdash;
+    fully independent from the Books meta box above, so this keeps working
+    even if the Books box is removed later.</p>
+    <?php justin_render_media_preview('Book Template images', 'book_template_images', $book_template_images, true); ?>
+
+    <p>
+        <label for="book_template_price"><strong>Price per copy</strong></label><br />
+        <input type="number" step="0.01" min="0" name="book_template_price" id="book_template_price" value="<?php echo esc_attr($bt_price); ?>" style="width:150px;" />
+        <select name="book_template_currency" id="book_template_currency">
+            <?php foreach (justin_stripe_currencies() as $code => $label) : ?>
+                <option value="<?php echo esc_attr($code); ?>" <?php selected($bt_currency, $code); ?>><?php echo esc_html($label); ?></option>
+            <?php endforeach; ?>
+        </select>
+        <br><span style="color:#666;">Set a price + your Stripe publishable/secret keys under Appearance &gt; Justin Settings to enable the in-page checkout. Leave the price at 0 to skip Stripe and just use the Buy URL below.</span>
+    </p>
+    <p>
+        <label for="book_template_buy_url"><strong>Buy URL (fallback if Stripe isn't configured)</strong></label><br />
+        <input type="url" name="book_template_buy_url" id="book_template_buy_url" value="<?php echo esc_attr($bt_buy_url); ?>" style="width:100%;" />
     </p>
     <?php
 }
