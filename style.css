@@ -165,84 +165,6 @@ Author URI: https://maisaimamovic.eu/
   font-style: normal;
 }
 /* =====================================================================
- * 2. GLOBAL RESET & BASE LAYOUT
- * html/body defaults, box-sizing reset, scrollbar hiding, root vars,
- * the #page wrapper. Candidate for _reset.scss / _base.scss.
- * ===================================================================== */
-html {
-  background-size: cover;
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  font-family: "Geist Mono", monospace;
-}
-
-#page {
-  margin-left: 65px;
-  padding-right: 5px;
-}
-
-::-webkit-scrollbar {
-  width: 0px;
-  background-color: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: transparent;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-.noselect {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-}
-
-.no-outline {
-  outline: none !important;
-}
-
-.mobile-off {
-  display: none;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-:root {
-  --color-light: #FFFFFF;
-  --color-medium: #E6F2B1;
-  --color-bright: #CDE562;
-  --color-dark: #889D45;
-  --circ-size: 70px;
-}
-
-body {
-  color: #000;
-  padding: 10px;
-  padding-top: 0;
-}
-
-@media (max-width: 700px) {
-  #page {
-    margin-left: 50px;
-    padding-right: 5px;
-  }
-}
-/* =====================================================================
  * 3. JUSTIN LABEL
  * The fixed label that follows whichever list item is hovered.
  * ===================================================================== */
@@ -2134,4 +2056,78 @@ body.page-template-template-commercial {
 body.page-template-template-commercial #page {
   margin-left: 0;
   padding-right: 0;
+}
+
+html {
+  background-size: cover;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: "Geist Mono", monospace;
+}
+
+#page {
+  margin-left: 65px;
+  padding-right: 5px;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.no-outline {
+  outline: none !important;
+}
+
+.mobile-off {
+  display: none;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-light: #FFFFFF;
+  --color-medium: #E6F2B1;
+  --color-bright: #CDE562;
+  --color-dark: #889D45;
+  --circ-size: 70px;
+}
+
+body {
+  color: #000;
+  padding: 10px;
+  padding-top: 0;
+}
+
+@media (max-width: 700px) {
+  #page {
+    margin-left: 50px;
+    padding-right: 5px;
+  }
 }/*# sourceMappingURL=style.css.map */
