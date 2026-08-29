@@ -229,7 +229,7 @@ if (!function_exists('justin_layout_variant_from_style')) {
 
 if (!function_exists('justin_register_meta_boxes')) {
     function justin_register_meta_boxes() {
-        add_meta_box('justin-project-common', 'Project Common', 'justin_render_project_common_box', 'post', 'normal', 'high');
+        add_meta_box('justin-project-common', 'Lightbox Layout', 'justin_render_project_common_box', 'post', 'normal', 'high');
         add_meta_box('justin-project-gallery', 'Gallery / Visuals', 'justin_render_project_gallery_box', 'post', 'normal', 'default');
         add_meta_box('justin-project-film', 'Film', 'justin_render_project_film_box', 'post', 'normal', 'default');
         add_meta_box('justin-project-books', 'Books', 'justin_render_project_books_box', 'post', 'normal', 'default');
@@ -246,28 +246,15 @@ add_action('add_meta_boxes', 'justin_register_meta_boxes');
 
 function justin_render_project_common_box($post) {
     wp_nonce_field('justin_save_project_meta', 'justin_project_meta_nonce');
-    $info_text = justin_get_meta($post->ID, 'info_text');
     $hover_bg_image = justin_get_meta($post->ID, 'hover_bg_image');
-    $disable_info_text = justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text'));
     $layout_style = justin_get_meta($post->ID, 'layout_style', 'grid_hover');
     // Defaults to enabled ('1') for posts that have never saved this
     // field yet, so the auto-select-on-layout-change behavior is on by
     // default and each post remembers if it's been turned off.
     $auto_select_layout_category = justin_parse_bool(justin_get_meta($post->ID, 'auto_select_layout_category', '1'));
     ?>
-    <p>Use this for all project types.</p>
     <p>
-        <label for="info_text"><strong>Info text</strong></label><br />
-        <textarea name="info_text" id="info_text" rows="4" style="width:100%;"><?php echo esc_textarea($info_text); ?></textarea>
-    </p>
-    <p>
-        <label>
-            <input type="checkbox" name="disable_info_text" value="1" <?php checked($disable_info_text); ?> />
-            Disable info text (hides the ⓘ info panel entirely, even if Info text above has content)
-        </label>
-    </p>
-    <p>
-    <label for="layout_style"><strong>Lightbox Layout</strong></label><br />
+    <label for="layout_style"><strong>Choose from the dropdown:</strong></label><br />
         <select name="layout_style" id="layout_style">
             <option value="grid_hover" <?php selected($layout_style, 'grid_hover'); ?>>Photography</option>
             <option value="grid_hover_painting" <?php selected($layout_style, 'grid_hover_painting'); ?>>Painting</option>
@@ -300,7 +287,7 @@ function justin_render_project_gallery_box($post) {
         $custom_tags = [];
     }
     ?>
-    <p>Used for Photography, Painting, and Collage posts.</p>
+    <p>Used for Photography, Painting, and Collage, and Photo Grid content.</p>
     <?php justin_render_media_preview('Gallery images', 'gallery', $gallery, true); ?>
 
     <div id="justin-gallery-tag-assign" data-tags='<?php echo esc_attr(wp_json_encode($all_tags)); ?>' data-custom-tags='<?php echo esc_attr(wp_json_encode($custom_tags)); ?>'>
@@ -319,10 +306,22 @@ function justin_render_project_gallery_box($post) {
 
 function justin_render_project_film_box($post) {
     $film_video_url = justin_get_meta($post->ID, 'film_video_url');
+    $info_text = justin_get_meta($post->ID, 'info_text');
+    $disable_info_text = justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text'));
     ?>
     <p>
         <label for="film_video_url"><strong>Vimeo or YouTube URL</strong></label><br />
         <input type="url" name="film_video_url" id="film_video_url" value="<?php echo esc_attr($film_video_url); ?>" style="width:100%;" placeholder="https://vimeo.com/... or https://youtube.com/watch?v=..." />
+    </p>
+    <p>
+        <label for="info_text"><strong>Info text</strong></label><br />
+        <textarea name="info_text" id="info_text" rows="4" style="width:100%;"><?php echo esc_textarea($info_text); ?></textarea>
+    </p>
+    <p>
+        <label>
+            <input type="checkbox" name="disable_info_text" value="1" <?php checked($disable_info_text); ?> />
+            Disable info text (hides the ⓘ info panel entirely, even if Info text above has content)
+        </label>
     </p>
     <?php
 }
@@ -448,6 +447,13 @@ function justin_layout_admin_polish() {
         return;
     }
 
+    // True only for a post that's never been saved yet (WordPress creates
+    // an 'auto-draft' row the moment you open "Add New"). Used below to
+    // apply the layout's default category once on load for brand-new
+    // posts only — existing posts keep their already-saved category
+    // untouched unless the editor changes the layout themselves.
+    $is_new_post = ($post->post_status === 'auto-draft');
+
     // Layout -> category slug. Only layouts listed here get their
     // category auto-selected.
     $layout_category_slugs = [
@@ -484,6 +490,7 @@ function justin_layout_admin_polish() {
     <script>
     (function () {
         var LAYOUT_CATEGORY_MAP = <?php echo wp_json_encode($layout_category_map); ?>;
+        var IS_NEW_POST = <?php echo $is_new_post ? 'true' : 'false'; ?>;
 
         document.addEventListener('DOMContentLoaded', function () {
             var layoutSelect = document.getElementById('layout_style');
@@ -508,8 +515,6 @@ function justin_layout_admin_polish() {
                     galleryBox.style.display = (GALLERY_LAYOUTS.indexOf(value) !== -1) ? '' : 'none';
                 }
 
-                // Photo Grid tag checklist: only makes sense when tiles
-                // are actually filterable by tag, i.e. Photo Grid itself.
                 if (tagAssign) {
                     tagAssign.style.display = (value === 'photo_grid') ? '' : 'none';
                 }
@@ -527,19 +532,6 @@ function justin_layout_admin_polish() {
                 }
             }
 
-            // Sets the post's category to the one mapped to the newly
-            // chosen layout, via wp.data — the same store the block
-            // editor itself uses to manage post state — rather than
-            // clicking Gutenberg's own category checkboxes directly,
-            // since those are internal React-rendered markup that could
-            // change between WordPress versions. This works whether or
-            // not the Categories panel is currently open.
-            //
-            // Deliberately only wired to the 'change' event, never called
-            // on initial page load: opening an existing post for editing
-            // must never silently overwrite whatever category is already
-            // saved just because the dropdown reflects that post's
-            // existing layout.
             function applyCategoryForLayout() {
                 if (!autoSelectCheckbox || !autoSelectCheckbox.checked) {
                     return;
@@ -561,6 +553,48 @@ function justin_layout_admin_polish() {
             });
 
             syncBoxVisibility();
+
+            // New posts only: the layout dropdown already defaults to
+            // Photography, so apply its matching category once on load too,
+            // instead of leaving Categories empty until the editor manually
+            // touches the dropdown. Existing posts are untouched here — this
+            // only runs when the post has never been saved before.
+            //
+            // Gutenberg's data store isn't guaranteed ready this early, and even
+            // once it exists it can still overwrite an early edit when it finishes
+            // initializing from the post's actual saved data (empty categories for
+            // a brand-new post). So instead of a single timed attempt, poll until
+            // the store confirms the category has actually stuck, then stop.
+            if (IS_NEW_POST) {
+                var applyAttempts = 0;
+                var maxApplyAttempts = 50; // ~5 seconds at 100ms
+
+                var applyInterval = setInterval(function () {
+                    applyAttempts += 1;
+
+                    var storeReady = window.wp && wp.data && wp.data.select && wp.data.dispatch && wp.data.select('core/editor');
+
+                    if (storeReady) {
+                        var termId = LAYOUT_CATEGORY_MAP[layoutSelect.value];
+                        var currentCats = wp.data.select('core/editor').getEditedPostAttribute('categories') || [];
+                        var shouldApply = autoSelectCheckbox && autoSelectCheckbox.checked && termId;
+
+                        if (shouldApply && currentCats.indexOf(termId) === -1) {
+                            wp.data.dispatch('core/editor').editPost({ categories: [termId] });
+                        }
+
+                        // Stop once it's confirmed applied, or once there's nothing
+                        // left to apply (checkbox off / no mapped category).
+                        if (!shouldApply || currentCats.indexOf(termId) !== -1) {
+                            clearInterval(applyInterval);
+                        }
+                    }
+
+                    if (applyAttempts >= maxApplyAttempts) {
+                        clearInterval(applyInterval);
+                    }
+                }, 100);
+            }
         });
     })();
     </script>
