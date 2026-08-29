@@ -331,7 +331,7 @@ function justin_render_project_books_box($post) {
     $price    = justin_get_meta($post->ID, 'buy_price');
     $currency = justin_get_meta($post->ID, 'buy_currency', 'eur');
     ?>
-    <p>Use this for Books posts. The book's content now comes straight from the
+    <p>With this one: content now comes straight from the
     main post editor above &mdash; write/format it there (images, paragraphs,
     etc.) and it will be shown as the lightbox background.</p>
     <p>
@@ -361,11 +361,8 @@ function justin_render_project_book_template_box($post) {
     $bt_currency = justin_get_meta($post->ID, 'book_template_currency', 'eur');
     $bt_buy_url  = justin_get_meta($post->ID, 'book_template_buy_url');
     ?>
-    <p>Use this ONLY when <strong>Lightbox Layout</strong> above is set to
-    <strong>Book Template</strong>. These are the thumbnails shown on the left
-    of that layout, plus this layout's own price and checkout link &mdash;
-    fully independent from the Books meta box above, so this keeps working
-    even if the Books box is removed later.</p>
+    <p>Similar to Photography,etc: thumbnails shown on the left
+    of that layout, main image to the right + text + but me button underneath.</p>
     <?php justin_render_media_preview('Book Template images', 'book_template_images', $book_template_images, true); ?>
 
     <p>
@@ -510,9 +507,24 @@ function justin_layout_admin_polish() {
 
             function syncBoxVisibility() {
                 var value = layoutSelect.value;
+                var shouldShowGallery = (GALLERY_LAYOUTS.indexOf(value) !== -1);
 
                 if (galleryBox) {
-                    galleryBox.style.display = (GALLERY_LAYOUTS.indexOf(value) !== -1) ? '' : 'none';
+                    galleryBox.style.display = shouldShowGallery ? '' : 'none';
+
+                    // WordPress meta boxes track their own open/closed state
+                    // separately from display (a "closed" class, toggled by the
+                    // caret in the box header and remembered per-user in the
+                    // database). That's independent of the layout-based show/hide
+                    // above, so if this box was ever manually collapsed, it stays
+                    // collapsed forever even when a gallery layout makes it visible
+                    // again. Force it back open whenever we're showing it.
+                    if (shouldShowGallery && galleryBox.classList.contains('closed')) {
+                        var galleryToggle = galleryBox.querySelector('.handlediv');
+                        if (galleryToggle) {
+                            galleryToggle.click();
+                        }
+                    }
                 }
 
                 if (tagAssign) {
@@ -523,9 +535,6 @@ function justin_layout_admin_polish() {
                     filmBox.style.display = (value === 'video_direct') ? '' : 'none';
                 }
 
-                // Book Template 1 (Books box) and Book Template 2 (Book Template
-                // box) are a pair — both only relevant when Lightbox Layout =
-                // Book Template, so both hide/show together with it now.
                 if (booksBox) {
                     booksBox.style.display = (value === 'book_template') ? '' : 'none';
                 }
@@ -1365,30 +1374,30 @@ add_action('widgets_init', function () {
  * 9. CUSTOMIZER
  * ===================================================================== */
 
-function justin_bio_customizer( $wp_customize ) {
-    $wp_customize->add_section( 'justin_bio_section', array(
-        'title'    => 'Bio Copy',
-        'priority' => 30,
-    ) );
+// function justin_bio_customizer( $wp_customize ) {
+//     $wp_customize->add_section( 'justin_bio_section', array(
+//         'title'    => 'Bio Copy',
+//         'priority' => 30,
+//     ) );
 
-    $wp_customize->add_setting( 'justin_bio_copy', array(
-        'default'           => '',
-        'sanitize_callback' => 'wp_kses_post', // allows <a>, <em>, <strong>, etc. but strips dangerous tags/scripts
-        'transport'         => 'refresh',
-    ) );
+//     $wp_customize->add_setting( 'justin_bio_copy', array(
+//         'default'           => '',
+//         'sanitize_callback' => 'wp_kses_post', // allows <a>, <em>, <strong>, etc. but strips dangerous tags/scripts
+//         'transport'         => 'refresh',
+//     ) );
 
-    $wp_customize->add_control( new WP_Customize_Control(
-        $wp_customize,
-        'justin_bio_copy_control',
-        array(
-            'label'    => 'Bio text (HTML links allowed, e.g. <a href="https://example.com">text</a>)',
-            'section'  => 'justin_bio_section',
-            'settings' => 'justin_bio_copy',
-            'type'     => 'textarea',
-        )
-    ) );
-}
-add_action( 'customize_register', 'justin_bio_customizer' );
+//     $wp_customize->add_control( new WP_Customize_Control(
+//         $wp_customize,
+//         'justin_bio_copy_control',
+//         array(
+//             'label'    => 'Bio text (HTML links allowed, e.g. <a href="https://example.com">text</a>)',
+//             'section'  => 'justin_bio_section',
+//             'settings' => 'justin_bio_copy',
+//             'type'     => 'textarea',
+//         )
+//     ) );
+// }
+// add_action( 'customize_register', 'justin_bio_customizer' );
 
 
 /* =====================================================================
