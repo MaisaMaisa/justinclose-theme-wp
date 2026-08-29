@@ -1,16 +1,17 @@
-/* =====================================================================
- * 21. COMMERCIAL WORK PAGE
- * ===================================================================== */
-
- .link-list-line{
+.link-list-wrap{
+    min-height: 100vh;
     padding: 0.5%;
- }
+}
 
- .link-list-line a{
+.link-list-line{
+    padding: 0.5%;
+}
+
+.link-list-line a{
     color: black;
 }
 
- .link-list-line a:hover{
+.link-list-line a:hover{
     font-family: "Geist Mono", monospace;
 }
 

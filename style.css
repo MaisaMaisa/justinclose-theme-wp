@@ -8,11 +8,6 @@ Tags: lovely stuff
 Author: Maisa Imamović
 Author URI: https://maisaimamovic.eu/
 */
-/* =====================================================================
- * 1. TYPOGRAPHY / FONTS
- * Utility font classes + local @font-face declarations. Candidate for
- * its own _fonts.scss.
- * ===================================================================== */
 .syne-mono-regular {
   font-family: "Syne Mono", monospace;
   font-weight: 400;
@@ -164,10 +159,6 @@ Author URI: https://maisaimamovic.eu/
   font-weight: 400; /* Regular */
   font-style: normal;
 }
-/* =====================================================================
- * 3. JUSTIN LABEL
- * The fixed label that follows whichever list item is hovered.
- * ===================================================================== */
 #justin-label {
   position: fixed;
   left: 10px;
@@ -207,9 +198,6 @@ Author URI: https://maisaimamovic.eu/
     font-size: 12px;
   }
 }
-/* =====================================================================
- * 4. NAVIGATION (category nav line)
- * ===================================================================== */
 #nav-line {
   height: 100%;
   justify-content: center;
@@ -273,9 +261,6 @@ Author URI: https://maisaimamovic.eu/
     text-align: left;
   }
 }
-/* =====================================================================
- * 5. PROJECT LIST (#list)
- * ===================================================================== */
 #list {
   margin: 0;
   padding: 0;
@@ -307,26 +292,6 @@ Author URI: https://maisaimamovic.eu/
   color: #0045bd;
 }
 
-.cat-dot {
-  display: none;
-  margin-left: 4px;
-  color: red;
-}
-
-.cat-dot.visible {
-  display: inline;
-}
-
-/* Empty-project tag: only appears on hover of the list item */
-.empty-tag {
-  display: none;
-  color: #999;
-}
-
-#list li:hover .empty-tag {
-  display: inline;
-}
-
 @media (max-width: 700px) {
   #list summary {
     font-size: 12px;
@@ -336,11 +301,6 @@ Author URI: https://maisaimamovic.eu/
     font-size: 12px;
   }
 }
-/* =====================================================================
- * 8. LIGHTBOX — CORE
- * The overlay shell, stage, arrows, close button, thumbnail strip.
- * Shared by every lightbox layout.
- * ===================================================================== */
 .lightbox-overlay {
   position: fixed;
   inset: 0;
@@ -492,7 +452,8 @@ Author URI: https://maisaimamovic.eu/
 
 .gh-thumb {
   position: relative;
-  width: 100%; /* grid column controls sizing now */
+  width: 100%;
+  /* grid column controls sizing now */
   box-sizing: border-box;
   overflow: hidden;
   cursor: pointer;
@@ -701,10 +662,13 @@ Author URI: https://maisaimamovic.eu/
   left: 0;
   height: 100%;
   width: -moz-max-content;
-  width: max-content; /* grows freely — no cap, no clipping */
+  width: max-content;
+  /* grows freely — no cap, no clipping */
   overflow: visible;
-  z-index: 3; /* sits above the preview image */
-  pointer-events: none; /* clicks pass through the empty gaps to the preview... */
+  z-index: 3;
+  /* sits above the preview image */
+  pointer-events: none;
+  /* clicks pass through the empty gaps to the preview... */
 }
 
 /* When split (4+ columns), the grid spans full stage width and
@@ -734,7 +698,8 @@ Author URI: https://maisaimamovic.eu/
 
 .gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-col,
 .gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-thumb {
-  pointer-events: auto; /* ...but the thumbnails themselves stay clickable */
+  pointer-events: auto;
+  /* ...but the thumbnails themselves stay clickable */
   gap: 5px;
 }
 
@@ -776,7 +741,8 @@ Author URI: https://maisaimamovic.eu/
   overflow-y: auto;
   overflow-x: hidden;
   align-content: start;
-  align-items: start; /* stops shorter thumbs being stretched to match a taller neighbor in the same row */
+  align-items: start;
+  /* stops shorter thumbs being stretched to match a taller neighbor in the same row */
   gap: 18px 10px;
   padding: 24px 18px;
   scrollbar-width: none;
@@ -791,7 +757,8 @@ Author URI: https://maisaimamovic.eu/
 }
 
 .gh-stage[data-variant=collage] .gh-grid::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  display: none;
+  /* Chrome/Safari */
 }
 
 /* Base tile look: undo the flex-era width:50%, add a light polaroid frame */
@@ -847,7 +814,8 @@ Author URI: https://maisaimamovic.eu/
 }
 
 .gh-nav-arrow {
-  display: none; /* desktop: hidden, thumbnails handle navigation */
+  display: none;
+  /* desktop: hidden, thumbnails handle navigation */
   background: transparent;
   border: none;
   color: white;
@@ -876,7 +844,8 @@ Author URI: https://maisaimamovic.eu/
     bottom: 5%;
   }
   .gh-grid {
-    display: none; /* thumbnails removed on mobile */
+    display: none;
+    /* thumbnails removed on mobile */
   }
   .gh-stage-book .gh-right-col {
     height: 100%;
@@ -905,7 +874,8 @@ Author URI: https://maisaimamovic.eu/
   .gh-nav-prev {
     transform: rotate(0deg) scaleX(-1);
     top: 2%;
-  } /* points up */
+  }
+  /* points up */
   .gh-nav-next {
     transform: rotate(0deg);
     bottom: 0;
@@ -1121,7 +1091,7 @@ Author URI: https://maisaimamovic.eu/
   left: 50%;
   transform: translate(-50%, -50%) scale(1.8);
   z-index: 456785680;
-  mix-blend-mode: difference; /* auto-contrast against the category tint */
+  mix-blend-mode: difference;
 }
 
 .book-stage-v3 .book-content,
@@ -1138,7 +1108,7 @@ Author URI: https://maisaimamovic.eu/
 }
 
 .lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-text {
-  fill: transparent; /* keep existing behavior — this text is invisible by design */
+  fill: transparent;
 }
 
 .lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x {
@@ -1158,9 +1128,6 @@ Author URI: https://maisaimamovic.eu/
     font-size: 45px;
   }
 }
-/* =====================================================================
- * 13. STRIPE CHECKOUT MODAL
- * ===================================================================== */
 .stripe-buy-overlay {
   position: fixed;
   inset: 0;
@@ -1281,11 +1248,6 @@ Author URI: https://maisaimamovic.eu/
   padding: 30px 0;
 }
 
-/* =====================================================================
- * 14. HOVER BACKGROUND IMAGE
- * The full-bleed preview shown behind the page while hovering a
- * "hover-only" list item.
- * ===================================================================== */
 #bg-hover-img {
   position: fixed;
   inset: 0;
@@ -1302,18 +1264,11 @@ Author URI: https://maisaimamovic.eu/
   opacity: 1;
 }
 
-/* make sure the list sits above the bg image */
 #page {
   position: relative;
   z-index: 1;
 }
 
-/* =====================================================================
- * 15. COLLAGE PROJECT LAYOUT
- * The Collage category's own scrollable canvas of absolutely
- * positioned pieces (distinct from the gh-stage[data-variant=collage]
- * lightbox grid in section 9).
- * ===================================================================== */
 .collage-body {
   position: relative;
   /* background: #f5f0e8; */
@@ -1356,12 +1311,6 @@ Author URI: https://maisaimamovic.eu/
   /* height set by JS based on items */
 }
 
-/* =====================================================================
- * 16. CIRCULAR TEXT BUTTON COMPONENT
- * Reusable curved-text ring button (God Mode trigger, lightbox close).
- * Note: three separate rule blocks below target `.justin-circ-btn svg`
- * — kept as originally written rather than merged.
- * ===================================================================== */
 .justin-circ-btn {
   display: inline-flex;
   width: 70px !important;
@@ -1432,11 +1381,6 @@ Author URI: https://maisaimamovic.eu/
   font-size: 12px !important;
 }
 
-/* =====================================================================
- * 17. GOD MODE — TRIGGER BUTTON & OVERLAY SHELL
- * ===================================================================== */
-/* Referenced (commented out) as an alternate animation for the God Mode
-   trigger button below — kept in case it's wired back in later. */
 @keyframes justin-circ-blur {
   0%, 100% {
     filter: blur(0px);
@@ -1668,9 +1612,6 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
     color: #ccc;
   }
 }
-/* =====================================================================
- * 19. PHOTO GRID LAYOUT
- * ===================================================================== */
 .pg-wrap {
   --pg-columns: 5;
   --pg-gap: 4px;
@@ -1889,7 +1830,6 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
   opacity: 1;
 }
 
-/* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   .pg-grid {
     grid-template-columns: repeat(min(3, var(--pg-columns)), 1fr);
@@ -1907,9 +1847,6 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
     font-size: 9px;
   }
 }
-/* =====================================================================
- * 20. FOOTER WIDGETS
- * ===================================================================== */
 .site-footer {
   position: fixed;
   bottom: 20px;
@@ -2023,9 +1960,11 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
     margin-top: 0 !important;
   }
 }
-/* =====================================================================
- * 21. COMMERCIAL WORK PAGE
- * ===================================================================== */
+.link-list-wrap {
+  min-height: 100vh;
+  padding: 0.5%;
+}
+
 .link-list-line {
   padding: 0.5%;
 }

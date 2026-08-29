@@ -1,9 +1,3 @@
-/* =====================================================================
- * 8. LIGHTBOX — CORE
- * The overlay shell, stage, arrows, close button, thumbnail strip.
- * Shared by every lightbox layout.
- * ===================================================================== */
-
 .lightbox-overlay {
     position: fixed;
     inset: 0;
@@ -16,14 +10,14 @@
 }
 
 .lightbox-overlay::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--lightbox-tint);
-//   background: linear-gradient(0deg, var(--lightbox-tint, rgba(130, 130, 130, 1)) 0%, transparent 50%);
-//   backdrop-filter: blur(3px);
-//   -webkit-backdrop-filter: blur(2px); /* Safari */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--lightbox-tint);
+    //   background: linear-gradient(0deg, var(--lightbox-tint, rgba(130, 130, 130, 1)) 0%, transparent 50%);
+    //   backdrop-filter: blur(3px);
+    //   -webkit-backdrop-filter: blur(2px); /* Safari */
 }
 
 .lightbox-overlay.open {
@@ -125,7 +119,7 @@
 }
 
 @media (max-width: 700px) {
-    .lightbox-main img:not(.pg-media, .gh-thumb img){
+    .lightbox-main img:not(.pg-media, .gh-thumb img) {
         width: 90%;
         height: auto;
     }
@@ -158,11 +152,15 @@
     overflow-x: hidden;
     scrollbar-width: none;
 }
-.gh-grid::-webkit-scrollbar { display: none; }
+
+.gh-grid::-webkit-scrollbar {
+    display: none;
+}
 
 .gh-thumb {
     position: relative;
-    width: 100%;         /* grid column controls sizing now */
+    width: 100%;
+    /* grid column controls sizing now */
     box-sizing: border-box;
     overflow: hidden;
     cursor: pointer;
@@ -271,7 +269,7 @@
     margin: 0 0 0.4em;
 }
 
-.gh-book-text > *:last-child {
+.gh-book-text>*:last-child {
     margin-bottom: 0;
 }
 
@@ -360,77 +358,81 @@
 /* Take the grid out of flex flow entirely so extra columns overlap the
    preview image instead of pushing it over or getting clipped/scrolled */
 .gh-stage[data-variant="painting"] {
-  position: relative;
+    position: relative;
 }
 
 .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 12px 10px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: max-content;   /* grows freely — no cap, no clipping */
-  overflow: visible;
-  z-index: 3;            /* sits above the preview image */
-  pointer-events: none;  /* clicks pass through the empty gaps to the preview... */
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: max-content;
+    /* grows freely — no cap, no clipping */
+    overflow: visible;
+    z-index: 3;
+    /* sits above the preview image */
+    pointer-events: none;
+    /* clicks pass through the empty gaps to the preview... */
 }
 
 /* When split (4+ columns), the grid spans full stage width and
    pushes its two groups to opposite edges — first 3 columns left,
    remaining columns right. */
 .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting.gh-grid-painting-split {
-  width: 100%;
-  justify-content: space-between;
+    width: 100%;
+    justify-content: space-between;
 }
 
 .gh-stage[data-variant="painting"] .gh-painting-left,
 .gh-stage[data-variant="painting"] .gh-painting-right {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  width: 50%;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    width: 50%;
 }
 
 .gh-stage[data-variant="painting"] .gh-painting-right {
-  justify-content: end;
-align-self: flex-end;
+    justify-content: end;
+    align-self: flex-end;
 }
 
-.gh-col-floating{
-  align-self: flex-end;
+.gh-col-floating {
+    align-self: flex-end;
 }
 
 .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting .gh-col,
 .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting .gh-thumb {
-  pointer-events: auto;  /* ...but the thumbnails themselves stay clickable */
-  gap: 5px;
+    pointer-events: auto;
+    /* ...but the thumbnails themselves stay clickable */
+    gap: 5px;
 }
 
 .gh-stage[data-variant="painting"] .gh-col {
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
 }
 
 /* Reset the shared .gh-thumb defaults — JS now sets width, aspect-ratio,
    margin, border, and shadow per item based on which column it landed in */
 .gh-stage[data-variant="painting"] .gh-thumb {
-  width: auto;
-  border: none;
-  box-sizing: border-box;
-  transition: transform 0.15s ease;
+    width: auto;
+    border: none;
+    box-sizing: border-box;
+    transition: transform 0.15s ease;
 }
 
 .gh-stage[data-variant="painting"] .gh-thumb:hover {
-  transform: scale(1.04);
+    transform: scale(1.04);
 }
 
 .gh-stage[data-variant="painting"] .gh-thumb img {
-  height: auto;
-  object-fit: unset;
+    height: auto;
+    object-fit: unset;
 }
 
 /* ── Collage: scrollable 2-column scatter grid ── */
@@ -438,54 +440,67 @@ align-self: flex-end;
    panel) is a separate flex sibling of .gh-grid inside .gh-stage, so it
    never scrolls — this is what keeps the main image/description fixed. */
 .gh-stage[data-variant="collage"] .gh-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: min-content;
-  width: 300px;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  align-content: start;
-  align-items: start;   /* stops shorter thumbs being stretched to match a taller neighbor in the same row */
-  gap: 18px 10px;
-  padding: 24px 18px;
-  scrollbar-width: none;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: min-content;
+    width: 300px;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    align-content: start;
+    align-items: start;
+    /* stops shorter thumbs being stretched to match a taller neighbor in the same row */
+    gap: 18px 10px;
+    padding: 24px 18px;
+    scrollbar-width: none;
 }
 
 /* Let each collage thumb keep its natural portrait/landscape shape
    instead of being force-cropped to fill a stretched box */
 .gh-stage[data-variant="collage"] .gh-thumb img {
-  height: auto;
-  object-fit: unset;
+    height: auto;
+    object-fit: unset;
 }
 
 .gh-stage[data-variant="collage"] .gh-grid::-webkit-scrollbar {
-  display: none;              /* Chrome/Safari */
+    display: none;
+    /* Chrome/Safari */
 }
 
 /* Base tile look: undo the flex-era width:50%, add a light polaroid frame */
 .gh-stage[data-variant="collage"] .gh-thumb {
-  width: 100%;
-//   border: 4px solid #fff;
-  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.18);
-  transition: transform 0.15s ease;
+    width: 100%;
+    //   border: 4px solid #fff;
+    box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease;
 }
 
 .gh-stage[data-variant="collage"] .gh-thumb:hover {
-  transform: scale(1.05) rotate(0deg);
+    transform: scale(1.05) rotate(0deg);
 }
 
 /* Occasional full-width showcase tile — delete this rule if you don't want it */
 .gh-stage[data-variant="collage"] .gh-thumb:nth-child(9n+5) {
-  grid-column: span 2;
-//   aspect-ratio: 16 / 9;
+    grid-column: span 2;
+    //   aspect-ratio: 16 / 9;
 }
 
 /* ── SCATTER control: diagonal left/right stagger + slight rotation, repeats every 4 ── */
-.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+1) { transform: translateX(-8px) rotate(-2deg); }
-.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+2) { transform: translateX(10px) rotate(2.5deg); }
-.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+3) { transform: translateX(-6px) rotate(-1.5deg); }
-.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n)   { transform: translateX(8px) rotate(2deg); }
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+1) {
+    transform: translateX(-8px) rotate(-2deg);
+}
+
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+2) {
+    transform: translateX(10px) rotate(2.5deg);
+}
+
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n+3) {
+    transform: translateX(-6px) rotate(-1.5deg);
+}
+
+.gh-stage[data-variant="collage"] .gh-thumb:nth-child(4n) {
+    transform: translateX(8px) rotate(2deg);
+}
 
 .gh-counter-wrap {
     position: absolute;
@@ -507,7 +522,8 @@ align-self: flex-end;
 }
 
 .gh-nav-arrow {
-    display: none; /* desktop: hidden, thumbnails handle navigation */
+    display: none;
+    /* desktop: hidden, thumbnails handle navigation */
     background: transparent;
     border: none;
     color: white;
@@ -523,7 +539,7 @@ align-self: flex-end;
         flex-direction: column;
     }
 
-    .gh-counter-wrap{
+    .gh-counter-wrap {
         width: 100%;
         height: 100%;
         // bottom: 10px;
@@ -535,13 +551,14 @@ align-self: flex-end;
         z-index: 4;
     }
 
-    .gh-counter{
+    .gh-counter {
         position: absolute;
         bottom: 5%;
     }
 
     .gh-grid {
-        display: none; /* thumbnails removed on mobile */
+        display: none;
+        /* thumbnails removed on mobile */
     }
 
     .gh-stage-book .gh-right-col {
@@ -573,15 +590,18 @@ align-self: flex-end;
         position: fixed;
         // transform: rotate(90deg);
     }
-    .gh-nav-prev { 
-        transform: rotate(0deg) scaleX(-1); 
+
+    .gh-nav-prev {
+        transform: rotate(0deg) scaleX(-1);
         top: 2%;
-    } /* points up */
-    .gh-nav-next { 
-        transform: rotate(0deg); 
+    }
+
+    /* points up */
+    .gh-nav-next {
+        transform: rotate(0deg);
         // position: fixed;
         bottom: 0;
-    }      
+    }
 
     .gh-stage[data-variant="painting"] .gh-grid.gh-grid-painting,
     .gh-stage[data-variant="collage"] .gh-grid {
@@ -704,7 +724,6 @@ align-self: flex-end;
     flex-shrink: 0;
     overflow: hidden;
     transition: max-height 0.35s ease;
-    // font-family: "Nothing You Could Do", cursive;
     font-size: 15px;
     line-height: 1.4;
     color: black;
@@ -718,7 +737,7 @@ align-self: flex-end;
 }
 
 @media (max-width: 700px) {
-    .lightbox-info-panel{
+    .lightbox-info-panel {
         font-size: 12px;
         flex-shrink: 1;
         text-align: center;
@@ -804,7 +823,7 @@ align-self: flex-end;
     left: 50%;
     transform: translate(-50%, -50%) scale(1.8);
     z-index: 456785680;
-    mix-blend-mode: difference; /* auto-contrast against the category tint */
+    mix-blend-mode: difference;
 }
 
 .book-stage-v3 .book-content,
@@ -821,7 +840,7 @@ align-self: flex-end;
 }
 
 .lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-text {
-    fill: transparent; /* keep existing behavior — this text is invisible by design */
+    fill: transparent;
 }
 
 .lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x {
@@ -834,7 +853,7 @@ align-self: flex-end;
         padding: 40px 20px;
     }
 
-    .buy-btn{
+    .buy-btn {
         width: 200px;
         height: 200px;
     }

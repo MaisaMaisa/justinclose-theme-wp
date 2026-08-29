@@ -1,9 +1,3 @@
-/* =====================================================================
- * 17. GOD MODE — TRIGGER BUTTON & OVERLAY SHELL
- * ===================================================================== */
-
-/* Referenced (commented out) as an alternate animation for the God Mode
-   trigger button below — kept in case it's wired back in later. */
 @keyframes justin-circ-blur {
   0%, 100% { filter: blur(0px); }
   50%      { filter: blur(4px); }
@@ -22,9 +16,7 @@
 }
 
 #god-mode-btn .justin-circ-btn svg {
-//   border: solid;
   animation: justin-circ-spin 18s linear infinite;
-    // justin-circ-blur 5s ease-in-out infinite;
 
     .justin-circ-btn-x {
         stroke: transparent;
@@ -36,51 +28,49 @@
 }
 
 #god-mode-btn.is-active .justin-circ-btn-text {
-  fill: #fff;
+	fill: #fff;
 }
 
 #god-mode-btn.is-active .justin-circ-btn-x {
-      stroke: white !important;
-      transform-origin: center;
+	stroke: white !important;
+	transform-origin: center;
     transform: scale(1.2);
-    // transition: transform 0.2s ease;
 }
 
 #god-mode-btn:hover .justin-circ-btn svg {
-  animation-play-state: paused;
+	animation-play-state: paused;
 }
 
-// /* When a popup/lightbox is open, GOD MODE sits behind it like the rest of the page */
 #god-mode-btn.behind-popup {
     z-index: 1;
 }
 
 #god-mode-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: #000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.8s ease;
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	background: #000;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.8s ease;
 }
 
 #god-mode-overlay.visible {
-  opacity: 1;
-  pointer-events: auto;
+	opacity: 1;
+	pointer-events: auto;
 }
 
 #god-mode-frame {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
 }
 
 #god-mode-frame iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  display: block;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	display: block;
 }
 
 body.god-mode-active>*:not(#god-mode-overlay):not(#god-mode-btn) {

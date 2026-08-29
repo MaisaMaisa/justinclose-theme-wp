@@ -1,9 +1,4 @@
 @charset "UTF-8";
-/* =====================================================================
- * 17. GOD MODE — TRIGGER BUTTON & OVERLAY SHELL
- * ===================================================================== */
-/* Referenced (commented out) as an alternate animation for the God Mode
-   trigger button below — kept in case it's wired back in later. */
 @keyframes justin-circ-blur {
   0%, 100% {
     filter: blur(0px);

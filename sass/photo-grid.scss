@@ -1,7 +1,3 @@
-/* =====================================================================
- * 19. PHOTO GRID LAYOUT
- * ===================================================================== */
-
 .pg-wrap {
 	--pg-columns: 5;
 	--pg-gap: 4px;
@@ -208,7 +204,6 @@
 	opacity: 1;
 }
 
-/* ---------- Responsive ---------- */
 @media (max-width: 900px) {
 	.pg-grid { grid-template-columns: repeat(min(3, var(--pg-columns)), 1fr); }
 }

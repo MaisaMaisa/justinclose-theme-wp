@@ -1,9 +1,4 @@
 @charset "UTF-8";
-/* =====================================================================
- * 8. LIGHTBOX — CORE
- * The overlay shell, stage, arrows, close button, thumbnail strip.
- * Shared by every lightbox layout.
- * ===================================================================== */
 .lightbox-overlay {
   position: fixed;
   inset: 0;
@@ -155,7 +150,8 @@
 
 .gh-thumb {
   position: relative;
-  width: 100%; /* grid column controls sizing now */
+  width: 100%;
+  /* grid column controls sizing now */
   box-sizing: border-box;
   overflow: hidden;
   cursor: pointer;
@@ -364,10 +360,13 @@
   left: 0;
   height: 100%;
   width: -moz-max-content;
-  width: max-content; /* grows freely — no cap, no clipping */
+  width: max-content;
+  /* grows freely — no cap, no clipping */
   overflow: visible;
-  z-index: 3; /* sits above the preview image */
-  pointer-events: none; /* clicks pass through the empty gaps to the preview... */
+  z-index: 3;
+  /* sits above the preview image */
+  pointer-events: none;
+  /* clicks pass through the empty gaps to the preview... */
 }
 
 /* When split (4+ columns), the grid spans full stage width and
@@ -397,7 +396,8 @@
 
 .gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-col,
 .gh-stage[data-variant=painting] .gh-grid.gh-grid-painting .gh-thumb {
-  pointer-events: auto; /* ...but the thumbnails themselves stay clickable */
+  pointer-events: auto;
+  /* ...but the thumbnails themselves stay clickable */
   gap: 5px;
 }
 
@@ -439,7 +439,8 @@
   overflow-y: auto;
   overflow-x: hidden;
   align-content: start;
-  align-items: start; /* stops shorter thumbs being stretched to match a taller neighbor in the same row */
+  align-items: start;
+  /* stops shorter thumbs being stretched to match a taller neighbor in the same row */
   gap: 18px 10px;
   padding: 24px 18px;
   scrollbar-width: none;
@@ -454,7 +455,8 @@
 }
 
 .gh-stage[data-variant=collage] .gh-grid::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  display: none;
+  /* Chrome/Safari */
 }
 
 /* Base tile look: undo the flex-era width:50%, add a light polaroid frame */
@@ -510,7 +512,8 @@
 }
 
 .gh-nav-arrow {
-  display: none; /* desktop: hidden, thumbnails handle navigation */
+  display: none;
+  /* desktop: hidden, thumbnails handle navigation */
   background: transparent;
   border: none;
   color: white;
@@ -539,7 +542,8 @@
     bottom: 5%;
   }
   .gh-grid {
-    display: none; /* thumbnails removed on mobile */
+    display: none;
+    /* thumbnails removed on mobile */
   }
   .gh-stage-book .gh-right-col {
     height: 100%;
@@ -568,7 +572,8 @@
   .gh-nav-prev {
     transform: rotate(0deg) scaleX(-1);
     top: 2%;
-  } /* points up */
+  }
+  /* points up */
   .gh-nav-next {
     transform: rotate(0deg);
     bottom: 0;
@@ -784,7 +789,7 @@
   left: 50%;
   transform: translate(-50%, -50%) scale(1.8);
   z-index: 456785680;
-  mix-blend-mode: difference; /* auto-contrast against the category tint */
+  mix-blend-mode: difference;
 }
 
 .book-stage-v3 .book-content,
@@ -801,7 +806,7 @@
 }
 
 .lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-text {
-  fill: transparent; /* keep existing behavior — this text is invisible by design */
+  fill: transparent;
 }
 
 .lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x {
