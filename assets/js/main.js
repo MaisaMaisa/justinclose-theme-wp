@@ -3,6 +3,13 @@
     return;
   }
 
+  /* =====================================================================
+   * 1. SETUP
+   * Core data/state/DOM references everything below depends on. Keep
+   * this block first — later sections read from `data`, `state`,
+   * `elements`, `entries`, etc.
+   * ===================================================================== */
+
   var data = window.JUSTIN_DATA || {};
   var state = {
     activeCategory: '',
@@ -60,29 +67,260 @@
   var scrollActiveSummary = null;
   var scrollSpyFrame = null;
 
-  // ==========================================================
-  // STRIPE "BUY ME" MODAL
-  //
-  // Opens over the existing lightbox as a single self-contained
-  // popup: quantity stepper + Stripe's Link/Address/Payment
-  // elements, all mounted against one PaymentIntent. Nothing here
-  // ever sees your secret key — that lives server-side in
-  // functions.php's justin_create_payment_intent AJAX handler.
-  //
-  // Two independent "sources" can open this modal:
-  //   - 'book'          -> reads price/currency from the Books box
-  //                        (entry.book), used by the default Books layout.
-  //   - 'book_template' -> reads price/currency from the Book Template
-  //                        box (entry.bookTemplate), used by the Book
-  //                        Template layout. Fully independent data, so
-  //                        Book Template keeps working even if the
-  //                        Books box/category is removed entirely.
-  //
-  // If data.stripePublishableKey is empty, or the relevant source has no
-  // priceCents set, this whole module is a no-op and the button falls
-  // back to opening its buyUrl in a new tab — so nothing breaks for
-  // items you haven't priced yet.
-  // ==========================================================
+
+  /* =====================================================================
+   * 2. GENERAL HELPERS
+   * Small utilities used across multiple sections below.
+   * ===================================================================== */
+
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function shuffleArray(array) {
+    var shuffled = array.slice();
+    for (var i = shuffled.length - 1; i > 0; i -= 1) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = shuffled[i];
+      shuffled[i] = shuffled[j];
+      shuffled[j] = temp;
+    }
+    return shuffled;
+  }
+
+  function isHoverOnly(entry) {
+    return !!(entry && entry.hoverOnly && entry.bgImage);
+  }
+
+  // Book Template's own images (entry.bookTemplate.images) take priority
+  // over the default Books images (entry.book.images), so Book Template
+  // is fully independent of the Books data.
+  function getEntryImages(entry) {
+    if (!entry) {
+      return [];
+    }
+
+    if (entry.film && Array.isArray(entry.film.images)) {
+      return entry.film.images.slice();
+    }
+
+    if (entry.bookTemplate && Array.isArray(entry.bookTemplate.images)) {
+      return entry.bookTemplate.images.slice();
+    }
+
+    if (entry.book && Array.isArray(entry.book.images)) {
+      return entry.book.images.slice();
+    }
+
+    return Array.isArray(entry.images) ? entry.images.slice() : [];
+  }
+
+  function getEntryInfo(entry) {
+    if (!entry || entry.infoDisabled) {
+      return '';
+    }
+
+    if (entry.info && entry.info.length) {
+      return entry.info;
+    }
+
+    return '<p>' + escapeHtml(entry.text || '') + '</p>';
+  }
+
+  function getVideoEmbedUrl(videoUrl) {
+    var rawUrl = String(videoUrl || '').trim();
+
+    if (!rawUrl) {
+      return '';
+    }
+
+    try {
+      var parsedUrl = new URL(rawUrl);
+      var host = parsedUrl.hostname.replace(/^www\./, '');
+
+      if (host.indexOf('youtu') !== -1) {
+        var youtubeId = '';
+        if (parsedUrl.searchParams.get('v')) {
+          youtubeId = parsedUrl.searchParams.get('v');
+        } else {
+          var youtubeMatch = rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:shorts\/|embed\/|watch\?v=))([^?&/]+)/i);
+          youtubeId = youtubeMatch ? youtubeMatch[1] : '';
+        }
+
+        return youtubeId ? 'https://www.youtube.com/embed/' + encodeURIComponent(youtubeId) + '?autoplay=1&rel=0' : rawUrl;
+      }
+
+      if (host.indexOf('vimeo') !== -1) {
+        var vimeoMatch = rawUrl.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+        var vimeoId = vimeoMatch ? vimeoMatch[1] : '';
+        return vimeoId
+          ? 'https://player.vimeo.com/video/' + encodeURIComponent(vimeoId) + '?autoplay=1&muted=1&loop=1&title=0&byline=0&portrait=0'
+          : rawUrl;
+      }
+    } catch (error) {
+      return rawUrl;
+    }
+
+    return rawUrl;
+  }
+
+  function isEntryEmpty(entry) {
+    if (!entry) {
+      return true;
+    }
+
+    var hasImages = getEntryImages(entry).length > 0;
+    var hasFilmVideo = !!(entry.film && entry.film.videoUrl && String(entry.film.videoUrl).trim().length);
+    var hasDirectVideo = !!(entry.videoUrl && String(entry.videoUrl).trim().length);
+    var hasBookContent = !!(
+      (entry.book && entry.book.content && String(entry.book.content).trim().length) ||
+      (entry.bookTemplate && entry.bookTemplate.content && String(entry.bookTemplate.content).trim().length)
+    );
+
+    return !hasImages && !hasFilmVideo && !hasDirectVideo && !hasBookContent;
+  }
+
+  function getCategoryBio(categoryName) {
+    if (categoryName && categoryBios[categoryName]) {
+      return categoryBios[categoryName];
+    }
+
+    return siteBio;
+  }
+
+  function setBioText(html) {
+    if (elements.bioCopy) {
+      elements.bioCopy.innerHTML = html || '';
+    }
+  }
+
+  function setBackground(url) {
+    if (!elements.bgHover) {
+      return;
+    }
+
+    if (url) {
+      elements.bgHover.style.backgroundImage = 'url("' + url + '")';
+      elements.bgHover.classList.add('visible');
+      return;
+    }
+
+    elements.bgHover.style.backgroundImage = '';
+    elements.bgHover.classList.remove('visible');
+  }
+
+  function syncMainImageAspectRatio(mainImage) {
+    if (!mainImage) {
+      return;
+    }
+
+    var applyRatio = function () {
+      if (mainImage.naturalWidth && mainImage.naturalHeight) {
+        mainImage.style.aspectRatio = mainImage.naturalWidth + ' / ' + mainImage.naturalHeight;
+      }
+    };
+
+    if (mainImage.complete) {
+      applyRatio();
+      return;
+    }
+
+    mainImage.addEventListener('load', applyRatio, { once: true });
+  }
+
+  // Shared swipe/drag navigation for any mobile layout that has a
+  // "current image": dragging bottom-to-top (up) advances to the next
+  // image, top-to-bottom (down) goes back. Built on Pointer Events
+  // rather than Touch Events, so it responds identically to a real
+  // finger swipe on a phone AND a plain mouse drag — which also makes
+  // it testable by dragging with the mouse in a normal desktop browser,
+  // not just in a DevTools device emulation profile.
+  function attachSwipeNavigation(el, onSwipeUp, onSwipeDown) {
+    if (!el) {
+      return;
+    }
+
+    var startY = 0;
+    var startX = 0;
+    var tracking = false;
+    var swipeThreshold = 40; // px — minimum vertical movement to count as a swipe
+
+    el.addEventListener('pointerdown', function (event) {
+      tracking = true;
+      startY = event.clientY;
+      startX = event.clientX;
+    });
+
+    el.addEventListener('pointerup', function (event) {
+      if (!tracking) {
+        return;
+      }
+      tracking = false;
+
+      var deltaY = event.clientY - startY;
+      var deltaX = event.clientX - startX;
+
+      // Only treat it as a swipe if vertical movement dominates —
+      // avoids hijacking horizontal gestures or accidental taps/clicks.
+      if (Math.abs(deltaY) < swipeThreshold || Math.abs(deltaY) < Math.abs(deltaX)) {
+        return;
+      }
+
+      if (deltaY < 0) {
+        onSwipeUp(); // dragged bottom-to-top -> next
+      } else {
+        onSwipeDown(); // dragged top-to-bottom -> previous
+      }
+    });
+
+    el.addEventListener('pointercancel', function () {
+      tracking = false;
+    });
+
+    el.addEventListener('pointerleave', function () {
+      tracking = false;
+    });
+  }
+
+  function setLightboxChromeVisible(visible) {
+    var displayValue = visible ? '' : 'none';
+    elements.lightboxPrev.style.display = displayValue;
+    elements.lightboxNext.style.display = displayValue;
+    elements.lightboxThumbs.style.display = displayValue;
+    elements.lightboxInfoToggle.style.display = displayValue;
+    elements.lightboxInfoPanel.style.display = visible ? '' : 'none';
+  }
+
+
+  /* =====================================================================
+   * 3. STRIPE "BUY ME" MODAL
+   *
+   * Opens over the existing lightbox as a single self-contained
+   * popup: quantity stepper + Stripe's Link/Address/Payment
+   * elements, all mounted against one PaymentIntent. Nothing here
+   * ever sees your secret key — that lives server-side in
+   * functions.php's justin_create_payment_intent AJAX handler.
+   *
+   * Two independent "sources" can open this modal:
+   *   - 'book'          -> reads price/currency from the Books box
+   *                        (entry.book), used by the default Books layout.
+   *   - 'book_template' -> reads price/currency from the Book Template
+   *                        box (entry.bookTemplate), used by the Book
+   *                        Template layout. Fully independent data, so
+   *                        Book Template keeps working even if the
+   *                        Books box/category is removed entirely.
+   *
+   * If data.stripePublishableKey is empty, or the relevant source has no
+   * priceCents set, this whole module is a no-op and the button falls
+   * back to opening its buyUrl in a new tab — so nothing breaks for
+   * items you haven't priced yet.
+   * ===================================================================== */
+
   var stripeState = {
     stripe: null,
     elements: null,
@@ -323,6 +561,14 @@
     });
   }
 
+
+  /* =====================================================================
+   * 4. SIDEBAR LIST
+   * The project list on the left/side (nav categories, scroll-spy,
+   * mobile infinite-loop scrolling), and the fixed "justin label" that
+   * follows whichever item is hovered.
+   * ===================================================================== */
+
   function updateScrollSpy() {
     if (!mobileQuery.matches) {
       if (scrollActiveSummary) {
@@ -436,147 +682,148 @@
     }
   }
 
-  function shuffleArray(array) {
-    var shuffled = array.slice();
-    for (var i = shuffled.length - 1; i > 0; i -= 1) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = shuffled[i];
-      shuffled[i] = shuffled[j];
-      shuffled[j] = temp;
-    }
-    return shuffled;
-  }
-
-  function escapeHtml(value) {
-    return String(value || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
-  function isHoverOnly(entry) {
-    return !!(entry && entry.hoverOnly && entry.bgImage);
-  }
-
-  // Book Template's own images (entry.bookTemplate.images) take priority
-  // over the default Books images (entry.book.images), so Book Template
-  // is fully independent of the Books data.
-  function getEntryImages(entry) {
-    if (!entry) {
-      return [];
-    }
-
-    if (entry.film && Array.isArray(entry.film.images)) {
-      return entry.film.images.slice();
-    }
-
-    if (entry.bookTemplate && Array.isArray(entry.bookTemplate.images)) {
-      return entry.bookTemplate.images.slice();
-    }
-
-    if (entry.book && Array.isArray(entry.book.images)) {
-      return entry.book.images.slice();
-    }
-
-    return Array.isArray(entry.images) ? entry.images.slice() : [];
-  }
-
-  function getEntryInfo(entry) {
-    if (!entry || entry.infoDisabled) {
-      return '';
-    }
-
-    if (entry.info && entry.info.length) {
-      return entry.info;
-    }
-
-    return '<p>' + escapeHtml(entry.text || '') + '</p>';
-  }
-
-  function getVideoEmbedUrl(videoUrl) {
-    var rawUrl = String(videoUrl || '').trim();
-
-    if (!rawUrl) {
-      return '';
-    }
-
-    try {
-      var parsedUrl = new URL(rawUrl);
-      var host = parsedUrl.hostname.replace(/^www\./, '');
-
-      if (host.indexOf('youtu') !== -1) {
-        var youtubeId = '';
-        if (parsedUrl.searchParams.get('v')) {
-          youtubeId = parsedUrl.searchParams.get('v');
-        } else {
-          var youtubeMatch = rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:shorts\/|embed\/|watch\?v=))([^?&/]+)/i);
-          youtubeId = youtubeMatch ? youtubeMatch[1] : '';
-        }
-
-        return youtubeId ? 'https://www.youtube.com/embed/' + encodeURIComponent(youtubeId) + '?autoplay=1&rel=0' : rawUrl;
-      }
-
-      if (host.indexOf('vimeo') !== -1) {
-        var vimeoMatch = rawUrl.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
-        var vimeoId = vimeoMatch ? vimeoMatch[1] : '';
-        return vimeoId
-          ? 'https://player.vimeo.com/video/' + encodeURIComponent(vimeoId) + '?autoplay=1&muted=1&loop=1&title=0&byline=0&portrait=0'
-          : rawUrl;
-      }
-    } catch (error) {
-      return rawUrl;
-    }
-
-    return rawUrl;
-  }
-
-  function isEntryEmpty(entry) {
-    if (!entry) {
-      return true;
-    }
-
-    var hasImages = getEntryImages(entry).length > 0;
-    var hasBody = !!(entry.body && entry.body.length);
-    var hasFilmVideo = !!(entry.film && entry.film.videoUrl && String(entry.film.videoUrl).trim().length);
-    var hasDirectVideo = !!(entry.videoUrl && String(entry.videoUrl).trim().length);
-    var hasBookContent = !!(
-      (entry.book && entry.book.content && String(entry.book.content).trim().length) ||
-      (entry.bookTemplate && entry.bookTemplate.content && String(entry.bookTemplate.content).trim().length)
-    );
-
-    return !hasImages && !hasBody && !hasFilmVideo && !hasDirectVideo && !hasBookContent;
-  }
-
-  function getCategoryBio(categoryName) {
-    if (categoryName && categoryBios[categoryName]) {
-      return categoryBios[categoryName];
-    }
-
-    return siteBio;
-  }
-
-  function setBioText(html) {
-    if (elements.bioCopy) {
-      elements.bioCopy.innerHTML = html || '';
-    }
-  }
-
-  function setBackground(url) {
-    if (!elements.bgHover) {
+  function moveJustinLabelToElement(targetElement) {
+    if (!elements.page || !elements.justinLabel || !targetElement || !elements.page.contains(targetElement)) {
       return;
     }
 
-    if (url) {
-      elements.bgHover.style.backgroundImage = 'url("' + url + '")';
-      elements.bgHover.classList.add('visible');
+    if (justinLabelFrame) {
+      window.cancelAnimationFrame(justinLabelFrame);
+    }
+
+    justinLabelFrame = window.requestAnimationFrame(function () {
+      var targetRect = targetElement.getBoundingClientRect();
+      elements.justinLabel.style.top = targetRect.top + 'px';
+      justinLabelFrame = null;
+    });
+  }
+
+  function clearJustinLabelPosition() {
+    if (justinLabelFrame) {
+      window.cancelAnimationFrame(justinLabelFrame);
+      justinLabelFrame = null;
+    }
+
+    if (elements.justinLabel) {
+      elements.justinLabel.style.top = '';
+      elements.justinLabel.style.fontSize = '';
+    }
+  }
+
+  function renderNav() {
+    var navItems = categories.slice();
+    elements.navLine.innerHTML = '';
+
+    navItems.forEach(function (item) {
+      var nav = document.createElement('span');
+      nav.className = 'cat';
+      nav.dataset.category = item.name;
+      nav.textContent = item.name;
+
+      if (item.name === state.activeCategory) {
+        nav.classList.add('active');
+      }
+
+      nav.addEventListener('click', function () {
+        state.activeCategory = item.name;
+        setBioText(getCategoryBio(item.name));
+        renderNav();
+        renderList();
+      });
+
+      elements.navLine.appendChild(nav);
+    });
+  }
+
+  function createListItem(entry, index) {
+    var li = document.createElement('li');
+    li.dataset.entryIndex = String(index);
+    li.dataset.category = entry.cat || '';
+
+    var details = document.createElement('details');
+    var summary = document.createElement('summary');
+    summary.appendChild(document.createTextNode(entry.text || 'Untitled'));
+
+    if (state.activeCategory && entry.cat === state.activeCategory) {
+      li.classList.add('category-active');
+      summary.classList.add('category-active');
+    }
+
+    summary.addEventListener('click', function (event) {
+      event.preventDefault();
+      if (isHoverOnly(entry)) {
+        return;
+      }
+      openEntry(index);
+    });
+
+    summary.addEventListener('mouseenter', function () {
+      setBackground(entry.bgImage);
+      summary.classList.add('highlighted');
+      moveJustinLabelToElement(summary);
+    });
+
+    summary.addEventListener('mouseleave', function () {
+      setBackground('');
+      summary.classList.remove('highlighted');
+      clearJustinLabelPosition();
+    });
+
+    if (state.activeEntryIndex === index) {
+      summary.classList.add('is-open');
+    }
+
+    if (state.activeCategory && entry.cat === state.activeCategory) {
+      summary.classList.add('category-active');
+      li.classList.add('category-active');
+    }
+
+    details.appendChild(summary);
+    li.appendChild(details);
+    return li;
+  }
+
+  function renderList() {
+    elements.list.innerHTML = '';
+
+    if (!entries.length) {
+      var empty = document.createElement('li');
+      empty.className = 'empty-state';
+      empty.textContent = 'No projects yet.';
+      elements.list.appendChild(empty);
       return;
     }
 
-    elements.bgHover.style.backgroundImage = '';
-    elements.bgHover.classList.remove('visible');
+    var loopSets = mobileQuery.matches ? LIST_LOOP_SETS : 1;
+
+    for (var setIndex = 0; setIndex < loopSets; setIndex += 1) {
+      entries.forEach(function (entry) {
+        var index = entries.indexOf(entry);
+        elements.list.appendChild(createListItem(entry, index));
+      });
+    }
+
+    if (loopSets > 1) {
+      setupListLoop();
+    }
   }
+
+  function toggleBioSection() {
+    var isOpen = elements.bioSection.classList.toggle('is-open');
+    if (elements.bioToggle) {
+      elements.bioToggle.textContent = isOpen ? '−' : '+';
+      elements.bioToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+  }
+
+
+  /* =====================================================================
+   * 5. LIGHTBOX LAYOUT RENDERERS
+   * One render function per project type. Each fills #lightbox-stage
+   * (and related chrome) with that type's markup. Called by the
+   * controller in section 6 (openEntry), which decides which renderer
+   * applies to a given entry.
+   * ===================================================================== */
 
   function buildVideoStage(entry) {
     var videoUrl = entry && entry.film ? entry.film.videoUrl : '';
@@ -617,144 +864,6 @@
       elements.lightboxInfoToggle.style.display = 'none';
       elements.lightboxInfoPanel.style.display = 'none';
     }
-  }
-
-  function syncMainImageAspectRatio(mainImage) {
-    if (!mainImage) {
-      return;
-    }
-
-    var applyRatio = function () {
-      if (mainImage.naturalWidth && mainImage.naturalHeight) {
-        mainImage.style.aspectRatio = mainImage.naturalWidth + ' / ' + mainImage.naturalHeight;
-      }
-    };
-
-    if (mainImage.complete) {
-      applyRatio();
-      return;
-    }
-
-    mainImage.addEventListener('load', applyRatio, { once: true });
-  }
-
-  // Shared swipe/drag navigation for any mobile layout that has a
-  // "current image": dragging bottom-to-top (up) advances to the next
-  // image, top-to-bottom (down) goes back. Built on Pointer Events
-  // rather than Touch Events, so it responds identically to a real
-  // finger swipe on a phone AND a plain mouse drag — which also makes
-  // it testable by dragging with the mouse in a normal desktop browser,
-  // not just in a DevTools device emulation profile.
-  function attachSwipeNavigation(el, onSwipeUp, onSwipeDown) {
-    if (!el) {
-      return;
-    }
-
-    var startY = 0;
-    var startX = 0;
-    var tracking = false;
-    var swipeThreshold = 40; // px — minimum vertical movement to count as a swipe
-
-    el.addEventListener('pointerdown', function (event) {
-      tracking = true;
-      startY = event.clientY;
-      startX = event.clientX;
-    });
-
-    el.addEventListener('pointerup', function (event) {
-      if (!tracking) {
-        return;
-      }
-      tracking = false;
-
-      var deltaY = event.clientY - startY;
-      var deltaX = event.clientX - startX;
-
-      // Only treat it as a swipe if vertical movement dominates —
-      // avoids hijacking horizontal gestures or accidental taps/clicks.
-      if (Math.abs(deltaY) < swipeThreshold || Math.abs(deltaY) < Math.abs(deltaX)) {
-        return;
-      }
-
-      if (deltaY < 0) {
-        onSwipeUp(); // dragged bottom-to-top -> next
-      } else {
-        onSwipeDown(); // dragged top-to-bottom -> previous
-      }
-    });
-
-    el.addEventListener('pointercancel', function () {
-      tracking = false;
-    });
-
-    el.addEventListener('pointerleave', function () {
-      tracking = false;
-    });
-  }
-
-  function moveJustinLabelToElement(targetElement) {
-    if (!elements.page || !elements.justinLabel || !targetElement || !elements.page.contains(targetElement)) {
-      return;
-    }
-
-    if (justinLabelFrame) {
-      window.cancelAnimationFrame(justinLabelFrame);
-    }
-
-    justinLabelFrame = window.requestAnimationFrame(function () {
-      var targetRect = targetElement.getBoundingClientRect();
-      elements.justinLabel.style.top = targetRect.top + 'px';
-      justinLabelFrame = null;
-    });
-  }
-
-  function clearJustinLabelPosition() {
-    if (justinLabelFrame) {
-      window.cancelAnimationFrame(justinLabelFrame);
-      justinLabelFrame = null;
-    }
-
-    if (elements.justinLabel) {
-      elements.justinLabel.style.top = '';
-      elements.justinLabel.style.fontSize = '';
-    }
-  }
-
-  function setLightboxChromeVisible(visible) {
-    var displayValue = visible ? '' : 'none';
-    elements.lightboxPrev.style.display = displayValue;
-    elements.lightboxNext.style.display = displayValue;
-    elements.lightboxThumbs.style.display = displayValue;
-    elements.lightboxInfoToggle.style.display = displayValue;
-    elements.lightboxInfoPanel.style.display = visible ? '' : 'none';
-  }
-
-  function closeLightbox() {
-    state.activeEntryIndex = -1;
-    state.activeImageIndex = 0;
-    state.watchMode = false;
-    document.body.classList.remove('lb-upside-down');
-    elements.lightboxOverlay.style.removeProperty('--lightbox-tint');
-    elements.lightboxOverlay.classList.remove('open', 'watch-mode', 'lb-book');
-    if (elements.godModeBtn) {
-      elements.godModeBtn.classList.remove('behind-popup');
-    }
-    if (state.activeBookBuyBtn && state.activeBookBuyBtn.parentNode) {
-      state.activeBookBuyBtn.parentNode.removeChild(state.activeBookBuyBtn);
-    }
-    state.activeBookBuyBtn = null;
-    document.body.style.overflow = '';
-    elements.lightboxOverlay.classList.remove('open', 'watch-mode');
-    elements.lightboxOverlay.setAttribute('aria-hidden', 'true');
-    elements.lightboxStage.innerHTML = '';
-    elements.lightboxInfoPanel.innerHTML = '';
-    elements.lightboxInfoPanel.classList.remove('open');
-    elements.lightboxThumbs.innerHTML = '';
-    elements.lightboxInfoPanel.style.display = '';
-    elements.lightboxThumbs.style.display = '';
-    elements.lightboxPrev.style.display = '';
-    elements.lightboxNext.style.display = '';
-    elements.lightboxInfoToggle.style.display = '';
   }
 
   function renderImageLightbox(entry) {
@@ -1328,11 +1437,13 @@
     elements.lightboxNext.style.display = 'none';
   }
 
-  function renderTextStage(entry) {
-    elements.lightboxStage.innerHTML = '<div class="text-body">' + (entry.body || '') + '</div>';
-    elements.lightboxThumbs.innerHTML = '';
-    setLightboxChromeVisible(false);
-  }
+
+  /* =====================================================================
+   * 6. LIGHTBOX CONTROLLER
+   * Opens/closes the lightbox and picks which renderer from section 5
+   * applies to a given entry, plus prev/next navigation shared by the
+   * image-based layouts.
+   * ===================================================================== */
 
   function openEntry(index) {
     var entry = entries[index];
@@ -1378,9 +1489,6 @@
     } else if (entry.cat === 'Books') {
       document.body.classList.remove('lb-upside-down');
       renderBookStage(entry);
-    } else if (entry.cat === 'Text') {
-      document.body.classList.remove('lb-upside-down');
-      renderTextStage(entry);
     } else {
       if (isGridHoverLayout(entry.layoutStyle) && getEntryImages(entry).length) {
         renderGridHoverLightbox(entry);
@@ -1392,6 +1500,34 @@
         renderImageLightbox(entry);
       }
     }
+  }
+
+  function closeLightbox() {
+    state.activeEntryIndex = -1;
+    state.activeImageIndex = 0;
+    state.watchMode = false;
+    document.body.classList.remove('lb-upside-down');
+    elements.lightboxOverlay.style.removeProperty('--lightbox-tint');
+    elements.lightboxOverlay.classList.remove('open', 'watch-mode', 'lb-book');
+    if (elements.godModeBtn) {
+      elements.godModeBtn.classList.remove('behind-popup');
+    }
+    if (state.activeBookBuyBtn && state.activeBookBuyBtn.parentNode) {
+      state.activeBookBuyBtn.parentNode.removeChild(state.activeBookBuyBtn);
+    }
+    state.activeBookBuyBtn = null;
+    document.body.style.overflow = '';
+    elements.lightboxOverlay.classList.remove('open', 'watch-mode');
+    elements.lightboxOverlay.setAttribute('aria-hidden', 'true');
+    elements.lightboxStage.innerHTML = '';
+    elements.lightboxInfoPanel.innerHTML = '';
+    elements.lightboxInfoPanel.classList.remove('open');
+    elements.lightboxThumbs.innerHTML = '';
+    elements.lightboxInfoPanel.style.display = '';
+    elements.lightboxThumbs.style.display = '';
+    elements.lightboxPrev.style.display = '';
+    elements.lightboxNext.style.display = '';
+    elements.lightboxInfoToggle.style.display = '';
   }
 
   function showPreviousImage() {
@@ -1443,111 +1579,13 @@
     return !!(elements.lightboxOverlay.classList.contains('open') && entry && !state.watchMode && getEntryImages(entry).length > 1);
   }
 
-  function renderNav() {
-    var navItems = categories.slice();
-    elements.navLine.innerHTML = '';
 
-    navItems.forEach(function (item) {
-      var nav = document.createElement('span');
-      nav.className = 'cat';
-      nav.dataset.category = item.name;
-      nav.textContent = item.name;
-
-      if (item.name === state.activeCategory) {
-        nav.classList.add('active');
-      }
-
-      nav.addEventListener('click', function () {
-        state.activeCategory = item.name;
-        setBioText(getCategoryBio(item.name));
-        renderNav();
-        renderList();
-      });
-
-      elements.navLine.appendChild(nav);
-    });
-  }
-
-  function createListItem(entry, index) {
-    var li = document.createElement('li');
-    li.dataset.entryIndex = String(index);
-    li.dataset.category = entry.cat || '';
-
-    var details = document.createElement('details');
-    var summary = document.createElement('summary');
-    summary.appendChild(document.createTextNode(entry.text || 'Untitled'));
-
-    if (state.activeCategory && entry.cat === state.activeCategory) {
-      li.classList.add('category-active');
-      summary.classList.add('category-active');
-    }
-
-    summary.addEventListener('click', function (event) {
-      event.preventDefault();
-      if (isHoverOnly(entry)) {
-        return;
-      }
-      openEntry(index);
-    });
-
-    summary.addEventListener('mouseenter', function () {
-      setBackground(entry.bgImage);
-      summary.classList.add('highlighted');
-      moveJustinLabelToElement(summary);
-    });
-
-    summary.addEventListener('mouseleave', function () {
-      setBackground('');
-      summary.classList.remove('highlighted');
-      clearJustinLabelPosition();
-    });
-
-    if (state.activeEntryIndex === index) {
-      summary.classList.add('is-open');
-    }
-
-    if (state.activeCategory && entry.cat === state.activeCategory) {
-      summary.classList.add('category-active');
-      li.classList.add('category-active');
-    }
-
-    details.appendChild(summary);
-    li.appendChild(details);
-    return li;
-  }
-
-  function renderList() {
-    elements.list.innerHTML = '';
-
-    if (!entries.length) {
-      var empty = document.createElement('li');
-      empty.className = 'empty-state';
-      empty.textContent = 'No projects yet.';
-      elements.list.appendChild(empty);
-      return;
-    }
-
-    var loopSets = mobileQuery.matches ? LIST_LOOP_SETS : 1;
-
-    for (var setIndex = 0; setIndex < loopSets; setIndex += 1) {
-      entries.forEach(function (entry) {
-        var index = entries.indexOf(entry);
-        elements.list.appendChild(createListItem(entry, index));
-      });
-    }
-
-    if (loopSets > 1) {
-      setupListLoop();
-    }
-  }
-
-  function toggleBioSection() {
-    var isOpen = elements.bioSection.classList.toggle('is-open');
-    if (elements.bioToggle) {
-      elements.bioToggle.textContent = isOpen ? '−' : '+';
-      elements.bioToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    }
-  }
+  /* =====================================================================
+   * 7. GOD MODE
+   * The channel flip display inside #god-mode-frame. Channel data comes
+   * from data.godModeChannels, localized in functions.php from the
+   * Appearance > Justin Settings repeater.
+   * ===================================================================== */
 
   function padChannelNumber(number) {
     return number < 10 ? '0' + number : String(number);
@@ -1652,6 +1690,13 @@
     }
   }
 
+
+  /* =====================================================================
+   * 8. INIT / EVENT WIRING
+   * Kicks everything off — must run last, after every function above is
+   * defined. Keep this block in place at the end of the IIFE.
+   * ===================================================================== */
+
   renderNav();
   setBioText(siteBio);
   renderList();
@@ -1753,7 +1798,13 @@
   });
 }());
 
-// FOOTER STUFF
+
+/* =====================================================================
+ * 9. FOOTER WIDGETS
+ * Outside the main IIFE — powers the social-links info popup in the
+ * footer widget area.
+ * ===================================================================== */
+
 document.querySelectorAll('.footer-info-toggle').forEach(function (toggle) {
   var popup = toggle.nextElementSibling;
   if (!popup || !popup.classList.contains('footer-info-popup')) {

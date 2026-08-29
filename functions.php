@@ -1,5 +1,19 @@
 <?php
 
+/* =====================================================================
+ * 1. THEME SETUP
+ * ===================================================================== */
+
+add_action('after_setup_theme', function () {
+    add_theme_support('title-tag');
+    add_theme_support('post-thumbnails');
+});
+
+
+/* =====================================================================
+ * 2. GENERAL HELPERS
+ * ===================================================================== */
+
 if (!function_exists('justin_normalize_image_url')) {
     function justin_normalize_image_url($image) {
         if (is_array($image) && !empty($image['url'])) {
@@ -172,21 +186,6 @@ if (!function_exists('justin_render_media_preview')) {
     }
 }
 
-if (!function_exists('justin_register_meta_boxes')) {
-    function justin_register_meta_boxes() {
-        add_meta_box('justin-project-common', 'Project Common', 'justin_render_project_common_box', 'post', 'normal', 'high');
-        add_meta_box('justin-project-gallery', 'Gallery / Visuals', 'justin_render_project_gallery_box', 'post', 'normal', 'default');
-        add_meta_box('justin-project-film', 'Film', 'justin_render_project_film_box', 'post', 'normal', 'default');
-        add_meta_box('justin-project-books', 'Books', 'justin_render_project_books_box', 'post', 'normal', 'default');
-        // NEW: separate box for Book Template's own thumbnail set, kept
-        // apart from Gallery/Visuals so its Photo Grid tag UI never shows
-        // up here. Only relevant when Lightbox Layout = Book Template
-        // (hidden otherwise via justin_book_template_admin_polish() below).
-        add_meta_box('justin-project-book-template', 'Book Template', 'justin_render_project_book_template_box', 'post', 'normal', 'default');
-        add_meta_box('justin-project-text', 'Text-only Body', 'justin_render_project_text_box', 'post', 'normal', 'default');
-    }
-}
-
 if (!function_exists('justin_photo_grid_tags')) {
     function justin_photo_grid_tags() {
         return [
@@ -204,7 +203,7 @@ if (!function_exists('justin_layout_variant_from_style')) {
             'grid_hover'          => 'photography',
             'grid_hover_painting' => 'painting',
             'grid_hover_collage'  => 'collage',
-            // NEW: Book Template reuses the "photography" grid math/CSS.
+            // Book Template reuses the "photography" grid math/CSS.
             'book_template'       => 'photography',
         ];
 
@@ -212,15 +211,369 @@ if (!function_exists('justin_layout_variant_from_style')) {
     }
 }
 
+
 /* =====================================================================
- * STRIPE INTEGRATION (test mode) — powers the in-page "BUY ME" modal.
+ * 3. PROJECT META BOXES
+ * The post-editor fields for each project type (Photography/Painting/
+ * Collage, Film, Books, Book Template, Text), plus the JS/CSS that
+ * powers the admin editing experience, and the single save handler
+ * that persists every field below into post meta.
+ * ===================================================================== */
+
+if (!function_exists('justin_register_meta_boxes')) {
+    function justin_register_meta_boxes() {
+        add_meta_box('justin-project-common', 'Project Common', 'justin_render_project_common_box', 'post', 'normal', 'high');
+        add_meta_box('justin-project-gallery', 'Gallery / Visuals', 'justin_render_project_gallery_box', 'post', 'normal', 'default');
+        add_meta_box('justin-project-film', 'Film', 'justin_render_project_film_box', 'post', 'normal', 'default');
+        add_meta_box('justin-project-books', 'Books', 'justin_render_project_books_box', 'post', 'normal', 'default');
+        // Separate box for Book Template's own thumbnail set, kept
+        // apart from Gallery/Visuals so its Photo Grid tag UI never shows
+        // up here. Only relevant when Lightbox Layout = Book Template
+        // (hidden otherwise via justin_book_template_admin_polish() below).
+        add_meta_box('justin-project-book-template', 'Book Template', 'justin_render_project_book_template_box', 'post', 'normal', 'default');
+    }
+}
+
+add_action('add_meta_boxes', 'justin_register_meta_boxes');
+
+function justin_render_project_common_box($post) {
+    wp_nonce_field('justin_save_project_meta', 'justin_project_meta_nonce');
+    $info_text = justin_get_meta($post->ID, 'info_text');
+    $hover_bg_image = justin_get_meta($post->ID, 'hover_bg_image');
+    $use_as_hover_only = justin_parse_bool(justin_get_meta($post->ID, 'use_as_hover_only'));
+    $disable_info_text = justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text'));
+    $layout_style = justin_get_meta($post->ID, 'layout_style', 'grid_hover');
+    ?>
+    <p>Use this for all project types.</p>
+    <p>
+        <label for="info_text"><strong>Info text</strong></label><br />
+        <textarea name="info_text" id="info_text" rows="4" style="width:100%;"><?php echo esc_textarea($info_text); ?></textarea>
+    </p>
+    <?php justin_render_media_preview('Hover background image', 'hover_bg_image', $hover_bg_image, false); ?>
+    <p>
+        <label>
+            <input type="checkbox" name="use_as_hover_only" value="1" <?php checked($use_as_hover_only); ?> />
+            Use as hover-only item
+        </label>
+    </p>
+    <p>
+        <label>
+            <input type="checkbox" name="disable_info_text" value="1" <?php checked($disable_info_text); ?> />
+            Disable info text (hides the ⓘ info panel entirely, even if Info text above has content)
+        </label>
+    </p>
+    <p>
+    <label for="layout_style"><strong>Lightbox Layout</strong></label><br />
+        <select name="layout_style" id="layout_style">
+            <option value="grid_hover" <?php selected($layout_style, 'grid_hover'); ?>>Grid + Hover Preview (Photography)</option>
+            <option value="grid_hover_painting" <?php selected($layout_style, 'grid_hover_painting'); ?>>Grid + Hover Preview (Painting)</option>
+            <option value="grid_hover_collage" <?php selected($layout_style, 'grid_hover_collage'); ?>>Grid + Hover Preview (Collage)</option>
+            <option value="book_template" <?php selected($layout_style, 'book_template'); ?>>Book Template (Grid + Hover + Text + Buy)</option>
+            <option value="video_direct" <?php selected($layout_style, 'video_direct'); ?>>Video (Film)</option>
+            <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid (Misc)</option>
+        </select>
+    </p>
+    <?php
+}
+
+function justin_render_project_gallery_box($post) {
+    $gallery = justin_get_meta($post->ID, 'gallery');
+    $gallery_tags_json = justin_get_meta($post->ID, 'gallery_image_tags', '{}');
+    $all_tags = justin_photo_grid_tags();
+    ?>
+    <p>Used for Photography, Painting, and Collage posts.</p>
+    <?php justin_render_media_preview('Gallery images', 'gallery', $gallery, true); ?>
+
+    <div id="justin-gallery-tag-assign" data-tags='<?php echo esc_attr(wp_json_encode($all_tags)); ?>'>
+        <p><strong>Photo Grid tags</strong> <span style="color:#777;">(only used when Lightbox Layout = Photo Grid)</span></p>
+        <input type="hidden" id="gallery_image_tags" name="gallery_image_tags" value='<?php echo esc_attr($gallery_tags_json); ?>' />
+        <div class="justin-gallery-tag-list"></div>
+    </div>
+    <?php
+}
+
+function justin_render_project_film_box($post) {
+    $film_video_url = justin_get_meta($post->ID, 'film_video_url');
+    ?>
+    <p>
+        <label for="film_video_url"><strong>Vimeo or YouTube URL</strong></label><br />
+        <input type="url" name="film_video_url" id="film_video_url" value="<?php echo esc_attr($film_video_url); ?>" style="width:100%;" placeholder="https://vimeo.com/... or https://youtube.com/watch?v=..." />
+    </p>
+    <?php
+}
+
+function justin_render_project_books_box($post) {
+    $buy_url  = justin_get_meta($post->ID, 'buy_url');
+    $price    = justin_get_meta($post->ID, 'buy_price');
+    $currency = justin_get_meta($post->ID, 'buy_currency', 'eur');
+    ?>
+    <p>Use this for Books posts. The book's content now comes straight from the
+    main post editor above &mdash; write/format it there (images, paragraphs,
+    etc.) and it will be shown as the lightbox background.</p>
+    <p>
+        <label for="buy_price"><strong>Price per copy</strong></label><br />
+        <input type="number" step="0.01" min="0" name="buy_price" id="buy_price" value="<?php echo esc_attr($price); ?>" style="width:150px;" />
+        <select name="buy_currency" id="buy_currency">
+            <?php foreach (justin_stripe_currencies() as $code => $label) : ?>
+                <option value="<?php echo esc_attr($code); ?>" <?php selected($currency, $code); ?>><?php echo esc_html($label); ?></option>
+            <?php endforeach; ?>
+        </select>
+        <br><span style="color:#666;">Set a price + your Stripe publishable/secret keys under Appearance &gt; Justin Settings to enable the in-page BUY ME checkout. Leave the price at 0 to skip Stripe and just use the Buy URL below.</span>
+    </p>
+    <p>
+        <label for="buy_url"><strong>Buy URL (fallback if Stripe isn't configured)</strong></label><br />
+        <input type="url" name="buy_url" id="buy_url" value="<?php echo esc_attr($buy_url); ?>" style="width:100%;" />
+    </p>
+    <?php
+}
+
+// Book Template's own image picker. Completely separate from
+// Gallery/Visuals ('gallery' field) so its Photo Grid tag UI never
+// shows up here. Also carries its own independent price/currency/buy
+// url, separate from the Books box above.
+function justin_render_project_book_template_box($post) {
+    $book_template_images = justin_get_meta($post->ID, 'book_template_images');
+    $bt_price    = justin_get_meta($post->ID, 'book_template_price');
+    $bt_currency = justin_get_meta($post->ID, 'book_template_currency', 'eur');
+    $bt_buy_url  = justin_get_meta($post->ID, 'book_template_buy_url');
+    ?>
+    <p>Use this ONLY when <strong>Lightbox Layout</strong> above is set to
+    <strong>Book Template</strong>. These are the thumbnails shown on the left
+    of that layout, plus this layout's own price and checkout link &mdash;
+    fully independent from the Books meta box above, so this keeps working
+    even if the Books box is removed later.</p>
+    <?php justin_render_media_preview('Book Template images', 'book_template_images', $book_template_images, true); ?>
+
+    <p>
+        <label for="book_template_price"><strong>Price per copy</strong></label><br />
+        <input type="number" step="0.01" min="0" name="book_template_price" id="book_template_price" value="<?php echo esc_attr($bt_price); ?>" style="width:150px;" />
+        <select name="book_template_currency" id="book_template_currency">
+            <?php foreach (justin_stripe_currencies() as $code => $label) : ?>
+                <option value="<?php echo esc_attr($code); ?>" <?php selected($bt_currency, $code); ?>><?php echo esc_html($label); ?></option>
+            <?php endforeach; ?>
+        </select>
+        <br><span style="color:#666;">Set a price + your Stripe publishable/secret keys under Appearance &gt; Justin Settings to enable the in-page checkout. Leave the price at 0 to skip Stripe and just use the Buy URL below.</span>
+    </p>
+    <p>
+        <label for="book_template_buy_url"><strong>Buy URL (fallback if Stripe isn't configured)</strong></label><br />
+        <input type="url" name="book_template_buy_url" id="book_template_buy_url" value="<?php echo esc_attr($bt_buy_url); ?>" style="width:100%;" />
+    </p>
+    <?php
+}
+
+// Admin-side JS: media picker for image fields + the gallery tag
+// assignment UI (admin-metaboxes.js), on post edit screens only.
+add_action('admin_enqueue_scripts', function ($hook) {
+    if ($hook === 'post.php' || $hook === 'post-new.php') {
+        wp_enqueue_media();
+        wp_enqueue_script('jquery');
+        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.0', true);
+    }
+});
+
+// Admin-side color picker (used by the Commercial Template's background
+// color field, see section 11 below), also post edit screens only.
+add_action('admin_enqueue_scripts', function ($hook) {
+    if ($hook !== 'post.php' && $hook !== 'post-new.php') {
+        return;
+    }
+
+    wp_enqueue_style('wp-color-picker');
+    wp_enqueue_script('wp-color-picker');
+
+    wp_add_inline_script('wp-color-picker', "
+        jQuery(function ($) {
+            $('.justin-color-field').wpColorPicker();
+        });
+    ");
+});
+
+// Keeps the post-edit screen tidy for Book Template, WITHOUT touching
+// the Photo Grid tag checklist — that checklist is built by
+// admin-metaboxes.js and hiding its container via display:none broke
+// its rendering, so it's left exactly as it always was (always visible).
+//  - Forces every media-field preview thumbnail (Gallery/Visuals AND the
+//    Book Template box) to a small, consistent size instead of whatever
+//    native size wp_get_attachment_image_url() returns.
+//  - Hides the whole "Book Template" meta box unless Lightbox Layout is
+//    "Book Template", so it doesn't clutter every other post type.
+add_action('admin_head-post.php', 'justin_book_template_admin_polish');
+add_action('admin_head-post-new.php', 'justin_book_template_admin_polish');
+
+function justin_book_template_admin_polish() {
+    global $post;
+    if (!$post || $post->post_type !== 'post') {
+        return;
+    }
+    ?>
+    <style>
+        .justin-media-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .justin-media-preview img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            display: block;
+        }
+    </style>
+    <script>
+    (function () {
+        document.addEventListener('DOMContentLoaded', function () {
+            var layoutSelect = document.getElementById('layout_style');
+            var bookTemplateBox = document.getElementById('justin-project-book-template');
+
+            if (!layoutSelect || !bookTemplateBox) {
+                return;
+            }
+
+            function sync() {
+                bookTemplateBox.style.display = (layoutSelect.value === 'book_template') ? '' : 'none';
+            }
+
+            layoutSelect.addEventListener('change', sync);
+            sync();
+        });
+    })();
+    </script>
+    <?php
+}
+
+// Saves every field from the meta boxes above (Project Common, Gallery,
+// Film, Books, Book Template) in one handler.
+add_action('save_post_post', function ($post_id) {
+    if (!isset($_POST['justin_project_meta_nonce']) || !wp_verify_nonce($_POST['justin_project_meta_nonce'], 'justin_save_project_meta')) {
+        return;
+    }
+
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+
+    // $text_fields = ['info_text', 'film_video_url', 'body_text', 'book_text', 'buy_url'];
+    $text_fields = ['info_text', 'film_video_url', 'buy_url'];
+    foreach ($text_fields as $field_name) {
+        if (isset($_POST[$field_name])) {
+            $value = wp_unslash($_POST[$field_name]);
+            $value = ($field_name === 'buy_url') ? esc_url_raw($value) : sanitize_text_field($value);
+            // if ($field_name === 'info_text' || $field_name === 'body_text' || $field_name === 'book_text' || $field_name === 'teaser_text') {
+            //     $value = wp_kses_post(wp_unslash($_POST[$field_name]));
+            // }
+            if ($field_name === 'info_text' || $field_name === 'book_text') {
+                $value = wp_kses_post(wp_unslash($_POST[$field_name]));
+            }
+            if ($field_name === 'film_video_url') {
+                $value = esc_url_raw($value);
+            }
+            update_post_meta($post_id, $field_name, $value);
+        }
+    }
+
+    // Book price + currency (Stripe).
+    if (isset($_POST['buy_price'])) {
+        $buy_price = (float) wp_unslash($_POST['buy_price']);
+        update_post_meta($post_id, 'buy_price', max(0, $buy_price));
+    }
+
+    if (isset($_POST['buy_currency'])) {
+        $buy_currency = sanitize_text_field(wp_unslash($_POST['buy_currency']));
+        if (!isset(justin_stripe_currencies()[$buy_currency])) {
+            $buy_currency = 'eur';
+        }
+        update_post_meta($post_id, 'buy_currency', $buy_currency);
+    }
+
+    // Book Template price + currency + buy url — independent of the Books
+    // box above, saved under its own meta keys.
+    if (isset($_POST['book_template_price'])) {
+        $bt_price = (float) wp_unslash($_POST['book_template_price']);
+        update_post_meta($post_id, 'book_template_price', max(0, $bt_price));
+    }
+
+    if (isset($_POST['book_template_currency'])) {
+        $bt_currency = sanitize_text_field(wp_unslash($_POST['book_template_currency']));
+        if (!isset(justin_stripe_currencies()[$bt_currency])) {
+            $bt_currency = 'eur';
+        }
+        update_post_meta($post_id, 'book_template_currency', $bt_currency);
+    }
+
+    if (isset($_POST['book_template_buy_url'])) {
+        update_post_meta($post_id, 'book_template_buy_url', esc_url_raw(wp_unslash($_POST['book_template_buy_url'])));
+    }
+
+    // $image_fields = ['hover_bg_image', 'gallery', 'film_grabs', 'book_images'];
+    // 'book_template_images' is separate from 'gallery', saved via the
+    // Book Template meta box.
+    $image_fields = ['hover_bg_image', 'gallery', 'book_template_images'];
+    foreach ($image_fields as $field_name) {
+        if (isset($_POST[$field_name])) {
+            $value = sanitize_text_field(wp_unslash($_POST[$field_name]));
+            update_post_meta($post_id, $field_name, $value);
+        }
+    }
+
+    update_post_meta($post_id, 'use_as_hover_only', isset($_POST['use_as_hover_only']) ? '1' : '0');
+    update_post_meta($post_id, 'disable_info_text', isset($_POST['disable_info_text']) ? '1' : '0');
+    // update_post_meta($post_id, 'has_teaser', isset($_POST['has_teaser']) ? '1' : '0');
+
+    if (isset($_POST['layout_style'])) {
+        $layout_style = sanitize_text_field(wp_unslash($_POST['layout_style']));
+        $allowed_layout_styles = [
+            'grid_hover',
+            'grid_hover_painting',
+            'grid_hover_collage',
+            'photo_grid',
+            'video_direct',
+            'book_template',
+        ];
+        if (!in_array($layout_style, $allowed_layout_styles, true)) {
+            $layout_style = 'grid_hover';
+        }
+        update_post_meta($post_id, 'layout_style', $layout_style);
+    }
+
+    if (isset($_POST['gallery_image_tags'])) {
+        $raw_json = wp_unslash($_POST['gallery_image_tags']);
+        $decoded = json_decode($raw_json, true);
+        $clean = [];
+
+        if (is_array($decoded)) {
+            $valid_tags = justin_photo_grid_tags();
+            foreach ($decoded as $image_id => $tags) {
+                $image_id = absint($image_id);
+                if (!$image_id || !is_array($tags)) {
+                    continue;
+                }
+                $filtered = array_values(array_intersect($valid_tags, $tags));
+                if ($filtered) {
+                    $clean[$image_id] = $filtered;
+                }
+            }
+        }
+
+        update_post_meta($post_id, 'gallery_image_tags', wp_json_encode($clean));
+    }
+});
+
+
+/* =====================================================================
+ * 4. STRIPE / CHECKOUT (test mode) — powers the in-page "BUY ME" modal.
  *
  * How it works:
  *  - Publishable + secret key are stored as options (Appearance >
  *    Justin Settings). Only the publishable key ever reaches the browser.
  *  - Each Book post can have a price ("buy_price") + currency
- *    ("buy_currency"). If both a price and a publishable key are set,
- *    the frontend opens the Stripe modal instead of following buy_url.
+ *    ("buy_currency"). Book Template posts have their own independent
+ *    price fields ("book_template_price" / "book_template_currency").
+ *    If both a price and a publishable key are set, the frontend opens
+ *    the Stripe modal instead of following the buy URL.
  *  - The modal (main.js) calls the justin_create_payment_intent AJAX
  *    action below every time the quantity changes, gets back a fresh
  *    PaymentIntent client secret, and mounts Stripe's Address / Link /
@@ -321,9 +674,232 @@ function justin_create_payment_intent() {
     ]);
 }
 
-/* ===================== END STRIPE INTEGRATION ===================== */
 
-//FOOTER WIDGETS
+/* =====================================================================
+ * 5. ADMIN SETTINGS PAGE (Appearance > Justin Settings)
+ * Renders both the Stripe key fields (section 4) and the God Mode
+ * channel table (section 6) on one settings page.
+ * ===================================================================== */
+
+add_action('admin_menu', function () {
+    add_theme_page('Justin Settings', 'Justin Settings', 'edit_theme_options', 'justin-settings', 'justin_render_settings_page');
+});
+
+function justin_render_settings_page() {
+    $channels = get_option('justin_god_mode_channels', justin_default_god_mode_channels());
+    ?>
+    <div class="wrap">
+        <h1>Justin Settings</h1>
+        <form method="post" action="options.php">
+            <?php settings_fields('justin_settings_group'); ?>
+
+            <h2>Stripe (test mode)</h2>
+            <p>Paste your <strong>test</strong> keys from the Stripe Dashboard &rarr; Developers &rarr; API keys. Nothing here is live until you swap in your live keys later.</p>
+            <table class="form-table">
+                <tr>
+                    <th><label for="justin_stripe_publishable_key">Publishable key</label></th>
+                    <td><input type="text" style="width:420px;" id="justin_stripe_publishable_key" name="justin_stripe_publishable_key" value="<?php echo esc_attr(get_option('justin_stripe_publishable_key', '')); ?>" placeholder="pk_test_..." /></td>
+                </tr>
+                <tr>
+                    <th><label for="justin_stripe_secret_key">Secret key</label></th>
+                    <td><input type="password" style="width:420px;" id="justin_stripe_secret_key" name="justin_stripe_secret_key" value="<?php echo esc_attr(get_option('justin_stripe_secret_key', '')); ?>" placeholder="sk_test_..." autocomplete="off" /></td>
+                </tr>
+            </table>
+
+            <h2>God Mode channels</h2>
+            <p>Each row is one channel in the God Mode flip display. Paste a normal Vimeo link (e.g. <code>https://vimeo.com/123456789</code>) — it's converted to an embed automatically. Leave the URL blank to show "no signal" for that channel.</p>
+
+            <table class="widefat" style="max-width:900px;">
+                <thead>
+                    <tr>
+                        <th style="width:60px;">#</th>
+                        <th>Title</th>
+                        <th>Name</th>
+                        <th>Vimeo URL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php for ($i = 0; $i < justin_god_mode_channel_count(); $i++) :
+                        $row = $channels[$i] ?? ['title' => '', 'name' => '', 'vimeo_url' => ''];
+                        ?>
+                        <tr>
+                            <td><?php echo esc_html(str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT)); ?></td>
+                            <td>
+                                <input type="text" style="width:100%;" name="justin_god_mode_channels[<?php echo $i; ?>][title]" value="<?php echo esc_attr($row['title'] ?? ''); ?>" />
+                            </td>
+                            <td>
+                                <input type="text" style="width:100%;" name="justin_god_mode_channels[<?php echo $i; ?>][name]" value="<?php echo esc_attr($row['name'] ?? ''); ?>" />
+                            </td>
+                            <td>
+                                <input type="url" style="width:100%;" name="justin_god_mode_channels[<?php echo $i; ?>][vimeo_url]" value="<?php echo esc_attr($row['vimeo_url'] ?? ''); ?>" placeholder="https://vimeo.com/..." />
+                            </td>
+                        </tr>
+                    <?php endfor; ?>
+                </tbody>
+            </table>
+
+            <?php submit_button(); ?>
+        </form>
+    </div>
+    <?php
+}
+
+function justin_render_site_settings_box() {
+    ?>
+    <p>Use the Justin Settings page in Appearance for site-wide options.</p>
+    <?php
+}
+
+
+/* =====================================================================
+ * 6. GOD MODE CHANNELS
+ * 11 fixed channel slots, each with a title, a name, and a Vimeo URL.
+ * Stored as a single option (array of 11 rows) so it's editable from
+ * Appearance > Justin Settings without needing a custom post type.
+ * ===================================================================== */
+
+if (!function_exists('justin_god_mode_channel_count')) {
+    function justin_god_mode_channel_count() {
+        return 11;
+    }
+}
+
+if (!function_exists('justin_default_god_mode_channels')) {
+    function justin_default_god_mode_channels() {
+        $rows = [];
+        for ($i = 0; $i < justin_god_mode_channel_count(); $i++) {
+            $rows[] = [
+                'title'     => '',
+                'name'      => '',
+                'vimeo_url' => '',
+            ];
+        }
+        return $rows;
+    }
+}
+
+if (!function_exists('justin_sanitize_god_mode_channels')) {
+    function justin_sanitize_god_mode_channels($input) {
+        $clean = [];
+        $count = justin_god_mode_channel_count();
+
+        for ($i = 0; $i < $count; $i++) {
+            $row = is_array($input) && isset($input[$i]) && is_array($input[$i]) ? $input[$i] : [];
+
+            $clean[$i] = [
+                'title'     => isset($row['title']) ? sanitize_text_field(wp_unslash($row['title'])) : '',
+                'name'      => isset($row['name']) ? sanitize_text_field(wp_unslash($row['name'])) : '',
+                'vimeo_url' => isset($row['vimeo_url']) ? esc_url_raw(wp_unslash($row['vimeo_url'])) : '',
+            ];
+        }
+
+        return $clean;
+    }
+}
+
+if (!function_exists('justin_vimeo_embed_url')) {
+    /**
+     * Turns a plain vimeo.com URL (or an already-correct player URL)
+     * into a player.vimeo.com embed src. Returns '' if it doesn't look
+     * like a Vimeo URL, so the frontend can show a "no signal" state
+     * instead of a broken iframe.
+     */
+    function justin_vimeo_embed_url($url) {
+        $url = trim((string) $url);
+
+        if ($url === '') {
+            return '';
+        }
+
+        if (preg_match('/vimeo\.com\/(?:video\/)?(\d+)/', $url, $matches)) {
+            return 'https://player.vimeo.com/video/' . $matches[1] . '?title=0&byline=0&portrait=0';
+        }
+
+        return '';
+    }
+}
+
+if (!function_exists('justin_god_mode_trigger_button')) {
+    /**
+     * Optional helper — call this in header.php (or wherever) if you
+     * don't already have a God Mode button in your markup:
+     *   <?php justin_god_mode_trigger_button(); ?>
+     * If you already have your own button, just make sure it has
+     * id="god-mode-btn" and the JS below will pick it up automatically.
+     */
+    function justin_god_mode_trigger_button($label = 'God Mode') {
+        printf(
+            '<button type="button" id="god-mode-btn" class="god-mode-trigger">%s</button>',
+            esc_html($label)
+        );
+    }
+}
+
+add_action('admin_init', function () {
+    register_setting('justin_settings_group', 'justin_god_mode_channels', [
+        'type'              => 'array',
+        'sanitize_callback' => 'justin_sanitize_god_mode_channels',
+        'default'           => justin_default_god_mode_channels(),
+    ]);
+});
+
+
+/* =====================================================================
+ * 7. CATEGORY LIGHTBOX COLOR
+ * Adds a "Lightbox Background Color" field to each category, used as
+ * the tint behind the frontend lightbox for posts in that category.
+ * ===================================================================== */
+
+add_action('created_category', 'justin_save_category_color');
+add_action('edited_category', 'justin_save_category_color');
+
+function justin_save_category_color($term_id) {
+    if (!isset($_POST['justin_cat_color_nonce']) || !wp_verify_nonce($_POST['justin_cat_color_nonce'], 'justin_save_cat_color')) {
+        return;
+    }
+
+    if (!current_user_can('manage_categories')) {
+        return;
+    }
+
+    $lightbox_color = isset($_POST['justin_cat_lightbox_color']) ? sanitize_hex_color(wp_unslash($_POST['justin_cat_lightbox_color'])) : '';
+
+    if ($lightbox_color) {
+        update_term_meta($term_id, 'justin_cat_lightbox_color', $lightbox_color);
+    } else {
+        delete_term_meta($term_id, 'justin_cat_lightbox_color');
+    }
+}
+
+add_action('category_add_form_fields', function () {
+    ?>
+    <div class="form-field term-group">
+        <label for="justin_cat_lightbox_color">Lightbox Background Color</label>
+        <input type="color" id="justin_cat_lightbox_color" name="justin_cat_lightbox_color" value="#828282" />
+        <p class="description">Tint color shown behind the lightbox popup for projects in this category.</p>
+    </div>
+    <?php wp_nonce_field('justin_save_cat_color', 'justin_cat_color_nonce'); ?>
+    <?php
+});
+
+add_action('category_edit_form_fields', function ($term) {
+    $lightbox_color = get_term_meta($term->term_id, 'justin_cat_lightbox_color', true) ?: '#828282';
+    ?>
+    <tr class="form-field term-group-wrap">
+        <th scope="row"><label for="justin_cat_lightbox_color">Lightbox Background Color</label></th>
+        <td>
+            <input type="color" id="justin_cat_lightbox_color" name="justin_cat_lightbox_color" value="<?php echo esc_attr($lightbox_color); ?>" />
+            <p class="description">Tint color shown behind the lightbox popup for projects in this category.</p>
+            <?php wp_nonce_field('justin_save_cat_color', 'justin_cat_color_nonce'); ?>
+        </td>
+    </tr>
+    <?php
+});
+
+
+/* =====================================================================
+ * 8. FOOTER WIDGETS
+ * ===================================================================== */
 
 class Justin_Social_Links_Widget extends WP_Widget {
     const MAX_LINKS = 6;
@@ -489,7 +1065,6 @@ class Justin_Eyes_Link_Widget extends WP_Widget {
     }
 }
 
-// Step 1: register the sidebar
 add_action('widgets_init', function () {
     register_sidebar([
         'name'          => 'Footer Widgets',
@@ -501,190 +1076,47 @@ add_action('widgets_init', function () {
         'after_title'   => '</h2>',
     ]);
 
-    // register the widgets too, in the same hook
     register_widget('Justin_Social_Links_Widget');
     register_widget('Justin_Eyes_Link_Widget');
 });
 
-/**
- * ---- GOD MODE CHANNELS ----
- * 11 fixed channel slots, each with a title, a name, and a Vimeo URL.
- * Stored as a single option (array of 11 rows) so it's editable from
- * Appearance > Justin Settings without needing a custom post type.
- */
 
-if (!function_exists('justin_god_mode_channel_count')) {
-    function justin_god_mode_channel_count() {
-        return 11;
-    }
+/* =====================================================================
+ * 9. CUSTOMIZER
+ * ===================================================================== */
+
+function justin_bio_customizer( $wp_customize ) {
+    $wp_customize->add_section( 'justin_bio_section', array(
+        'title'    => 'Bio Copy',
+        'priority' => 30,
+    ) );
+
+    $wp_customize->add_setting( 'justin_bio_copy', array(
+        'default'           => '',
+        'sanitize_callback' => 'wp_kses_post', // allows <a>, <em>, <strong>, etc. but strips dangerous tags/scripts
+        'transport'         => 'refresh',
+    ) );
+
+    $wp_customize->add_control( new WP_Customize_Control(
+        $wp_customize,
+        'justin_bio_copy_control',
+        array(
+            'label'    => 'Bio text (HTML links allowed, e.g. <a href="https://example.com">text</a>)',
+            'section'  => 'justin_bio_section',
+            'settings' => 'justin_bio_copy',
+            'type'     => 'textarea',
+        )
+    ) );
 }
+add_action( 'customize_register', 'justin_bio_customizer' );
 
-if (!function_exists('justin_default_god_mode_channels')) {
-    function justin_default_god_mode_channels() {
-        $rows = [];
-        for ($i = 0; $i < justin_god_mode_channel_count(); $i++) {
-            $rows[] = [
-                'title'     => '',
-                'name'      => '',
-                'vimeo_url' => '',
-            ];
-        }
-        return $rows;
-    }
-}
 
-if (!function_exists('justin_sanitize_god_mode_channels')) {
-    function justin_sanitize_god_mode_channels($input) {
-        $clean = [];
-        $count = justin_god_mode_channel_count();
-
-        for ($i = 0; $i < $count; $i++) {
-            $row = is_array($input) && isset($input[$i]) && is_array($input[$i]) ? $input[$i] : [];
-
-            $clean[$i] = [
-                'title'     => isset($row['title']) ? sanitize_text_field(wp_unslash($row['title'])) : '',
-                'name'      => isset($row['name']) ? sanitize_text_field(wp_unslash($row['name'])) : '',
-                'vimeo_url' => isset($row['vimeo_url']) ? esc_url_raw(wp_unslash($row['vimeo_url'])) : '',
-            ];
-        }
-
-        return $clean;
-    }
-}
-
-if (!function_exists('justin_vimeo_embed_url')) {
-    /**
-     * Turns a plain vimeo.com URL (or an already-correct player URL)
-     * into a player.vimeo.com embed src. Returns '' if it doesn't look
-     * like a Vimeo URL, so the frontend can show a "no signal" state
-     * instead of a broken iframe.
-     */
-    function justin_vimeo_embed_url($url) {
-        $url = trim((string) $url);
-
-        if ($url === '') {
-            return '';
-        }
-
-        if (preg_match('/vimeo\.com\/(?:video\/)?(\d+)/', $url, $matches)) {
-            return 'https://player.vimeo.com/video/' . $matches[1] . '?title=0&byline=0&portrait=0';
-        }
-
-        return '';
-    }
-}
-
-if (!function_exists('justin_god_mode_trigger_button')) {
-    /**
-     * Optional helper — call this in header.php (or wherever) if you
-     * don't already have a God Mode button in your markup:
-     *   <?php justin_god_mode_trigger_button(); ?>
-     * If you already have your own button, just make sure it has
-     * id="god-mode-btn" and the JS below will pick it up automatically.
-     */
-    function justin_god_mode_trigger_button($label = 'God Mode') {
-        printf(
-            '<button type="button" id="god-mode-btn" class="god-mode-trigger">%s</button>',
-            esc_html($label)
-        );
-    }
-}
-
-add_action('after_setup_theme', function () {
-    add_theme_support('title-tag');
-    add_theme_support('post-thumbnails');
-});
-
-add_action('admin_menu', function () {
-    add_theme_page('Justin Settings', 'Justin Settings', 'edit_theme_options', 'justin-settings', 'justin_render_settings_page');
-});
-
-add_action('admin_init', function () {
-    register_setting('justin_settings_group', 'justin_god_mode_channels', [
-        'type'              => 'array',
-        'sanitize_callback' => 'justin_sanitize_god_mode_channels',
-        'default'           => justin_default_god_mode_channels(),
-    ]);
-});
-
-add_action('add_meta_boxes', 'justin_register_meta_boxes');
-
-add_action('admin_enqueue_scripts', function ($hook) {
-    if ($hook === 'post.php' || $hook === 'post-new.php') {
-        wp_enqueue_media();
-        wp_enqueue_script('jquery');
-        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.0', true);
-    }
-});
-
-add_action('admin_enqueue_scripts', function ($hook) {
-    if ($hook !== 'post.php' && $hook !== 'post-new.php') {
-        return;
-    }
-
-    wp_enqueue_style('wp-color-picker');
-    wp_enqueue_script('wp-color-picker');
-
-    wp_add_inline_script('wp-color-picker', "
-        jQuery(function ($) {
-            $('.justin-color-field').wpColorPicker();
-        });
-    ");
-});
-
-// NEW: keeps the post-edit screen tidy for Book Template, WITHOUT
-// touching the Photo Grid tag checklist — that checklist is built by
-// admin-metaboxes.js and hiding its container via display:none broke
-// its rendering, so it's left exactly as it always was (always visible).
-//  - Forces every media-field preview thumbnail (Gallery/Visuals AND the
-//    new Book Template box) to a small, consistent size instead of
-//    whatever native size wp_get_attachment_image_url() returns.
-//  - Hides the whole "Book Template" meta box unless Lightbox Layout is
-//    "Book Template", so it doesn't clutter every other post type. This
-//    box is brand new, so nothing else depends on its visibility.
-add_action('admin_head-post.php', 'justin_book_template_admin_polish');
-add_action('admin_head-post-new.php', 'justin_book_template_admin_polish');
-
-function justin_book_template_admin_polish() {
-    global $post;
-    if (!$post || $post->post_type !== 'post') {
-        return;
-    }
-    ?>
-    <style>
-        .justin-media-preview {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .justin-media-preview img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            display: block;
-        }
-    </style>
-    <script>
-    (function () {
-        document.addEventListener('DOMContentLoaded', function () {
-            var layoutSelect = document.getElementById('layout_style');
-            var bookTemplateBox = document.getElementById('justin-project-book-template');
-
-            if (!layoutSelect || !bookTemplateBox) {
-                return;
-            }
-
-            function sync() {
-                bookTemplateBox.style.display = (layoutSelect.value === 'book_template') ? '' : 'none';
-            }
-
-            layoutSelect.addEventListener('change', sync);
-            sync();
-        });
-    })();
-    </script>
-    <?php
-}
+/* =====================================================================
+ * 10. FRONTEND ASSETS + DATA
+ * Enqueues the theme's stylesheet/font/JS, and localizes JUSTIN_DATA —
+ * the full dataset (categories, entries with all their layout-specific
+ * fields, God Mode channels, Stripe config) that main.js runs on.
+ * ===================================================================== */
 
 add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('justin-style', get_stylesheet_uri(), [], '1.1');
@@ -788,7 +1220,6 @@ add_action('wp_enqueue_scripts', function () {
             'info' => wp_kses_post(justin_get_meta($post->ID, 'info_text')),
             'infoDisabled' => justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text')),
             'images' => $images,
-            'body' => wp_kses_post(justin_get_meta($post->ID, 'body_text')),
             'bgImage' => $hover_only && $hover_bg_image ? justin_normalize_image_url($hover_bg_image) : '',
             'hoverOnly' => $hover_only,
             'layoutStyle' => $layout_style,
@@ -813,7 +1244,7 @@ add_action('wp_enqueue_scripts', function () {
             $price_major = (float) justin_get_meta($post->ID, 'buy_price', 0);
             $currency    = justin_get_meta($post->ID, 'buy_currency', 'eur');
 
-            // NEW: Book Template's own thumbnail set, completely separate
+            // Book Template's own thumbnail set, completely separate
             // from the regular 'gallery' field. getEntryImages() in
             // main.js checks entry.book.images first, so Book Template
             // posts use these instead of falling back to entry.images.
@@ -883,401 +1314,12 @@ add_action('wp_enqueue_scripts', function () {
     wp_localize_script('justin-main', 'JUSTIN_DATA', $data);
 });
 
-add_action('save_post_post', function ($post_id) {
-    if (!isset($_POST['justin_project_meta_nonce']) || !wp_verify_nonce($_POST['justin_project_meta_nonce'], 'justin_save_project_meta')) {
-        return;
-    }
 
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-        return;
-    }
-
-    if (!current_user_can('edit_post', $post_id)) {
-        return;
-    }
-
-    // $text_fields = ['info_text', 'film_video_url', 'body_text', 'book_text', 'buy_url'];
-    $text_fields = ['info_text', 'film_video_url', 'body_text', 'buy_url'];
-    foreach ($text_fields as $field_name) {
-        if (isset($_POST[$field_name])) {
-            $value = wp_unslash($_POST[$field_name]);
-            $value = ($field_name === 'buy_url') ? esc_url_raw($value) : sanitize_text_field($value);
-            // if ($field_name === 'info_text' || $field_name === 'body_text' || $field_name === 'book_text' || $field_name === 'teaser_text') {
-            //     $value = wp_kses_post(wp_unslash($_POST[$field_name]));
-            // }
-            if ($field_name === 'info_text' || $field_name === 'body_text' || $field_name === 'book_text') {
-                $value = wp_kses_post(wp_unslash($_POST[$field_name]));
-            }
-            if ($field_name === 'film_video_url') {
-                $value = esc_url_raw($value);
-            }
-            update_post_meta($post_id, $field_name, $value);
-        }
-    }
-
-    // Book price + currency (Stripe).
-    if (isset($_POST['buy_price'])) {
-        $buy_price = (float) wp_unslash($_POST['buy_price']);
-        update_post_meta($post_id, 'buy_price', max(0, $buy_price));
-    }
-
-    if (isset($_POST['buy_currency'])) {
-        $buy_currency = sanitize_text_field(wp_unslash($_POST['buy_currency']));
-        if (!isset(justin_stripe_currencies()[$buy_currency])) {
-            $buy_currency = 'eur';
-        }
-        update_post_meta($post_id, 'buy_currency', $buy_currency);
-    }
-
-    // Book Template price + currency + buy url — independent of the Books
-    // box above, saved under its own meta keys.
-    if (isset($_POST['book_template_price'])) {
-        $bt_price = (float) wp_unslash($_POST['book_template_price']);
-        update_post_meta($post_id, 'book_template_price', max(0, $bt_price));
-    }
-
-    if (isset($_POST['book_template_currency'])) {
-        $bt_currency = sanitize_text_field(wp_unslash($_POST['book_template_currency']));
-        if (!isset(justin_stripe_currencies()[$bt_currency])) {
-            $bt_currency = 'eur';
-        }
-        update_post_meta($post_id, 'book_template_currency', $bt_currency);
-    }
-
-    if (isset($_POST['book_template_buy_url'])) {
-        update_post_meta($post_id, 'book_template_buy_url', esc_url_raw(wp_unslash($_POST['book_template_buy_url'])));
-    }
-
-    // $image_fields = ['hover_bg_image', 'gallery', 'film_grabs', 'book_images'];
-    // NEW: 'book_template_images' added — separate field from 'gallery',
-    // saved via the new Book Template meta box.
-    $image_fields = ['hover_bg_image', 'gallery', 'book_template_images'];
-    foreach ($image_fields as $field_name) {
-        if (isset($_POST[$field_name])) {
-            $value = sanitize_text_field(wp_unslash($_POST[$field_name]));
-            update_post_meta($post_id, $field_name, $value);
-        }
-    }
-
-    update_post_meta($post_id, 'use_as_hover_only', isset($_POST['use_as_hover_only']) ? '1' : '0');
-    update_post_meta($post_id, 'disable_info_text', isset($_POST['disable_info_text']) ? '1' : '0');
-    // update_post_meta($post_id, 'has_teaser', isset($_POST['has_teaser']) ? '1' : '0');
-
-    if (isset($_POST['layout_style'])) {
-        $layout_style = sanitize_text_field(wp_unslash($_POST['layout_style']));
-        $allowed_layout_styles = [
-            'grid_hover',
-            'grid_hover_painting',
-            'grid_hover_collage',
-            'photo_grid',
-            'video_direct',
-            'standard',
-            // NEW
-            'book_template',
-        ];
-        if (!in_array($layout_style, $allowed_layout_styles, true)) {
-            $layout_style = 'grid_hover';
-        }
-        update_post_meta($post_id, 'layout_style', $layout_style);
-    }
-
-    if (isset($_POST['gallery_image_tags'])) {
-        $raw_json = wp_unslash($_POST['gallery_image_tags']);
-        $decoded = json_decode($raw_json, true);
-        $clean = [];
-
-        if (is_array($decoded)) {
-            $valid_tags = justin_photo_grid_tags();
-            foreach ($decoded as $image_id => $tags) {
-                $image_id = absint($image_id);
-                if (!$image_id || !is_array($tags)) {
-                    continue;
-                }
-                $filtered = array_values(array_intersect($valid_tags, $tags));
-                if ($filtered) {
-                    $clean[$image_id] = $filtered;
-                }
-            }
-        }
-
-        update_post_meta($post_id, 'gallery_image_tags', wp_json_encode($clean));
-    }
-});
-
-add_action('created_category', 'justin_save_category_color');
-add_action('edited_category', 'justin_save_category_color');
-
-function justin_save_category_color($term_id) {
-    if (!isset($_POST['justin_cat_color_nonce']) || !wp_verify_nonce($_POST['justin_cat_color_nonce'], 'justin_save_cat_color')) {
-        return;
-    }
-
-    if (!current_user_can('manage_categories')) {
-        return;
-    }
-
-    $lightbox_color = isset($_POST['justin_cat_lightbox_color']) ? sanitize_hex_color(wp_unslash($_POST['justin_cat_lightbox_color'])) : '';
-
-    if ($lightbox_color) {
-        update_term_meta($term_id, 'justin_cat_lightbox_color', $lightbox_color);
-    } else {
-        delete_term_meta($term_id, 'justin_cat_lightbox_color');
-    }
-}
-
-add_action('category_add_form_fields', function () {
-    ?>
-    <div class="form-field term-group">
-        <label for="justin_cat_lightbox_color">Lightbox Background Color</label>
-        <input type="color" id="justin_cat_lightbox_color" name="justin_cat_lightbox_color" value="#828282" />
-        <p class="description">Tint color shown behind the lightbox popup for projects in this category.</p>
-    </div>
-    <?php wp_nonce_field('justin_save_cat_color', 'justin_cat_color_nonce'); ?>
-    <?php
-});
-
-add_action('category_edit_form_fields', function ($term) {
-    $lightbox_color = get_term_meta($term->term_id, 'justin_cat_lightbox_color', true) ?: '#828282';
-    ?>
-    <tr class="form-field term-group-wrap">
-        <th scope="row"><label for="justin_cat_lightbox_color">Lightbox Background Color</label></th>
-        <td>
-            <input type="color" id="justin_cat_lightbox_color" name="justin_cat_lightbox_color" value="<?php echo esc_attr($lightbox_color); ?>" />
-            <p class="description">Tint color shown behind the lightbox popup for projects in this category.</p>
-            <?php wp_nonce_field('justin_save_cat_color', 'justin_cat_color_nonce'); ?>
-        </td>
-    </tr>
-    <?php
-});
-
-function justin_render_project_common_box($post) {
-    wp_nonce_field('justin_save_project_meta', 'justin_project_meta_nonce');
-    $info_text = justin_get_meta($post->ID, 'info_text');
-    $hover_bg_image = justin_get_meta($post->ID, 'hover_bg_image');
-    $use_as_hover_only = justin_parse_bool(justin_get_meta($post->ID, 'use_as_hover_only'));
-    $disable_info_text = justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text'));
-    $layout_style = justin_get_meta($post->ID, 'layout_style', 'grid_hover');
-    ?>
-    <p>Use this for all project types.</p>
-    <p>
-        <label for="info_text"><strong>Info text</strong></label><br />
-        <textarea name="info_text" id="info_text" rows="4" style="width:100%;"><?php echo esc_textarea($info_text); ?></textarea>
-    </p>
-    <?php justin_render_media_preview('Hover background image', 'hover_bg_image', $hover_bg_image, false); ?>
-    <p>
-        <label>
-            <input type="checkbox" name="use_as_hover_only" value="1" <?php checked($use_as_hover_only); ?> />
-            Use as hover-only item
-        </label>
-    </p>
-    <p>
-        <label>
-            <input type="checkbox" name="disable_info_text" value="1" <?php checked($disable_info_text); ?> />
-            Disable info text (hides the ⓘ info panel entirely, even if Info text above has content)
-        </label>
-    </p>
-    <p>
-    <label for="layout_style"><strong>Lightbox Layout</strong></label><br />
-        <select name="layout_style" id="layout_style">
-            <option value="grid_hover" <?php selected($layout_style, 'grid_hover'); ?>>Grid + Hover Preview (Photography)</option>
-            <option value="grid_hover_painting" <?php selected($layout_style, 'grid_hover_painting'); ?>>Grid + Hover Preview (Painting)</option>
-            <option value="grid_hover_collage" <?php selected($layout_style, 'grid_hover_collage'); ?>>Grid + Hover Preview (Collage)</option>
-            <option value="book_template" <?php selected($layout_style, 'book_template'); ?>>Book Template (Grid + Hover + Text + Buy)</option>
-            <option value="video_direct" <?php selected($layout_style, 'video_direct'); ?>>Video (Film)</option>
-            <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid (Misc)</option>
-            <option value="standard" <?php selected($layout_style, 'standard'); ?>>Standard (image slideshow)</option>
-        </select>
-    </p>
-    <?php
-}
-
-function justin_render_project_gallery_box($post) {
-    $gallery = justin_get_meta($post->ID, 'gallery');
-    $gallery_tags_json = justin_get_meta($post->ID, 'gallery_image_tags', '{}');
-    $all_tags = justin_photo_grid_tags();
-    ?>
-    <p>Used for Photography, Painting, and Collage posts.</p>
-    <?php justin_render_media_preview('Gallery images', 'gallery', $gallery, true); ?>
-
-    <div id="justin-gallery-tag-assign" data-tags='<?php echo esc_attr(wp_json_encode($all_tags)); ?>'>
-        <p><strong>Photo Grid tags</strong> <span style="color:#777;">(only used when Lightbox Layout = Photo Grid)</span></p>
-        <input type="hidden" id="gallery_image_tags" name="gallery_image_tags" value='<?php echo esc_attr($gallery_tags_json); ?>' />
-        <div class="justin-gallery-tag-list"></div>
-    </div>
-    <?php
-}
-
-function justin_render_project_film_box($post) {
-    $film_video_url = justin_get_meta($post->ID, 'film_video_url');
-    ?>
-    <p>
-        <label for="film_video_url"><strong>Vimeo or YouTube URL</strong></label><br />
-        <input type="url" name="film_video_url" id="film_video_url" value="<?php echo esc_attr($film_video_url); ?>" style="width:100%;" placeholder="https://vimeo.com/... or https://youtube.com/watch?v=..." />
-    </p>
-    <?php
-}
-
-function justin_render_project_books_box($post) {
-    $buy_url  = justin_get_meta($post->ID, 'buy_url');
-    $price    = justin_get_meta($post->ID, 'buy_price');
-    $currency = justin_get_meta($post->ID, 'buy_currency', 'eur');
-    ?>
-    <p>Use this for Books posts. The book's content now comes straight from the
-    main post editor above &mdash; write/format it there (images, paragraphs,
-    etc.) and it will be shown as the lightbox background.</p>
-    <p>
-        <label for="buy_price"><strong>Price per copy</strong></label><br />
-        <input type="number" step="0.01" min="0" name="buy_price" id="buy_price" value="<?php echo esc_attr($price); ?>" style="width:150px;" />
-        <select name="buy_currency" id="buy_currency">
-            <?php foreach (justin_stripe_currencies() as $code => $label) : ?>
-                <option value="<?php echo esc_attr($code); ?>" <?php selected($currency, $code); ?>><?php echo esc_html($label); ?></option>
-            <?php endforeach; ?>
-        </select>
-        <br><span style="color:#666;">Set a price + your Stripe publishable/secret keys under Appearance &gt; Justin Settings to enable the in-page BUY ME checkout. Leave the price at 0 to skip Stripe and just use the Buy URL below.</span>
-    </p>
-    <p>
-        <label for="buy_url"><strong>Buy URL (fallback if Stripe isn't configured)</strong></label><br />
-        <input type="url" name="buy_url" id="buy_url" value="<?php echo esc_attr($buy_url); ?>" style="width:100%;" />
-    </p>
-    <?php
-}
-
-// NEW: Book Template's own image picker. Completely separate from
-// Gallery/Visuals ('gallery' field) so its Photo Grid tag UI never
-// shows up here. Price/Buy URL stay in the Books box above — shared,
-// not duplicated.
-function justin_render_project_book_template_box($post) {
-    $book_template_images = justin_get_meta($post->ID, 'book_template_images');
-    $bt_price    = justin_get_meta($post->ID, 'book_template_price');
-    $bt_currency = justin_get_meta($post->ID, 'book_template_currency', 'eur');
-    $bt_buy_url  = justin_get_meta($post->ID, 'book_template_buy_url');
-    ?>
-    <p>Use this ONLY when <strong>Lightbox Layout</strong> above is set to
-    <strong>Book Template</strong>. These are the thumbnails shown on the left
-    of that layout, plus this layout's own price and checkout link &mdash;
-    fully independent from the Books meta box above, so this keeps working
-    even if the Books box is removed later.</p>
-    <?php justin_render_media_preview('Book Template images', 'book_template_images', $book_template_images, true); ?>
-
-    <p>
-        <label for="book_template_price"><strong>Price per copy</strong></label><br />
-        <input type="number" step="0.01" min="0" name="book_template_price" id="book_template_price" value="<?php echo esc_attr($bt_price); ?>" style="width:150px;" />
-        <select name="book_template_currency" id="book_template_currency">
-            <?php foreach (justin_stripe_currencies() as $code => $label) : ?>
-                <option value="<?php echo esc_attr($code); ?>" <?php selected($bt_currency, $code); ?>><?php echo esc_html($label); ?></option>
-            <?php endforeach; ?>
-        </select>
-        <br><span style="color:#666;">Set a price + your Stripe publishable/secret keys under Appearance &gt; Justin Settings to enable the in-page checkout. Leave the price at 0 to skip Stripe and just use the Buy URL below.</span>
-    </p>
-    <p>
-        <label for="book_template_buy_url"><strong>Buy URL (fallback if Stripe isn't configured)</strong></label><br />
-        <input type="url" name="book_template_buy_url" id="book_template_buy_url" value="<?php echo esc_attr($bt_buy_url); ?>" style="width:100%;" />
-    </p>
-    <?php
-}
-
-function justin_render_project_text_box($post) {
-    $body_text = justin_get_meta($post->ID, 'body_text');
-    ?>
-    <p>Use this for Text posts.</p>
-    <p>
-        <label for="body_text"><strong>Body text</strong></label><br />
-        <textarea name="body_text" id="body_text" rows="8" style="width:100%;"><?php echo esc_textarea($body_text); ?></textarea>
-    </p>
-    <?php
-}
-
-function justin_render_site_settings_box() {
-    ?>
-    <p>Use the Justin Settings page in Appearance for site-wide options.</p>
-    <?php
-}
-
-function justin_render_settings_page() {
-    $channels = get_option('justin_god_mode_channels', justin_default_god_mode_channels());
-    ?>
-    <div class="wrap">
-        <h1>Justin Settings</h1>
-        <form method="post" action="options.php">
-            <?php settings_fields('justin_settings_group'); ?>
-
-            <h2>Stripe (test mode)</h2>
-            <p>Paste your <strong>test</strong> keys from the Stripe Dashboard &rarr; Developers &rarr; API keys. Nothing here is live until you swap in your live keys later.</p>
-            <table class="form-table">
-                <tr>
-                    <th><label for="justin_stripe_publishable_key">Publishable key</label></th>
-                    <td><input type="text" style="width:420px;" id="justin_stripe_publishable_key" name="justin_stripe_publishable_key" value="<?php echo esc_attr(get_option('justin_stripe_publishable_key', '')); ?>" placeholder="pk_test_..." /></td>
-                </tr>
-                <tr>
-                    <th><label for="justin_stripe_secret_key">Secret key</label></th>
-                    <td><input type="password" style="width:420px;" id="justin_stripe_secret_key" name="justin_stripe_secret_key" value="<?php echo esc_attr(get_option('justin_stripe_secret_key', '')); ?>" placeholder="sk_test_..." autocomplete="off" /></td>
-                </tr>
-            </table>
-
-            <h2>God Mode channels</h2>
-            <p>Each row is one channel in the God Mode flip display. Paste a normal Vimeo link (e.g. <code>https://vimeo.com/123456789</code>) — it's converted to an embed automatically. Leave the URL blank to show "no signal" for that channel.</p>
-
-            <table class="widefat" style="max-width:900px;">
-                <thead>
-                    <tr>
-                        <th style="width:60px;">#</th>
-                        <th>Title</th>
-                        <th>Name</th>
-                        <th>Vimeo URL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php for ($i = 0; $i < justin_god_mode_channel_count(); $i++) :
-                        $row = $channels[$i] ?? ['title' => '', 'name' => '', 'vimeo_url' => ''];
-                        ?>
-                        <tr>
-                            <td><?php echo esc_html(str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT)); ?></td>
-                            <td>
-                                <input type="text" style="width:100%;" name="justin_god_mode_channels[<?php echo $i; ?>][title]" value="<?php echo esc_attr($row['title'] ?? ''); ?>" />
-                            </td>
-                            <td>
-                                <input type="text" style="width:100%;" name="justin_god_mode_channels[<?php echo $i; ?>][name]" value="<?php echo esc_attr($row['name'] ?? ''); ?>" />
-                            </td>
-                            <td>
-                                <input type="url" style="width:100%;" name="justin_god_mode_channels[<?php echo $i; ?>][vimeo_url]" value="<?php echo esc_attr($row['vimeo_url'] ?? ''); ?>" placeholder="https://vimeo.com/..." />
-                            </td>
-                        </tr>
-                    <?php endfor; ?>
-                </tbody>
-            </table>
-
-            <?php submit_button(); ?>
-        </form>
-    </div>
-    <?php
-}
-
-function justin_bio_customizer( $wp_customize ) {
-    $wp_customize->add_section( 'justin_bio_section', array(
-        'title'    => 'Bio Copy',
-        'priority' => 30,
-    ) );
-
-    $wp_customize->add_setting( 'justin_bio_copy', array(
-        'default'           => '',
-        'sanitize_callback' => 'wp_kses_post', // allows <a>, <em>, <strong>, etc. but strips dangerous tags/scripts
-        'transport'         => 'refresh',
-    ) );
-
-    $wp_customize->add_control( new WP_Customize_Control(
-        $wp_customize,
-        'justin_bio_copy_control',
-        array(
-            'label'    => 'Bio text (HTML links allowed, e.g. <a href="https://example.com">text</a>)',
-            'section'  => 'justin_bio_section',
-            'settings' => 'justin_bio_copy',
-            'type'     => 'textarea',
-        )
-    ) );
-}
-add_action( 'customize_register', 'justin_bio_customizer' );
-
-// FOR COMMERCIAL TEMPLATE
+/* =====================================================================
+ * 11. COMMERCIAL TEMPLATE PAGE
+ * A "Page Background Color" field, only shown on Pages using
+ * templates/template-commercial.php.
+ * ===================================================================== */
 
 if (!function_exists('justin_link_list_meta_box')) {
     add_action('add_meta_boxes', function () {
