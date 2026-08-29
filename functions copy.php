@@ -241,17 +241,21 @@ function justin_render_project_common_box($post) {
     wp_nonce_field('justin_save_project_meta', 'justin_project_meta_nonce');
     $info_text = justin_get_meta($post->ID, 'info_text');
     $hover_bg_image = justin_get_meta($post->ID, 'hover_bg_image');
+    $use_as_hover_only = justin_parse_bool(justin_get_meta($post->ID, 'use_as_hover_only'));
     $disable_info_text = justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text'));
     $layout_style = justin_get_meta($post->ID, 'layout_style', 'grid_hover');
-    // Defaults to enabled ('1') for posts that have never saved this
-    // field yet, so the auto-select-on-layout-change behavior is on by
-    // default and each post remembers if it's been turned off.
-    $auto_select_layout_category = justin_parse_bool(justin_get_meta($post->ID, 'auto_select_layout_category', '1'));
     ?>
     <p>Use this for all project types.</p>
     <p>
         <label for="info_text"><strong>Info text</strong></label><br />
         <textarea name="info_text" id="info_text" rows="4" style="width:100%;"><?php echo esc_textarea($info_text); ?></textarea>
+    </p>
+    <?php justin_render_media_preview('Hover background image', 'hover_bg_image', $hover_bg_image, false); ?>
+    <p>
+        <label>
+            <input type="checkbox" name="use_as_hover_only" value="1" <?php checked($use_as_hover_only); ?> />
+            Use as hover-only item
+        </label>
     </p>
     <p>
         <label>
@@ -268,19 +272,8 @@ function justin_render_project_common_box($post) {
             <option value="book_template" <?php selected($layout_style, 'book_template'); ?>>Book (beta)</option>
             <option value="video_direct" <?php selected($layout_style, 'video_direct'); ?>>Film</option>
             <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid (Misc)</option>
-            <option value="hover_only" <?php selected($layout_style, 'hover_only'); ?>>Hover-only Item (background image on hover)</option>
         </select>
     </p>
-    <p>
-        <label>
-            <input type="checkbox" name="auto_select_layout_category" id="auto_select_layout_category" value="1" <?php checked($auto_select_layout_category); ?> />
-            Automatically set category to match this layout (Painting / Collage / misc. / Film / Books / Uncategorized). Uncheck to keep your own category choice — useful for Photo Grid posts that don't belong in "misc."
-        </label>
-    </p>
-    <div id="justin-hover-only-field" style="display:none;">
-        <?php justin_render_media_preview('Hover background image', 'hover_bg_image', $hover_bg_image, false); ?>
-        <p style="color:#666;">This post will show only as this image on hover in the list — it won't open a lightbox. Choosing "Hover-only Item" above already marks it as hover-only; no separate checkbox needed.</p>
-    </div>
     <?php
 }
 
@@ -399,9 +392,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
 // Shows/hides each project meta box based on the selected Lightbox
 // Layout, so editors only ever see the fields relevant to whichever
 // layout they've picked. Also forces every media-field preview
-// thumbnail to a small, consistent size, AND auto-selects the category
-// mapped to certain layouts (see $layout_category_slugs below) so the
-// lightbox tint color never ends up mismatched with the layout.
+// thumbnail to a small, consistent size.
 //   - Grid + Hover (Photography/Painting/Collage) -> Gallery / Visuals
 //     box only. Its Photo Grid tag checklist stays hidden — tagging is
 //     Photo-Grid-specific, not relevant to these three.
@@ -419,26 +410,6 @@ function justin_layout_admin_polish() {
     if (!$post || $post->post_type !== 'post') {
         return;
     }
-
-    // Layout -> category slug. Only layouts listed here get their
-    // category auto-selected.
-    $layout_category_slugs = [
-        'grid_hover'          => 'photography',
-        'grid_hover_painting' => 'painting',
-        'grid_hover_collage'  => 'collage',
-        'photo_grid'          => 'misc',
-        'video_direct'        => 'film',
-        'book_template'       => 'books',
-        'hover_only'          => 'uncategorized',
-    ];
-
-    $layout_category_map = [];
-    foreach ($layout_category_slugs as $layout_value => $slug) {
-        $term = get_term_by('slug', $slug, 'category');
-        if ($term && !is_wp_error($term)) {
-            $layout_category_map[$layout_value] = (int) $term->term_id;
-        }
-    }
     ?>
     <style>
         .justin-media-preview {
@@ -455,16 +426,12 @@ function justin_layout_admin_polish() {
     </style>
     <script>
     (function () {
-        var LAYOUT_CATEGORY_MAP = <?php echo wp_json_encode($layout_category_map); ?>;
-
         document.addEventListener('DOMContentLoaded', function () {
             var layoutSelect = document.getElementById('layout_style');
             var galleryBox = document.getElementById('justin-project-gallery');
             var tagAssign = document.getElementById('justin-gallery-tag-assign');
             var filmBox = document.getElementById('justin-project-film');
             var bookTemplateBox = document.getElementById('justin-project-book-template');
-            var hoverOnlyField = document.getElementById('justin-hover-only-field');
-            var autoSelectCheckbox = document.getElementById('auto_select_layout_category');
 
             if (!layoutSelect) {
                 return;
@@ -473,7 +440,7 @@ function justin_layout_admin_polish() {
             // Layouts that use the shared 'gallery' image field.
             var GALLERY_LAYOUTS = ['grid_hover', 'grid_hover_painting', 'grid_hover_collage', 'photo_grid'];
 
-            function syncBoxVisibility() {
+            function sync() {
                 var value = layoutSelect.value;
 
                 if (galleryBox) {
@@ -493,46 +460,10 @@ function justin_layout_admin_polish() {
                 if (bookTemplateBox) {
                     bookTemplateBox.style.display = (value === 'book_template') ? '' : 'none';
                 }
-
-                if (hoverOnlyField) {
-                    hoverOnlyField.style.display = (value === 'hover_only') ? '' : 'none';
-                }
             }
 
-            // Sets the post's category to the one mapped to the newly
-            // chosen layout, via wp.data — the same store the block
-            // editor itself uses to manage post state — rather than
-            // clicking Gutenberg's own category checkboxes directly,
-            // since those are internal React-rendered markup that could
-            // change between WordPress versions. This works whether or
-            // not the Categories panel is currently open.
-            //
-            // Deliberately only wired to the 'change' event, never called
-            // on initial page load: opening an existing post for editing
-            // must never silently overwrite whatever category is already
-            // saved just because the dropdown reflects that post's
-            // existing layout.
-            function applyCategoryForLayout() {
-                if (!autoSelectCheckbox || !autoSelectCheckbox.checked) {
-                    return;
-                }
-
-                var termId = LAYOUT_CATEGORY_MAP[layoutSelect.value];
-                if (!termId) {
-                    return;
-                }
-
-                if (window.wp && wp.data && wp.data.dispatch) {
-                    wp.data.dispatch('core/editor').editPost({ categories: [termId] });
-                }
-            }
-
-            layoutSelect.addEventListener('change', function () {
-                syncBoxVisibility();
-                applyCategoryForLayout();
-            });
-
-            syncBoxVisibility();
+            layoutSelect.addEventListener('change', sync);
+            sync();
         });
     })();
     </script>
@@ -617,12 +548,12 @@ add_action('save_post_post', function ($post_id) {
         }
     }
 
-    // Determined here (before use_as_hover_only below) so hover-only
-    // status can be derived directly from the layout choice, rather
-    // than needing its own separate checkbox.
-    $saved_layout_style = 'grid_hover';
+    update_post_meta($post_id, 'use_as_hover_only', isset($_POST['use_as_hover_only']) ? '1' : '0');
+    update_post_meta($post_id, 'disable_info_text', isset($_POST['disable_info_text']) ? '1' : '0');
+    // update_post_meta($post_id, 'has_teaser', isset($_POST['has_teaser']) ? '1' : '0');
+
     if (isset($_POST['layout_style'])) {
-        $saved_layout_style = sanitize_text_field(wp_unslash($_POST['layout_style']));
+        $layout_style = sanitize_text_field(wp_unslash($_POST['layout_style']));
         $allowed_layout_styles = [
             'grid_hover',
             'grid_hover_painting',
@@ -630,21 +561,12 @@ add_action('save_post_post', function ($post_id) {
             'photo_grid',
             'video_direct',
             'book_template',
-            'hover_only',
         ];
-        if (!in_array($saved_layout_style, $allowed_layout_styles, true)) {
-            $saved_layout_style = 'grid_hover';
+        if (!in_array($layout_style, $allowed_layout_styles, true)) {
+            $layout_style = 'grid_hover';
         }
-        update_post_meta($post_id, 'layout_style', $saved_layout_style);
+        update_post_meta($post_id, 'layout_style', $layout_style);
     }
-
-    // 'Hover-only Item' is its own Lightbox Layout choice now — picking
-    // it already implies hover-only behavior, so there's no separate
-    // checkbox to tick anymore.
-    update_post_meta($post_id, 'use_as_hover_only', ($saved_layout_style === 'hover_only') ? '1' : '0');
-    update_post_meta($post_id, 'disable_info_text', isset($_POST['disable_info_text']) ? '1' : '0');
-    update_post_meta($post_id, 'auto_select_layout_category', isset($_POST['auto_select_layout_category']) ? '1' : '0');
-    // update_post_meta($post_id, 'has_teaser', isset($_POST['has_teaser']) ? '1' : '0');
 
     if (isset($_POST['gallery_image_tags'])) {
         $raw_json = wp_unslash($_POST['gallery_image_tags']);

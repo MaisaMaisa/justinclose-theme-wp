@@ -203,7 +203,6 @@ if (!function_exists('justin_layout_variant_from_style')) {
             'grid_hover'          => 'photography',
             'grid_hover_painting' => 'painting',
             'grid_hover_collage'  => 'collage',
-            // Book Template reuses the "photography" grid math/CSS.
             'book_template'       => 'photography',
         ];
 
@@ -241,6 +240,7 @@ function justin_render_project_common_box($post) {
     wp_nonce_field('justin_save_project_meta', 'justin_project_meta_nonce');
     $info_text = justin_get_meta($post->ID, 'info_text');
     $hover_bg_image = justin_get_meta($post->ID, 'hover_bg_image');
+    $use_as_hover_only = justin_parse_bool(justin_get_meta($post->ID, 'use_as_hover_only'));
     $disable_info_text = justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text'));
     $layout_style = justin_get_meta($post->ID, 'layout_style', 'grid_hover');
     // Defaults to enabled ('1') for posts that have never saved this
@@ -252,6 +252,13 @@ function justin_render_project_common_box($post) {
     <p>
         <label for="info_text"><strong>Info text</strong></label><br />
         <textarea name="info_text" id="info_text" rows="4" style="width:100%;"><?php echo esc_textarea($info_text); ?></textarea>
+    </p>
+    <?php justin_render_media_preview('Hover background image', 'hover_bg_image', $hover_bg_image, false); ?>
+    <p>
+        <label>
+            <input type="checkbox" name="use_as_hover_only" value="1" <?php checked($use_as_hover_only); ?> />
+            Use as hover-only item
+        </label>
     </p>
     <p>
         <label>
@@ -268,19 +275,14 @@ function justin_render_project_common_box($post) {
             <option value="book_template" <?php selected($layout_style, 'book_template'); ?>>Book (beta)</option>
             <option value="video_direct" <?php selected($layout_style, 'video_direct'); ?>>Film</option>
             <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid (Misc)</option>
-            <option value="hover_only" <?php selected($layout_style, 'hover_only'); ?>>Hover-only Item (background image on hover)</option>
         </select>
     </p>
     <p>
         <label>
             <input type="checkbox" name="auto_select_layout_category" id="auto_select_layout_category" value="1" <?php checked($auto_select_layout_category); ?> />
-            Automatically set category to match this layout (Painting / Collage / misc. / Film / Books / Uncategorized). Uncheck to keep your own category choice — useful for Photo Grid posts that don't belong in "misc."
+            Automatically set category to match this layout (Painting / Collage / misc. / Film / Books). Uncheck to keep your own category choice — useful for Photo Grid posts that don't belong in "misc."
         </label>
     </p>
-    <div id="justin-hover-only-field" style="display:none;">
-        <?php justin_render_media_preview('Hover background image', 'hover_bg_image', $hover_bg_image, false); ?>
-        <p style="color:#666;">This post will show only as this image on hover in the list — it won't open a lightbox. Choosing "Hover-only Item" above already marks it as hover-only; no separate checkbox needed.</p>
-    </div>
     <?php
 }
 
@@ -429,7 +431,6 @@ function justin_layout_admin_polish() {
         'photo_grid'          => 'misc',
         'video_direct'        => 'film',
         'book_template'       => 'books',
-        'hover_only'          => 'uncategorized',
     ];
 
     $layout_category_map = [];
@@ -463,7 +464,6 @@ function justin_layout_admin_polish() {
             var tagAssign = document.getElementById('justin-gallery-tag-assign');
             var filmBox = document.getElementById('justin-project-film');
             var bookTemplateBox = document.getElementById('justin-project-book-template');
-            var hoverOnlyField = document.getElementById('justin-hover-only-field');
             var autoSelectCheckbox = document.getElementById('auto_select_layout_category');
 
             if (!layoutSelect) {
@@ -492,10 +492,6 @@ function justin_layout_admin_polish() {
 
                 if (bookTemplateBox) {
                     bookTemplateBox.style.display = (value === 'book_template') ? '' : 'none';
-                }
-
-                if (hoverOnlyField) {
-                    hoverOnlyField.style.display = (value === 'hover_only') ? '' : 'none';
                 }
             }
 
@@ -554,15 +550,11 @@ add_action('save_post_post', function ($post_id) {
         return;
     }
 
-    // $text_fields = ['info_text', 'film_video_url', 'body_text', 'book_text', 'buy_url'];
     $text_fields = ['info_text', 'film_video_url', 'buy_url'];
     foreach ($text_fields as $field_name) {
         if (isset($_POST[$field_name])) {
             $value = wp_unslash($_POST[$field_name]);
             $value = ($field_name === 'buy_url') ? esc_url_raw($value) : sanitize_text_field($value);
-            // if ($field_name === 'info_text' || $field_name === 'body_text' || $field_name === 'book_text' || $field_name === 'teaser_text') {
-            //     $value = wp_kses_post(wp_unslash($_POST[$field_name]));
-            // }
             if ($field_name === 'info_text' || $field_name === 'book_text') {
                 $value = wp_kses_post(wp_unslash($_POST[$field_name]));
             }
@@ -606,7 +598,6 @@ add_action('save_post_post', function ($post_id) {
         update_post_meta($post_id, 'book_template_buy_url', esc_url_raw(wp_unslash($_POST['book_template_buy_url'])));
     }
 
-    // $image_fields = ['hover_bg_image', 'gallery', 'film_grabs', 'book_images'];
     // 'book_template_images' is separate from 'gallery', saved via the
     // Book Template meta box.
     $image_fields = ['hover_bg_image', 'gallery', 'book_template_images'];
@@ -617,12 +608,12 @@ add_action('save_post_post', function ($post_id) {
         }
     }
 
-    // Determined here (before use_as_hover_only below) so hover-only
-    // status can be derived directly from the layout choice, rather
-    // than needing its own separate checkbox.
-    $saved_layout_style = 'grid_hover';
+    update_post_meta($post_id, 'use_as_hover_only', isset($_POST['use_as_hover_only']) ? '1' : '0');
+    update_post_meta($post_id, 'disable_info_text', isset($_POST['disable_info_text']) ? '1' : '0');
+    update_post_meta($post_id, 'auto_select_layout_category', isset($_POST['auto_select_layout_category']) ? '1' : '0');
+
     if (isset($_POST['layout_style'])) {
-        $saved_layout_style = sanitize_text_field(wp_unslash($_POST['layout_style']));
+        $layout_style = sanitize_text_field(wp_unslash($_POST['layout_style']));
         $allowed_layout_styles = [
             'grid_hover',
             'grid_hover_painting',
@@ -630,21 +621,12 @@ add_action('save_post_post', function ($post_id) {
             'photo_grid',
             'video_direct',
             'book_template',
-            'hover_only',
         ];
-        if (!in_array($saved_layout_style, $allowed_layout_styles, true)) {
-            $saved_layout_style = 'grid_hover';
+        if (!in_array($layout_style, $allowed_layout_styles, true)) {
+            $layout_style = 'grid_hover';
         }
-        update_post_meta($post_id, 'layout_style', $saved_layout_style);
+        update_post_meta($post_id, 'layout_style', $layout_style);
     }
-
-    // 'Hover-only Item' is its own Lightbox Layout choice now — picking
-    // it already implies hover-only behavior, so there's no separate
-    // checkbox to tick anymore.
-    update_post_meta($post_id, 'use_as_hover_only', ($saved_layout_style === 'hover_only') ? '1' : '0');
-    update_post_meta($post_id, 'disable_info_text', isset($_POST['disable_info_text']) ? '1' : '0');
-    update_post_meta($post_id, 'auto_select_layout_category', isset($_POST['auto_select_layout_category']) ? '1' : '0');
-    // update_post_meta($post_id, 'has_teaser', isset($_POST['has_teaser']) ? '1' : '0');
 
     if (isset($_POST['gallery_image_tags'])) {
         $raw_json = wp_unslash($_POST['gallery_image_tags']);
@@ -1022,7 +1004,6 @@ class Justin_Social_Links_Widget extends WP_Widget {
     public function widget($args, $instance) {
         // Backend Widgets screen just shows a plain label while collapsed,
         // instead of live-previewing the real (icon-only) markup.
-        // if (is_admin()) {
         if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
             echo $args['before_widget'];
             echo '<p style="margin:0;padding:8px;font-weight:600;">Justin: Social Links</p>';
@@ -1092,7 +1073,6 @@ class Justin_Eyes_Link_Widget extends WP_Widget {
 
     public function widget($args, $instance) {
         if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-        // if (is_admin()) {
             echo $args['before_widget'];
             echo '<p style="margin:0;padding:8px;font-weight:600;">Justin: Eyes Emoji Link</p>';
             echo $args['after_widget'];
@@ -1370,16 +1350,6 @@ add_action('wp_enqueue_scripts', function () {
 
             wp_reset_postdata();
         }
-
-        // if ($cat_name === 'Books') {
-        //     $book_images = justin_extract_image_urls(justin_get_attachment_ids(justin_get_meta($post->ID, 'book_images')));
-
-        //     $entry['book'] = [
-        //         'images' => $book_images,
-        //         'text' => wp_kses_post(justin_get_meta($post->ID, 'book_text')),
-        //         'buyUrl' => esc_url_raw(justin_get_meta($post->ID, 'buy_url')),
-        //     ];
-        // }
 
         // Book Template: fully independent of the 'Books' category — driven
         // only by layout_style, so this keeps working even on non-Books
