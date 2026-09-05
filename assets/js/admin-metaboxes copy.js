@@ -68,145 +68,8 @@
 // });
 
 
-// jQuery(function ($) {
-//   function buildThumbMarkup(attachment) {
-//     var thumbUrl = (attachment.sizes && attachment.sizes.thumbnail)
-//       ? attachment.sizes.thumbnail.url
-//       : attachment.url;
-
-//     var $thumb = $('<div />', { class: 'justin-media-thumb', 'data-id': attachment.id });
-//     $thumb.append($('<img />', { src: thumbUrl, alt: '' }));
-//     $thumb.append($('<button />', {
-//       type: 'button',
-//       class: 'justin-media-thumb-remove',
-//       'aria-label': 'Remove image',
-//       html: '&times;'
-//     }));
-//     return $thumb;
-//   }
-
-//   function refreshSinglePreview($field, attachment) {
-//     var $preview = $field.find('.justin-media-preview');
-//     $preview.html('');
-
-//     if (attachment && attachment.url) {
-//       $preview.append($('<img />', {
-//         src: attachment.url,
-//         alt: ''
-//       }));
-//     }
-//   }
-
-//   function refreshGalleryPreview($field, attachments) {
-//     var $preview = $field.find('.justin-media-preview');
-//     $preview.html('');
-
-//     attachments.forEach(function (attachment) {
-//       if (attachment && attachment.url) {
-//         $preview.append(buildThumbMarkup(attachment));
-//       }
-//     });
-
-//     initSortable($field);
-//   }
-
-//   function syncOrderFromDOM($field) {
-//     var ids = $field.find('.justin-media-thumb').map(function () {
-//       return $(this).data('id');
-//     }).get();
-
-//     $field.find('.justin-media-value').val(ids.join(','));
-//   }
-
-//   function initSortable($field) {
-//     var $preview = $field.find('.justin-media-preview');
-//     if (!$preview.length) {
-//       return;
-//     }
-
-//     // Already initialized — just tell Sortable the DOM changed
-//     // (new/removed thumbs) rather than re-binding.
-//     if ($preview.data('justin-sortable-init')) {
-//       $preview.sortable('refresh');
-//       return;
-//     }
-
-//     $preview.sortable({
-//       items: '.justin-media-thumb',
-//       tolerance: 'pointer',
-//       placeholder: 'ui-sortable-placeholder',
-//       update: function () {
-//         syncOrderFromDOM($field);
-//       }
-//     });
-
-//     $preview.data('justin-sortable-init', true);
-//   }
-
-//   // Enable drag-reorder on every multi-image field already rendered
-//   // by PHP on page load (Gallery images, Book Template images, etc).
-//   $('.justin-media-field').each(function () {
-//     var $field = $(this);
-//     if ($field.data('multiple') === 1 || $field.data('multiple') === '1') {
-//       initSortable($field);
-//     }
-//   });
-
-//   $('body').on('click', '.justin-media-select', function (event) {
-//     event.preventDefault();
-
-//     var $button = $(this);
-//     var $field = $button.closest('.justin-media-field');
-//     var isMultiple = $field.data('multiple') === 1 || $field.data('multiple') === '1';
-//     var frame = wp.media({
-//       title: isMultiple ? 'Select images' : 'Select image',
-//       button: {
-//         text: isMultiple ? 'Use images' : 'Use image'
-//       },
-//       multiple: isMultiple
-//     });
-
-//     frame.on('select', function () {
-//       var selection = frame.state().get('selection');
-//       var attachments = selection.toJSON();
-//       var ids = attachments.map(function (item) {
-//         return item.id;
-//       });
-
-//       $field.find('.justin-media-value').val(isMultiple ? ids.join(',') : ids[0] || '');
-
-//       if (isMultiple) {
-//         refreshGalleryPreview($field, attachments);
-//       } else {
-//         refreshSinglePreview($field, attachments[0]);
-//       }
-//     });
-
-//     frame.open();
-//   });
-
-//   $('body').on('click', '.justin-media-clear', function (event) {
-//     event.preventDefault();
-
-//     var $field = $(this).closest('.justin-media-field');
-//     $field.find('.justin-media-value').val('');
-//     $field.find('.justin-media-preview').html('');
-//   });
-
-//   // Remove a single image from a multi-image field without clearing
-//   // the rest.
-//   $('body').on('click', '.justin-media-thumb-remove', function (event) {
-//     event.preventDefault();
-
-//     var $thumb = $(this).closest('.justin-media-thumb');
-//     var $field = $thumb.closest('.justin-media-field');
-//     $thumb.remove();
-//     syncOrderFromDOM($field);
-//   });
-// });
-
 jQuery(function ($) {
-  function buildThumbMarkup(attachment, existingCaption) {
+  function buildThumbMarkup(attachment) {
     var thumbUrl = (attachment.sizes && attachment.sizes.thumbnail)
       ? attachment.sizes.thumbnail.url
       : attachment.url;
@@ -219,18 +82,6 @@ jQuery(function ($) {
       'aria-label': 'Remove image',
       html: '&times;'
     }));
-
-    // existingCaption is `undefined` for fields that don't support
-    // captions (e.g. Book Template images) — only add the row when
-    // the field actually carries a captions hidden input.
-    if (existingCaption !== undefined) {
-      var cap = existingCaption || { title: '', size: '' };
-      var $capRow = $('<div />', { class: 'justin-media-caption-row' });
-      $capRow.append($('<input />', { type: 'text', class: 'justin-media-caption-title', placeholder: 'Title', value: cap.title || '' }));
-      $capRow.append($('<input />', { type: 'text', class: 'justin-media-caption-size', placeholder: 'Size', value: cap.size || '' }));
-      $thumb.append($capRow);
-    }
-
     return $thumb;
   }
 
@@ -246,37 +97,17 @@ jQuery(function ($) {
     }
   }
 
-  function getCaptionsInput($field) {
-    var $input = $field.find('.justin-media-captions-value');
-    return $input.length ? $input : null;
-  }
-
   function refreshGalleryPreview($field, attachments) {
-    var $captionsInput = getCaptionsInput($field);
-    var oldCaptions = {};
-
-    if ($captionsInput) {
-      try {
-        oldCaptions = JSON.parse($captionsInput.val() || '{}');
-      } catch (e) {
-        oldCaptions = {};
-      }
-    }
-
     var $preview = $field.find('.justin-media-preview');
     $preview.html('');
 
     attachments.forEach(function (attachment) {
       if (attachment && attachment.url) {
-        $preview.append(buildThumbMarkup(attachment, $captionsInput ? oldCaptions[attachment.id] : undefined));
+        $preview.append(buildThumbMarkup(attachment));
       }
     });
 
     initSortable($field);
-
-    if ($captionsInput) {
-      syncCaptionsFromDOM($field);
-    }
   }
 
   function syncOrderFromDOM($field) {
@@ -287,32 +118,14 @@ jQuery(function ($) {
     $field.find('.justin-media-value').val(ids.join(','));
   }
 
-  function syncCaptionsFromDOM($field) {
-    var $captionsInput = getCaptionsInput($field);
-    if (!$captionsInput) {
-      return;
-    }
-
-    var map = {};
-    $field.find('.justin-media-thumb').each(function () {
-      var $thumb = $(this);
-      var id = $thumb.data('id');
-      var title = $thumb.find('.justin-media-caption-title').val() || '';
-      var size = $thumb.find('.justin-media-caption-size').val() || '';
-      if (title || size) {
-        map[id] = { title: title, size: size };
-      }
-    });
-
-    $captionsInput.val(JSON.stringify(map));
-  }
-
   function initSortable($field) {
     var $preview = $field.find('.justin-media-preview');
     if (!$preview.length) {
       return;
     }
 
+    // Already initialized — just tell Sortable the DOM changed
+    // (new/removed thumbs) rather than re-binding.
     if ($preview.data('justin-sortable-init')) {
       $preview.sortable('refresh');
       return;
@@ -324,7 +137,6 @@ jQuery(function ($) {
       placeholder: 'ui-sortable-placeholder',
       update: function () {
         syncOrderFromDOM($field);
-        syncCaptionsFromDOM($field);
       }
     });
 
@@ -379,11 +191,6 @@ jQuery(function ($) {
     var $field = $(this).closest('.justin-media-field');
     $field.find('.justin-media-value').val('');
     $field.find('.justin-media-preview').html('');
-
-    var $captionsInput = getCaptionsInput($field);
-    if ($captionsInput) {
-      $captionsInput.val('{}');
-    }
   });
 
   // Remove a single image from a multi-image field without clearing
@@ -395,13 +202,6 @@ jQuery(function ($) {
     var $field = $thumb.closest('.justin-media-field');
     $thumb.remove();
     syncOrderFromDOM($field);
-    syncCaptionsFromDOM($field);
-  });
-
-  // Keep the hidden captions JSON in sync as the editor types.
-  $('body').on('input', '.justin-media-caption-title, .justin-media-caption-size', function () {
-    var $field = $(this).closest('.justin-media-field');
-    syncCaptionsFromDOM($field);
   });
 });
 

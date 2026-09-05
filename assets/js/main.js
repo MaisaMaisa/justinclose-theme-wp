@@ -120,6 +120,10 @@
     return Array.isArray(entry.images) ? entry.images.slice() : [];
   }
 
+  function getEntryImageCaptions(entry) {
+    return entry && Array.isArray(entry.imageCaptions) ? entry.imageCaptions : [];
+  }
+
   function getEntryInfo(entry) {
     if (!entry || entry.infoDisabled) {
       return '';
@@ -1164,6 +1168,7 @@
 
   function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls) {
     ghGrid.classList.add('gh-grid-painting');
+    var imageCaptions = getEntryImageCaptions(entry);
 
     var containerHeight = ghGrid.clientHeight || 600;
 
@@ -1282,7 +1287,10 @@
 
     var previewHtml =
         '<div class="gh-preview" id="gh-preview">' +
-          (images[0] ? '<img id="gh-preview-img" src="' + images[0] + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
+          '<div class="gh-preview-img-wrap" id="gh-preview-img-wrap">' +
+            (images[0] ? '<img id="gh-preview-img" src="' + images[0] + '" alt="' + escapeHtml(entry.text || '') + '">' : '') +
+            '<div class="gh-preview-caption" id="gh-preview-caption"></div>' +
+          '</div>' +
           '<button type="button" class="gh-info-toggle" id="gh-info-toggle" aria-label="Toggle info">ⓘ</button>' +
           '<div class="gh-info-panel" id="gh-info-panel"></div>' +
           (images.length ?
@@ -1323,6 +1331,8 @@
     var ghInfoToggle = document.getElementById('gh-info-toggle');
     var ghInfoPanel = document.getElementById('gh-info-panel');
     var ghCounter = document.getElementById('gh-counter');
+    var ghPreviewCaption = document.getElementById('gh-preview-caption');
+    var imageCaptions = getEntryImageCaptions(entry);
 
     // New, smaller, non-circular Book Template buy button — sits under
     // the text inside .gh-right-col (not fixed/floating like the default
@@ -1372,6 +1382,18 @@
             ghPreviewImg.addEventListener('load', applyLandscapeSizing, { once: true });
           }
         })();
+      }
+      if (ghPreviewCaption) {
+        var caption = imageCaptions[index];
+        if (caption && (caption.title || caption.size)) {
+          ghPreviewCaption.innerHTML =
+            '<span class="gh-preview-caption-title">' + escapeHtml(caption.title || '') + '</span>' +
+            '<span class="gh-preview-caption-size">' + escapeHtml(caption.size || '') + '</span>';
+          ghPreviewCaption.style.display = '';
+        } else {
+          ghPreviewCaption.innerHTML = '';
+          ghPreviewCaption.style.display = 'none';
+        }
       }
       if (ghCounter) {
         ghCounter.textContent = (index + 1) + '/' + images.length;

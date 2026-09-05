@@ -191,11 +191,21 @@
     min-width: 0;
 }
 
+.gh-preview-img-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    max-height: 90%;
+}
+
 .gh-preview img {
     max-width: 100%;
-    max-height: 100%;
+    max-height: calc(100% - 26px);
     object-fit: contain;
     display: block;
+    flex-shrink: 1;
+    min-height: 0;
 }
 
 .gh-stage-book .gh-right-col {
@@ -439,6 +449,33 @@
 .gh-preview img.gh-preview-img-landscape {
     max-width: 40%!important;
     height: auto!important;
+}
+
+.gh-preview-caption {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    gap: 12px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: white;
+    text-shadow: #FC0 1px 0 10px;
+    pointer-events: none;
+    z-index: 4;
+}
+
+.gh-preview-caption-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.gh-preview-caption-size {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 /* ── Collage: scrollable 2-column scatter grid ── */

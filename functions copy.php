@@ -99,12 +99,7 @@ if (!function_exists('justin_parse_bool')) {
 }
 
 if (!function_exists('justin_render_media_preview')) {
-    // $captions_field_name / $captions_map: optional, only used for
-    // multi-image fields that want a Title + Size caption under each
-    // thumbnail (currently just Gallery images). Captions are keyed by
-    // attachment ID so they follow the image through reorders and
-    // survive re-adding a previously removed image.
-    function justin_render_media_preview($label, $field_name, $value, $multiple = false, $captions_field_name = null, $captions_map = []) {
+    function justin_render_media_preview($label, $field_name, $value, $multiple = false) {
         $input_value = $multiple ? (string) $value : (string) absint($value);
         $preview_html = '';
 
@@ -115,17 +110,8 @@ if (!function_exists('justin_render_media_preview')) {
                 if ($thumb) {
                     $preview_html .= '<div class="justin-media-thumb" data-id="' . esc_attr($id) . '">'
                         . '<img src="' . esc_url($thumb) . '" alt="" />'
-                        . '<button type="button" class="justin-media-thumb-remove" aria-label="Remove image">&times;</button>';
-
-                    if ($captions_field_name) {
-                        $cap = $captions_map[$id] ?? ['title' => '', 'size' => ''];
-                        $preview_html .= '<div class="justin-media-caption-row">'
-                            . '<input type="text" class="justin-media-caption-title" placeholder="Title" value="' . esc_attr($cap['title'] ?? '') . '" />'
-                            . '<input type="text" class="justin-media-caption-size" placeholder="Size" value="' . esc_attr($cap['size'] ?? '') . '" />'
-                            . '</div>';
-                    }
-
-                    $preview_html .= '</div>';
+                        . '<button type="button" class="justin-media-thumb-remove" aria-label="Remove image">&times;</button>'
+                        . '</div>';
                 }
             }
         } else {
@@ -139,9 +125,6 @@ if (!function_exists('justin_render_media_preview')) {
         <p><strong><?php echo esc_html($label); ?></strong></p>
         <div class="justin-media-field" data-multiple="<?php echo $multiple ? '1' : '0'; ?>">
             <input type="hidden" class="justin-media-value" name="<?php echo esc_attr($field_name); ?>" value="<?php echo esc_attr($input_value); ?>" />
-            <?php if ($captions_field_name) : ?>
-                <input type="hidden" class="justin-media-captions-value" name="<?php echo esc_attr($captions_field_name); ?>" value='<?php echo esc_attr(wp_json_encode($captions_map)); ?>' />
-            <?php endif; ?>
             <div class="justin-media-preview"><?php echo $preview_html; ?></div>
             <div class="justin-media-actions">
                 <button type="button" class="button justin-media-select"><?php echo $multiple ? 'Choose images' : 'Choose image'; ?></button>
@@ -311,15 +294,9 @@ function justin_render_project_gallery_box($post) {
     if (!is_array($custom_tags)) {
         $custom_tags = [];
     }
-
-    $gallery_captions_raw = justin_get_meta($post->ID, 'gallery_image_captions', '{}');
-    $gallery_captions_map = json_decode($gallery_captions_raw, true);
-    if (!is_array($gallery_captions_map)) {
-        $gallery_captions_map = [];
-    }
     ?>
     <p>Used for Photography, Painting, and Collage, and Photo Grid content.</p>
-    <?php justin_render_media_preview('Gallery images', 'gallery', $gallery, true, 'gallery_image_captions', $gallery_captions_map); ?>
+    <?php justin_render_media_preview('Gallery images', 'gallery', $gallery, true); ?>
 
     <div id="justin-gallery-tag-assign" data-tags='<?php echo esc_attr(wp_json_encode($all_tags)); ?>' data-custom-tags='<?php echo esc_attr(wp_json_encode($custom_tags)); ?>'>
         <p><strong>Photo Grid tags</strong> <span style="color:#777;">(only used when Lightbox Layout = Photo Grid)</span></p>
@@ -419,7 +396,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
     if ($hook === 'post.php' || $hook === 'post-new.php') {
         wp_enqueue_media();
         wp_enqueue_script('jquery');
-        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.5', true);
+        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.4', true);
         wp_localize_script('justin-admin-metaboxes', 'JUSTIN_ADMIN', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce('justin_photo_grid_tag_nonce'),
@@ -538,35 +515,6 @@ function justin_layout_admin_polish() {
             height: 80px;
             border: 1px dashed #aaa;
             background: #f0f0f1;
-        }
-        .justin-media-preview {
-            gap: 12px;
-        }
-        .justin-media-thumb {
-            display: flex;
-            flex-direction: column;
-            width: 160px;
-            flex-shrink: 0;
-        }
-        .justin-media-thumb img {
-            width: 160px;
-            height: 160px;
-        }
-        .justin-media-caption-row {
-            display: flex;
-            gap: 4px;
-            margin-top: 4px;
-        }
-        .justin-media-caption-title {
-            flex: 1;
-            min-width: 0;
-            font-size: 12px;
-            padding: 4px 6px;
-        }
-        .justin-media-caption-size {
-            width: 60px;
-            font-size: 12px;
-            padding: 4px 6px;
         }
     </style>
     <script>
@@ -829,28 +777,6 @@ add_action('save_post_post', function ($post_id) {
         }
 
         update_post_meta($post_id, 'gallery_image_tags', wp_json_encode($clean));
-    }
-
-    if (isset($_POST['gallery_image_captions'])) {
-        $raw_captions_json = wp_unslash($_POST['gallery_image_captions']);
-        $decoded_captions = json_decode($raw_captions_json, true);
-        $clean_captions = [];
-
-        if (is_array($decoded_captions)) {
-            foreach ($decoded_captions as $image_id => $caption) {
-                $image_id = absint($image_id);
-                if (!$image_id || !is_array($caption)) {
-                    continue;
-                }
-                $title = isset($caption['title']) ? sanitize_text_field($caption['title']) : '';
-                $size  = isset($caption['size']) ? sanitize_text_field($caption['size']) : '';
-                if ($title !== '' || $size !== '') {
-                    $clean_captions[$image_id] = ['title' => $title, 'size' => $size];
-                }
-            }
-        }
-
-        update_post_meta($post_id, 'gallery_image_captions', wp_json_encode($clean_captions));
     }
 });
 
@@ -1584,26 +1510,7 @@ add_action('wp_enqueue_scripts', function () {
 
     foreach ($posts as $post) {
         $cat_name = justin_primary_category_name($post->ID);
-        $gallery_ids = justin_get_attachment_ids(justin_get_meta($post->ID, 'gallery'));
-        $images = justin_extract_image_urls($gallery_ids);
-
-        $gallery_captions_raw = justin_get_meta($post->ID, 'gallery_image_captions', '{}');
-        $gallery_captions_map = json_decode($gallery_captions_raw, true);
-        if (!is_array($gallery_captions_map)) {
-            $gallery_captions_map = [];
-        }
-
-        // Aligned 1:1 with $images by position, so main.js can read
-        // imageCaptions[i] for images[i] without needing the
-        // attachment ID on the frontend.
-        $image_captions = [];
-        foreach ($gallery_ids as $attachment_id) {
-            $cap = $gallery_captions_map[$attachment_id] ?? null;
-            $image_captions[] = [
-                'title' => $cap['title'] ?? '',
-                'size'  => $cap['size'] ?? '',
-            ];
-        }
+        $images = justin_extract_image_urls(justin_get_attachment_ids(justin_get_meta($post->ID, 'gallery')));
         $film_images = justin_extract_image_urls(justin_get_attachment_ids(justin_get_meta($post->ID, 'film_grabs')));
         $hover_only = justin_parse_bool(justin_get_meta($post->ID, 'use_as_hover_only'));
         $hover_bg_image = absint(justin_get_meta($post->ID, 'hover_bg_image'));
@@ -1635,7 +1542,6 @@ add_action('wp_enqueue_scripts', function () {
             'info' => wp_kses_post(justin_get_meta($post->ID, 'info_text')),
             'infoDisabled' => justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text')),
             'images' => $images,
-            'imageCaptions' => $image_captions,
             'bgImage' => $hover_only && $hover_bg_image ? justin_normalize_image_url($hover_bg_image) : '',
             'hoverLink' => $hover_only ? esc_url_raw(justin_get_meta($post->ID, 'hover_link_url')) : '',
             'hoverOnly' => $hover_only,
