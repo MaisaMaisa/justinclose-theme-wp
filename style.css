@@ -460,7 +460,7 @@ Author URI: https://maisaimamovic.eu/
 }
 
 .gh-grid {
-  width: 250px;
+  width: 300px;
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(var(--gh-cols, 2), 1fr);
@@ -1667,6 +1667,7 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
   font-size: 14px;
   text-transform: uppercase;
   font-weight: 600;
+  background: transparent;
   color: var(--pg-nav-fg);
   text-shadow: #FC0 1px 0 10px;
   border: none;
@@ -1677,13 +1678,16 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
   transition: background 0.15s ease;
 }
 
+.pg-reset:hover {
+  background: var(--pg-nav-bg);
+}
+
 .pg-info-btn {
   background: var(--pg-accent);
   color: #111;
 }
 
 .pg-info-btn:hover,
-.pg-reset:hover,
 .pg-dropdown-toggle:hover {
   background: rgba(255, 255, 255, 0.16);
 }

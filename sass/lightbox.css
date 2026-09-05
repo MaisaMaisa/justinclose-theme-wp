@@ -131,7 +131,7 @@
 }
 
 .gh-grid {
-  width: 250px;
+  width: 300px;
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(var(--gh-cols, 2), 1fr);

@@ -396,7 +396,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
     if ($hook === 'post.php' || $hook === 'post-new.php') {
         wp_enqueue_media();
         wp_enqueue_script('jquery');
-        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.3', true);
+        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.4', true);
         wp_localize_script('justin-admin-metaboxes', 'JUSTIN_ADMIN', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce('justin_photo_grid_tag_nonce'),

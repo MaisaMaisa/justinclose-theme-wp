@@ -1225,7 +1225,7 @@
       var columns = 2;
 
       if (!isCollage) {
-        var grid = computeOptimalGrid(containerWidth, containerHeight, images.length, aspectRatio, 2, 6);
+        var grid = computeOptimalGrid(containerWidth, containerHeight, images.length, aspectRatio, 2, 10);
         columns = grid.cols;
         ghGrid.style.setProperty('--gh-cols', columns);
         ghGrid.style.gridAutoFlow = 'column';
