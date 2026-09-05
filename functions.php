@@ -1537,7 +1537,7 @@ add_action('wp_enqueue_scripts', function () {
 
         $entry = [
             'id' => $post->ID,
-            'text' => get_the_title($post),
+            'text' => html_entity_decode(get_the_title($post), ENT_QUOTES, 'UTF-8'),
             'cat' => $cat_name,
             'info' => wp_kses_post(justin_get_meta($post->ID, 'info_text')),
             'infoDisabled' => justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text')),
@@ -1580,7 +1580,7 @@ add_action('wp_enqueue_scripts', function () {
                 // is 0, main.js falls back to plain buyUrl behavior.
                 'priceCents' => (int) round($price_major * 100),
                 'currency'   => $currency,
-                'title'      => get_the_title($post),
+                'title'      => html_entity_decode(get_the_title($post), ENT_QUOTES, 'UTF-8'),
                 'images'     => justin_extract_image_urls($book_template_ids),
             ];
 
@@ -1614,7 +1614,7 @@ add_action('wp_enqueue_scripts', function () {
                 'buyUrl'     => $bt_buy_url,
                 'priceCents' => (int) round($bt_price_major * 100),
                 'currency'   => $bt_currency,
-                'title'      => get_the_title($post),
+                'title'      => html_entity_decode(get_the_title($post), ENT_QUOTES, 'UTF-8'),
             ];
 
             wp_reset_postdata();
