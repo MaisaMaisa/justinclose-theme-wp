@@ -1791,6 +1791,7 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
 }
 
 .pg-tag-btn {
+  font-family: "Geist Mono";
   text-transform: uppercase;
   font-size: 14px;
   font-weight: 600;

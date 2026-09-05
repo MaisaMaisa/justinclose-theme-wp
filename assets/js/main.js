@@ -752,6 +752,9 @@
     summary.addEventListener('click', function (event) {
       event.preventDefault();
       if (isHoverOnly(entry)) {
+        if (entry.hoverLink) {
+          window.open(entry.hoverLink, '_blank', 'noopener');
+        }
         return;
       }
       openEntry(index);

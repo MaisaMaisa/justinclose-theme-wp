@@ -277,6 +277,11 @@ function justin_render_project_common_box($post) {
     <div id="justin-hover-only-field" style="display:none;">
         <?php justin_render_media_preview('Hover background image', 'hover_bg_image', $hover_bg_image, false); ?>
         <p style="color:#666;">This post will show only as this image on hover in the list — it won't open a lightbox. Choosing "Hover-only Item" above already marks it as hover-only; no separate checkbox needed.</p>
+        <p>
+            <label for="hover_link_url"><strong>External link</strong></label><br />
+            <input type="url" name="hover_link_url" id="hover_link_url" value="<?php echo esc_attr(justin_get_meta($post->ID, 'hover_link_url')); ?>" style="width:100%;" placeholder="https://example.com" />
+        </p>
+        <p style="color:#666;">If set, clicking this item in the list opens this link in a new tab instead of a lightbox. The hover background image behavior above is unaffected.</p>
     </div>
     <?php
 }
@@ -661,8 +666,7 @@ add_action('save_post_post', function ($post_id) {
         return;
     }
 
-    // $text_fields = ['info_text', 'film_video_url', 'body_text', 'book_text', 'buy_url'];
-    $text_fields = ['info_text', 'film_video_url', 'buy_url'];
+    $text_fields = ['info_text', 'film_video_url', 'buy_url', 'hover_link_url'];
     foreach ($text_fields as $field_name) {
         if (isset($_POST[$field_name])) {
             $value = wp_unslash($_POST[$field_name]);
@@ -673,7 +677,7 @@ add_action('save_post_post', function ($post_id) {
             if ($field_name === 'info_text' || $field_name === 'book_text') {
                 $value = wp_kses_post(wp_unslash($_POST[$field_name]));
             }
-            if ($field_name === 'film_video_url') {
+            if ($field_name === 'film_video_url' || $field_name === 'hover_link_url') {
                 $value = esc_url_raw($value);
             }
             update_post_meta($post_id, $field_name, $value);
@@ -1539,6 +1543,7 @@ add_action('wp_enqueue_scripts', function () {
             'infoDisabled' => justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text')),
             'images' => $images,
             'bgImage' => $hover_only && $hover_bg_image ? justin_normalize_image_url($hover_bg_image) : '',
+            'hoverLink' => $hover_only ? esc_url_raw(justin_get_meta($post->ID, 'hover_link_url')) : '',
             'hoverOnly' => $hover_only,
             'layoutStyle' => $layout_style,
             'layoutVariant' => justin_layout_variant_from_style($layout_style),

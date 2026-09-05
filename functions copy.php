@@ -108,7 +108,10 @@ if (!function_exists('justin_render_media_preview')) {
             foreach ($ids as $id) {
                 $thumb = wp_get_attachment_image_url($id, 'thumbnail');
                 if ($thumb) {
-                    $preview_html .= '<img src="' . esc_url($thumb) . '" alt="" />';
+                    $preview_html .= '<div class="justin-media-thumb" data-id="' . esc_attr($id) . '">'
+                        . '<img src="' . esc_url($thumb) . '" alt="" />'
+                        . '<button type="button" class="justin-media-thumb-remove" aria-label="Remove image">&times;</button>'
+                        . '</div>';
                 }
             }
         } else {
@@ -388,7 +391,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
     if ($hook === 'post.php' || $hook === 'post-new.php') {
         wp_enqueue_media();
         wp_enqueue_script('jquery');
-        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.2', true);
+        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.3', true);
         wp_localize_script('justin-admin-metaboxes', 'JUSTIN_ADMIN', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce('justin_photo_grid_tag_nonce'),
@@ -481,6 +484,32 @@ function justin_layout_admin_polish() {
             height: 80px;
             object-fit: cover;
             display: block;
+        }
+        .justin-media-thumb {
+            position: relative;
+            cursor: move;
+        }
+        .justin-media-thumb-remove {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            line-height: 18px;
+            padding: 0;
+            border-radius: 50%;
+            border: 1px solid black;
+            background: #fff;
+            color: black;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .justin-media-preview .ui-sortable-placeholder {
+            width: 80px;
+            height: 80px;
+            border: 1px dashed #aaa;
+            background: #f0f0f1;
         }
     </style>
     <script>
