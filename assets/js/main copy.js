@@ -733,21 +733,6 @@
 
       elements.navLine.appendChild(nav);
     });
-
-    var resetSpan = document.createElement('span');
-    resetSpan.className = 'cat-reset';
-    if (state.activeCategory) {
-      resetSpan.classList.add('is-visible');
-    }
-
-    resetSpan.addEventListener('click', function () {
-      state.activeCategory = '';
-      setBioText(siteBio);
-      renderNav();
-      renderList();
-    });
-
-    elements.navLine.appendChild(resetSpan);
   }
 
   function createListItem(entry, index) {

@@ -49,6 +49,33 @@
     color: #0045bd;
 }
 
+#nav-line span.cat-reset {
+    visibility: hidden;
+    cursor: pointer;
+    padding: 0 15px;
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 16px; // reserves consistent vertical space whether shown or not
+}
+
+#nav-line span.cat-reset::before {
+    content: "+";
+    display: inline-block;
+    color: #0045bd;
+    font-size: 20px;
+    transform: rotate(45deg);
+}
+
+#nav-line span.cat-reset.is-visible {
+    visibility: visible;
+}
+
+#nav-line span.cat-reset:hover::before {
+    color: #000;
+}
+
 @media (max-width: 700px) {
     #nav-line {
         display: none;
