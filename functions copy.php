@@ -229,16 +229,16 @@ if (!function_exists('justin_layout_variant_from_style')) {
 
 if (!function_exists('justin_register_meta_boxes')) {
     function justin_register_meta_boxes() {
-        add_meta_box('justin-project-common', 'Project Common', 'justin_render_project_common_box', 'post', 'normal', 'high');
+        add_meta_box('justin-project-common', 'Lightbox Layout', 'justin_render_project_common_box', 'post', 'normal', 'high');
         add_meta_box('justin-project-gallery', 'Gallery / Visuals', 'justin_render_project_gallery_box', 'post', 'normal', 'default');
         add_meta_box('justin-project-film', 'Film', 'justin_render_project_film_box', 'post', 'normal', 'default');
-        add_meta_box('justin-project-books', 'Books', 'justin_render_project_books_box', 'post', 'normal', 'default');
+        add_meta_box('justin-project-books', 'Book Template 1', 'justin_render_project_books_box', 'post', 'normal', 'default');
         // Separate box for Book Template's own thumbnail set, kept
         // apart from Gallery/Visuals so its Photo Grid tag UI never shows
         // up here. Only relevant when Lightbox Layout = Book Template
         // (hidden otherwise via justin_layout_admin_polish() below, along
         // with every other layout-specific meta box).
-        add_meta_box('justin-project-book-template', 'Book Template', 'justin_render_project_book_template_box', 'post', 'normal', 'default');
+        add_meta_box('justin-project-book-template', 'Book Template 2', 'justin_render_project_book_template_box', 'post', 'normal', 'default');
     }
 }
 
@@ -246,28 +246,15 @@ add_action('add_meta_boxes', 'justin_register_meta_boxes');
 
 function justin_render_project_common_box($post) {
     wp_nonce_field('justin_save_project_meta', 'justin_project_meta_nonce');
-    $info_text = justin_get_meta($post->ID, 'info_text');
     $hover_bg_image = justin_get_meta($post->ID, 'hover_bg_image');
-    $disable_info_text = justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text'));
     $layout_style = justin_get_meta($post->ID, 'layout_style', 'grid_hover');
     // Defaults to enabled ('1') for posts that have never saved this
     // field yet, so the auto-select-on-layout-change behavior is on by
     // default and each post remembers if it's been turned off.
     $auto_select_layout_category = justin_parse_bool(justin_get_meta($post->ID, 'auto_select_layout_category', '1'));
     ?>
-    <p>Use this for all project types.</p>
     <p>
-        <label for="info_text"><strong>Info text</strong></label><br />
-        <textarea name="info_text" id="info_text" rows="4" style="width:100%;"><?php echo esc_textarea($info_text); ?></textarea>
-    </p>
-    <p>
-        <label>
-            <input type="checkbox" name="disable_info_text" value="1" <?php checked($disable_info_text); ?> />
-            Disable info text (hides the ⓘ info panel entirely, even if Info text above has content)
-        </label>
-    </p>
-    <p>
-    <label for="layout_style"><strong>Lightbox Layout</strong></label><br />
+    <label for="layout_style"><strong>Choose from the dropdown:</strong></label><br />
         <select name="layout_style" id="layout_style">
             <option value="grid_hover" <?php selected($layout_style, 'grid_hover'); ?>>Photography</option>
             <option value="grid_hover_painting" <?php selected($layout_style, 'grid_hover_painting'); ?>>Painting</option>
@@ -319,10 +306,22 @@ function justin_render_project_gallery_box($post) {
 
 function justin_render_project_film_box($post) {
     $film_video_url = justin_get_meta($post->ID, 'film_video_url');
+    $info_text = justin_get_meta($post->ID, 'info_text');
+    $disable_info_text = justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text'));
     ?>
     <p>
         <label for="film_video_url"><strong>Vimeo or YouTube URL</strong></label><br />
         <input type="url" name="film_video_url" id="film_video_url" value="<?php echo esc_attr($film_video_url); ?>" style="width:100%;" placeholder="https://vimeo.com/... or https://youtube.com/watch?v=..." />
+    </p>
+    <p>
+        <label for="info_text"><strong>Info text</strong></label><br />
+        <textarea name="info_text" id="info_text" rows="4" style="width:100%;"><?php echo esc_textarea($info_text); ?></textarea>
+    </p>
+    <p>
+        <label>
+            <input type="checkbox" name="disable_info_text" value="1" <?php checked($disable_info_text); ?> />
+            Disable info text (hides the ⓘ info panel entirely, even if Info text above has content)
+        </label>
     </p>
     <?php
 }
@@ -332,7 +331,7 @@ function justin_render_project_books_box($post) {
     $price    = justin_get_meta($post->ID, 'buy_price');
     $currency = justin_get_meta($post->ID, 'buy_currency', 'eur');
     ?>
-    <p>Use this for Books posts. The book's content now comes straight from the
+    <p>With this one: content now comes straight from the
     main post editor above &mdash; write/format it there (images, paragraphs,
     etc.) and it will be shown as the lightbox background.</p>
     <p>
@@ -362,11 +361,8 @@ function justin_render_project_book_template_box($post) {
     $bt_currency = justin_get_meta($post->ID, 'book_template_currency', 'eur');
     $bt_buy_url  = justin_get_meta($post->ID, 'book_template_buy_url');
     ?>
-    <p>Use this ONLY when <strong>Lightbox Layout</strong> above is set to
-    <strong>Book Template</strong>. These are the thumbnails shown on the left
-    of that layout, plus this layout's own price and checkout link &mdash;
-    fully independent from the Books meta box above, so this keeps working
-    even if the Books box is removed later.</p>
+    <p>Similar to Photography,etc: thumbnails shown on the left
+    of that layout, main image to the right + text + but me button underneath.</p>
     <?php justin_render_media_preview('Book Template images', 'book_template_images', $book_template_images, true); ?>
 
     <p>
@@ -436,9 +432,8 @@ add_action('admin_enqueue_scripts', function ($hook) {
 //   - Photo Grid (Misc) -> Gallery / Visuals box AND its Photo Grid
 //     tag checklist.
 //   - Video (Film) -> Film box.
-//   - Book Template -> Book Template box.
-// The Books box is intentionally left untouched (always visible) since
-// it's tied to the Books category workflow, not to Lightbox Layout.
+//   - Book Template -> Book Template 1 (Books box) AND Book Template 2
+//     (Book Template box), together.
 add_action('admin_head-post.php', 'justin_layout_admin_polish');
 add_action('admin_head-post-new.php', 'justin_layout_admin_polish');
 
@@ -447,6 +442,13 @@ function justin_layout_admin_polish() {
     if (!$post || $post->post_type !== 'post') {
         return;
     }
+
+    // True only for a post that's never been saved yet (WordPress creates
+    // an 'auto-draft' row the moment you open "Add New"). Used below to
+    // apply the layout's default category once on load for brand-new
+    // posts only — existing posts keep their already-saved category
+    // untouched unless the editor changes the layout themselves.
+    $is_new_post = ($post->post_status === 'auto-draft');
 
     // Layout -> category slug. Only layouts listed here get their
     // category auto-selected.
@@ -484,12 +486,14 @@ function justin_layout_admin_polish() {
     <script>
     (function () {
         var LAYOUT_CATEGORY_MAP = <?php echo wp_json_encode($layout_category_map); ?>;
+        var IS_NEW_POST = <?php echo $is_new_post ? 'true' : 'false'; ?>;
 
         document.addEventListener('DOMContentLoaded', function () {
             var layoutSelect = document.getElementById('layout_style');
             var galleryBox = document.getElementById('justin-project-gallery');
             var tagAssign = document.getElementById('justin-gallery-tag-assign');
             var filmBox = document.getElementById('justin-project-film');
+            var booksBox = document.getElementById('justin-project-books');
             var bookTemplateBox = document.getElementById('justin-project-book-template');
             var hoverOnlyField = document.getElementById('justin-hover-only-field');
             var autoSelectCheckbox = document.getElementById('auto_select_layout_category');
@@ -503,19 +507,36 @@ function justin_layout_admin_polish() {
 
             function syncBoxVisibility() {
                 var value = layoutSelect.value;
+                var shouldShowGallery = (GALLERY_LAYOUTS.indexOf(value) !== -1);
 
                 if (galleryBox) {
-                    galleryBox.style.display = (GALLERY_LAYOUTS.indexOf(value) !== -1) ? '' : 'none';
+                    galleryBox.style.display = shouldShowGallery ? '' : 'none';
+
+                    // WordPress meta boxes track their own open/closed state
+                    // separately from display (a "closed" class, toggled by the
+                    // caret in the box header and remembered per-user in the
+                    // database). That's independent of the layout-based show/hide
+                    // above, so if this box was ever manually collapsed, it stays
+                    // collapsed forever even when a gallery layout makes it visible
+                    // again. Force it back open whenever we're showing it.
+                    if (shouldShowGallery && galleryBox.classList.contains('closed')) {
+                        var galleryToggle = galleryBox.querySelector('.handlediv');
+                        if (galleryToggle) {
+                            galleryToggle.click();
+                        }
+                    }
                 }
 
-                // Photo Grid tag checklist: only makes sense when tiles
-                // are actually filterable by tag, i.e. Photo Grid itself.
                 if (tagAssign) {
                     tagAssign.style.display = (value === 'photo_grid') ? '' : 'none';
                 }
 
                 if (filmBox) {
                     filmBox.style.display = (value === 'video_direct') ? '' : 'none';
+                }
+
+                if (booksBox) {
+                    booksBox.style.display = (value === 'book_template') ? '' : 'none';
                 }
 
                 if (bookTemplateBox) {
@@ -527,19 +548,6 @@ function justin_layout_admin_polish() {
                 }
             }
 
-            // Sets the post's category to the one mapped to the newly
-            // chosen layout, via wp.data — the same store the block
-            // editor itself uses to manage post state — rather than
-            // clicking Gutenberg's own category checkboxes directly,
-            // since those are internal React-rendered markup that could
-            // change between WordPress versions. This works whether or
-            // not the Categories panel is currently open.
-            //
-            // Deliberately only wired to the 'change' event, never called
-            // on initial page load: opening an existing post for editing
-            // must never silently overwrite whatever category is already
-            // saved just because the dropdown reflects that post's
-            // existing layout.
             function applyCategoryForLayout() {
                 if (!autoSelectCheckbox || !autoSelectCheckbox.checked) {
                     return;
@@ -561,6 +569,48 @@ function justin_layout_admin_polish() {
             });
 
             syncBoxVisibility();
+
+            // New posts only: the layout dropdown already defaults to
+            // Photography, so apply its matching category once on load too,
+            // instead of leaving Categories empty until the editor manually
+            // touches the dropdown. Existing posts are untouched here — this
+            // only runs when the post has never been saved before.
+            //
+            // Gutenberg's data store isn't guaranteed ready this early, and even
+            // once it exists it can still overwrite an early edit when it finishes
+            // initializing from the post's actual saved data (empty categories for
+            // a brand-new post). So instead of a single timed attempt, poll until
+            // the store confirms the category has actually stuck, then stop.
+            if (IS_NEW_POST) {
+                var applyAttempts = 0;
+                var maxApplyAttempts = 50; // ~5 seconds at 100ms
+
+                var applyInterval = setInterval(function () {
+                    applyAttempts += 1;
+
+                    var storeReady = window.wp && wp.data && wp.data.select && wp.data.dispatch && wp.data.select('core/editor');
+
+                    if (storeReady) {
+                        var termId = LAYOUT_CATEGORY_MAP[layoutSelect.value];
+                        var currentCats = wp.data.select('core/editor').getEditedPostAttribute('categories') || [];
+                        var shouldApply = autoSelectCheckbox && autoSelectCheckbox.checked && termId;
+
+                        if (shouldApply && currentCats.indexOf(termId) === -1) {
+                            wp.data.dispatch('core/editor').editPost({ categories: [termId] });
+                        }
+
+                        // Stop once it's confirmed applied, or once there's nothing
+                        // left to apply (checkbox off / no mapped category).
+                        if (!shouldApply || currentCats.indexOf(termId) !== -1) {
+                            clearInterval(applyInterval);
+                        }
+                    }
+
+                    if (applyAttempts >= maxApplyAttempts) {
+                        clearInterval(applyInterval);
+                    }
+                }, 100);
+            }
         });
     })();
     </script>
@@ -1324,30 +1374,30 @@ add_action('widgets_init', function () {
  * 9. CUSTOMIZER
  * ===================================================================== */
 
-function justin_bio_customizer( $wp_customize ) {
-    $wp_customize->add_section( 'justin_bio_section', array(
-        'title'    => 'Bio Copy',
-        'priority' => 30,
-    ) );
+// function justin_bio_customizer( $wp_customize ) {
+//     $wp_customize->add_section( 'justin_bio_section', array(
+//         'title'    => 'Bio Copy',
+//         'priority' => 30,
+//     ) );
 
-    $wp_customize->add_setting( 'justin_bio_copy', array(
-        'default'           => '',
-        'sanitize_callback' => 'wp_kses_post', // allows <a>, <em>, <strong>, etc. but strips dangerous tags/scripts
-        'transport'         => 'refresh',
-    ) );
+//     $wp_customize->add_setting( 'justin_bio_copy', array(
+//         'default'           => '',
+//         'sanitize_callback' => 'wp_kses_post', // allows <a>, <em>, <strong>, etc. but strips dangerous tags/scripts
+//         'transport'         => 'refresh',
+//     ) );
 
-    $wp_customize->add_control( new WP_Customize_Control(
-        $wp_customize,
-        'justin_bio_copy_control',
-        array(
-            'label'    => 'Bio text (HTML links allowed, e.g. <a href="https://example.com">text</a>)',
-            'section'  => 'justin_bio_section',
-            'settings' => 'justin_bio_copy',
-            'type'     => 'textarea',
-        )
-    ) );
-}
-add_action( 'customize_register', 'justin_bio_customizer' );
+//     $wp_customize->add_control( new WP_Customize_Control(
+//         $wp_customize,
+//         'justin_bio_copy_control',
+//         array(
+//             'label'    => 'Bio text (HTML links allowed, e.g. <a href="https://example.com">text</a>)',
+//             'section'  => 'justin_bio_section',
+//             'settings' => 'justin_bio_copy',
+//             'type'     => 'textarea',
+//         )
+//     ) );
+// }
+// add_action( 'customize_register', 'justin_bio_customizer' );
 
 
 /* =====================================================================

@@ -1,90 +1,4 @@
-// jQuery(function ($) {
-//   function refreshSinglePreview($field, attachment) {
-//     var $preview = $field.find('.justin-media-preview');
-//     $preview.html('');
-
-//     if (attachment && attachment.url) {
-//       $preview.append($('<img />', {
-//         src: attachment.url,
-//         alt: ''
-//       }));
-//     }
-//   }
-
-//   function refreshGalleryPreview($field, attachments) {
-//     var $preview = $field.find('.justin-media-preview');
-//     $preview.html('');
-
-//     attachments.forEach(function (attachment) {
-//       if (attachment && attachment.url) {
-//         $preview.append($('<img />', {
-//           src: attachment.url,
-//           alt: ''
-//         }));
-//       }
-//     });
-//   }
-
-//   $('body').on('click', '.justin-media-select', function (event) {
-//     event.preventDefault();
-
-//     var $button = $(this);
-//     var $field = $button.closest('.justin-media-field');
-//     var isMultiple = $field.data('multiple') === 1 || $field.data('multiple') === '1';
-//     var frame = wp.media({
-//       title: isMultiple ? 'Select images' : 'Select image',
-//       button: {
-//         text: isMultiple ? 'Use images' : 'Use image'
-//       },
-//       multiple: isMultiple
-//     });
-
-//     frame.on('select', function () {
-//       var selection = frame.state().get('selection');
-//       var attachments = selection.toJSON();
-//       var ids = attachments.map(function (item) {
-//         return item.id;
-//       });
-
-//       $field.find('.justin-media-value').val(isMultiple ? ids.join(',') : ids[0] || '');
-
-//       if (isMultiple) {
-//         refreshGalleryPreview($field, attachments);
-//       } else {
-//         refreshSinglePreview($field, attachments[0]);
-//       }
-//     });
-
-//     frame.open();
-//   });
-
-//   $('body').on('click', '.justin-media-clear', function (event) {
-//     event.preventDefault();
-
-//     var $field = $(this).closest('.justin-media-field');
-//     $field.find('.justin-media-value').val('');
-//     $field.find('.justin-media-preview').html('');
-//   });
-// });
-
-
 jQuery(function ($) {
-  function buildThumbMarkup(attachment) {
-    var thumbUrl = (attachment.sizes && attachment.sizes.thumbnail)
-      ? attachment.sizes.thumbnail.url
-      : attachment.url;
-
-    var $thumb = $('<div />', { class: 'justin-media-thumb', 'data-id': attachment.id });
-    $thumb.append($('<img />', { src: thumbUrl, alt: '' }));
-    $thumb.append($('<button />', {
-      type: 'button',
-      class: 'justin-media-thumb-remove',
-      'aria-label': 'Remove image',
-      html: '&times;'
-    }));
-    return $thumb;
-  }
-
   function refreshSinglePreview($field, attachment) {
     var $preview = $field.find('.justin-media-preview');
     $preview.html('');
@@ -103,54 +17,13 @@ jQuery(function ($) {
 
     attachments.forEach(function (attachment) {
       if (attachment && attachment.url) {
-        $preview.append(buildThumbMarkup(attachment));
+        $preview.append($('<img />', {
+          src: attachment.url,
+          alt: ''
+        }));
       }
     });
-
-    initSortable($field);
   }
-
-  function syncOrderFromDOM($field) {
-    var ids = $field.find('.justin-media-thumb').map(function () {
-      return $(this).data('id');
-    }).get();
-
-    $field.find('.justin-media-value').val(ids.join(','));
-  }
-
-  function initSortable($field) {
-    var $preview = $field.find('.justin-media-preview');
-    if (!$preview.length) {
-      return;
-    }
-
-    // Already initialized — just tell Sortable the DOM changed
-    // (new/removed thumbs) rather than re-binding.
-    if ($preview.data('justin-sortable-init')) {
-      $preview.sortable('refresh');
-      return;
-    }
-
-    $preview.sortable({
-      items: '.justin-media-thumb',
-      tolerance: 'pointer',
-      placeholder: 'ui-sortable-placeholder',
-      update: function () {
-        syncOrderFromDOM($field);
-      }
-    });
-
-    $preview.data('justin-sortable-init', true);
-  }
-
-  // Enable drag-reorder on every multi-image field already rendered
-  // by PHP on page load (Gallery images, Book Template images, etc).
-  $('.justin-media-field').each(function () {
-    var $field = $(this);
-    if ($field.data('multiple') === 1 || $field.data('multiple') === '1') {
-      initSortable($field);
-    }
-  });
 
   $('body').on('click', '.justin-media-select', function (event) {
     event.preventDefault();
@@ -191,17 +64,6 @@ jQuery(function ($) {
     var $field = $(this).closest('.justin-media-field');
     $field.find('.justin-media-value').val('');
     $field.find('.justin-media-preview').html('');
-  });
-
-  // Remove a single image from a multi-image field without clearing
-  // the rest.
-  $('body').on('click', '.justin-media-thumb-remove', function (event) {
-    event.preventDefault();
-
-    var $thumb = $(this).closest('.justin-media-thumb');
-    var $field = $thumb.closest('.justin-media-field');
-    $thumb.remove();
-    syncOrderFromDOM($field);
   });
 });
 
