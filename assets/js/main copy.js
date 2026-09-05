@@ -1218,16 +1218,18 @@
       renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls);
     } else {
       var isCollage = variant === 'collage';
+      var containerWidth = ghGrid.clientWidth || 250;
+      var containerHeight = ghGrid.clientHeight || 600;
+      var aspectRatio = isCollage ? 1 : (3 / 2);
+
       var columns = 2;
 
       if (!isCollage) {
-        // Photography (and Book Template, which reuses this same
-        // math/CSS): column count now scales with how many images
-        // there actually are, capped at 3, instead of always claiming
-        // the full 300px width — a couple of images get one narrow
-        // column instead of being stretched/cropped to fill three.
-        columns = Math.max(1, Math.min(3, images.length));
+        var grid = computeOptimalGrid(containerWidth, containerHeight, images.length, aspectRatio, 2, 10);
+        columns = grid.cols;
         ghGrid.style.setProperty('--gh-cols', columns);
+        ghGrid.style.gridAutoFlow = 'column';
+        ghGrid.style.gridTemplateRows = 'repeat(' + grid.rows + ', 1fr)';
       } else {
         ghGrid.style.setProperty('--gh-cols', columns);
       }

@@ -353,7 +353,7 @@
 .gh-stage[data-variant=painting] .gh-grid.gh-grid-painting {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 0;
   padding: 12px 10px;
   position: absolute;
   top: 0;
@@ -424,6 +424,11 @@
   height: auto;
   -o-object-fit: unset;
      object-fit: unset;
+}
+
+.gh-preview img.gh-preview-img-landscape {
+  max-width: 40% !important;
+  height: auto !important;
 }
 
 /* ── Collage: scrollable 2-column scatter grid ── */

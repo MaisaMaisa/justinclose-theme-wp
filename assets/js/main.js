@@ -966,16 +966,141 @@
     }
   }
 
-  function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls) {
-    ghGrid.classList.add('gh-grid-painting');
+  // function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls) {
+  //   ghGrid.classList.add('gh-grid-painting');
 
-    var containerHeight = ghGrid.clientHeight || 600;
+  //   var containerHeight = ghGrid.clientHeight || 600;
 
+  //   var styleCycle = [
+  //     { name: 'rigid',    colWidth: 120, innerWidthPct: 100, marginY: 0,  ratios: [3 / 4, 1 / 1],       border: true,  shadow: false, rotate: 0 },
+  //     { name: 'floating', colWidth: 120, innerWidthPct: 80,  marginY: 20, ratios: [4 / 5, 1 / 1],       border: false, shadow: true,  rotate: 0 },
+  //     { name: 'sparse',   colWidth: 130, innerWidthPct: 90,  marginY: 36, ratios: [5 / 6],              border: false, shadow: true,  rotate: 0 },
+  //     { name: 'loose',    colWidth: 110, innerWidthPct: 65,  marginY: 28, ratios: [1 / 1, 3 / 5, 5 / 4], border: false, shadow: true,  rotate: 1.5 },
+  //   ];
+
+  //   var columns = [];
+
+  //   function addColumn() {
+  //     var cycleIndex = columns.length % styleCycle.length;
+  //     var lap = Math.floor(columns.length / styleCycle.length);
+  //     var base = styleCycle[cycleIndex];
+
+  //     var style = {
+  //       name: base.name,
+  //       colWidth: base.colWidth - lap * 6,
+  //       innerWidthPct: Math.max(55, base.innerWidthPct - lap * 8),
+  //       marginY: base.marginY + lap * 6,
+  //       ratios: base.ratios,
+  //       border: base.border,
+  //       shadow: base.shadow,
+  //       rotate: base.rotate + (lap % 2 === 0 ? 0 : 1),
+  //     };
+
+  //     var col = document.createElement('div');
+  //     col.className = 'gh-col gh-col-' + style.name;
+  //     col.style.width = style.colWidth + 'px';
+  //     ghGrid.appendChild(col);
+  //     var record = { el: col, height: 0, style: style, count: 0 };
+  //     columns.push(record);
+  //     return record;
+  //   }
+
+  //   addColumn();
+
+  //   images.forEach(function (imageUrl, index) {
+  //     var target = null;
+  //     var targetHeight = 0;
+
+  //     for (var i = 0; i < columns.length; i += 1) {
+  //       var col = columns[i];
+  //       var style = col.style;
+  //       var ratio = style.ratios[col.count % style.ratios.length];
+  //       var innerWidth = style.colWidth * (style.innerWidthPct / 100);
+  //       var thumbHeight = innerWidth / ratio + style.marginY * 2;
+  //       var projectedHeight = col.height + thumbHeight;
+
+  //       if (projectedHeight <= containerHeight && (!target || col.height < target.height)) {
+  //         target = col;
+  //         targetHeight = thumbHeight;
+  //       }
+  //     }
+
+  //     if (!target) {
+  //       target = addColumn();
+  //       var newStyle = target.style;
+  //       var newRatio = newStyle.ratios[target.count % newStyle.ratios.length];
+  //       var newInnerWidth = newStyle.colWidth * (newStyle.innerWidthPct / 100);
+  //       targetHeight = newInnerWidth / newRatio + newStyle.marginY * 2;
+  //     }
+
+  //     var style = target.style;
+  //     var ratio = style.ratios[target.count % style.ratios.length];
+  //     var innerWidth = style.colWidth * (style.innerWidthPct / 100);
+
+  //     var thumb = document.createElement('div');
+  //     thumb.className = 'gh-thumb';
+  //     if (index === 0) {
+  //       thumb.classList.add('gh-active');
+  //     }
+  //     thumb.style.width = style.innerWidthPct + '%';
+  //     thumb.style.margin = style.marginY ? style.marginY + 'px auto' : '0';
+  //     if (style.border) {
+  //       thumb.style.border = '1px solid #f2f2f2';
+  //     }
+  //     if (style.shadow) {
+  //       thumb.style.boxShadow = '1px 2px 8px rgba(0, 0, 0, 0.15)';
+  //     }
+  //     if (style.rotate) {
+  //       var sign = target.count % 2 === 0 ? 1 : -1;
+  //       thumb.style.transform = 'rotate(' + (style.rotate * sign) + 'deg)';
+  //     }
+
+  //     var thumbImg = document.createElement('img');
+  //     thumbImg.src = imageUrl;
+  //     thumbImg.alt = entry.text || '';
+  //     thumb.appendChild(thumbImg);
+
+  //     thumb.addEventListener('mouseenter', function () { selectImage(index); });
+  //     thumb.addEventListener('click', function () { selectImage(index); });
+  //     thumb.addEventListener('focus', function () { selectImage(index); });
+  //     thumb.setAttribute('tabindex', '0');
+
+  //     target.el.appendChild(thumb);
+  //     target.height += targetHeight;
+  //     target.count += 1;
+
+  //     if (thumbEls) {
+  //       thumbEls[index] = thumb;
+  //     }
+  //   });
+
+  //   if (columns.length > 3) {
+  //     var leftWrap = document.createElement('div');
+  //     leftWrap.className = 'gh-painting-left';
+  //     var rightWrap = document.createElement('div');
+  //     rightWrap.className = 'gh-painting-right';
+
+  //     columns.forEach(function (col, idx) {
+  //       if (idx < 3) {
+  //         leftWrap.appendChild(col.el);
+  //       } else {
+  //         rightWrap.appendChild(col.el);
+  //       }
+  //     });
+
+  //     ghGrid.innerHTML = '';
+  //     ghGrid.appendChild(leftWrap);
+  //     ghGrid.appendChild(rightWrap);
+  //     ghGrid.classList.add('gh-grid-painting-split');
+  //   }
+  // }
+
+    function buildPaintingColumnPlan(images, containerHeight, sizeScale) {
     var styleCycle = [
-      { name: 'rigid',    colWidth: 120, innerWidthPct: 100, marginY: 0,  ratios: [3 / 4, 1 / 1],       border: true,  shadow: false, rotate: 0 },
-      { name: 'floating', colWidth: 120, innerWidthPct: 80,  marginY: 20, ratios: [4 / 5, 1 / 1],       border: false, shadow: true,  rotate: 0 },
-      { name: 'sparse',   colWidth: 130, innerWidthPct: 90,  marginY: 36, ratios: [5 / 6],              border: false, shadow: true,  rotate: 0 },
-      { name: 'loose',    colWidth: 110, innerWidthPct: 65,  marginY: 28, ratios: [1 / 1, 3 / 5, 5 / 4], border: false, shadow: true,  rotate: 1.5 },
+      { name: 'rigid',    colWidth: 120 * sizeScale, innerWidthPct: 100 * sizeScale, marginY: 0,  ratios: [3 / 4, 1 / 1],       border: true,  shadow: false, rotate: 0 },
+      { name: 'floating', colWidth: 120 * sizeScale, innerWidthPct: 80 * sizeScale,  marginY: 20, ratios: [4 / 5, 1 / 1],       border: false, shadow: true,  rotate: 0 },
+      { name: 'sparse',   colWidth: 130 * sizeScale, innerWidthPct: 90 * sizeScale,  marginY: 36, ratios: [5 / 6],              border: false, shadow: true,  rotate: 0 },
+      { name: 'loose',    colWidth: 110 * sizeScale, innerWidthPct: 65 * sizeScale,  marginY: 28, ratios: [1 / 1, 3 / 5, 5 / 4], border: false, shadow: true,  rotate: 1.5 },
     ];
 
     var columns = [];
@@ -987,8 +1112,8 @@
 
       var style = {
         name: base.name,
-        colWidth: base.colWidth - lap * 6,
-        innerWidthPct: Math.max(55, base.innerWidthPct - lap * 8),
+        colWidth: base.colWidth - lap * 6 * sizeScale,
+        innerWidthPct: Math.max(55 * sizeScale, base.innerWidthPct - lap * 8 * sizeScale),
         marginY: base.marginY + lap * 6,
         ratios: base.ratios,
         border: base.border,
@@ -996,11 +1121,7 @@
         rotate: base.rotate + (lap % 2 === 0 ? 0 : 1),
       };
 
-      var col = document.createElement('div');
-      col.className = 'gh-col gh-col-' + style.name;
-      col.style.width = style.colWidth + 'px';
-      ghGrid.appendChild(col);
-      var record = { el: col, height: 0, style: style, count: 0 };
+      var record = { style: style, height: 0, count: 0, indices: [] };
       columns.push(record);
       return record;
     }
@@ -1033,55 +1154,90 @@
         targetHeight = newInnerWidth / newRatio + newStyle.marginY * 2;
       }
 
-      var style = target.style;
-      var ratio = style.ratios[target.count % style.ratios.length];
-      var innerWidth = style.colWidth * (style.innerWidthPct / 100);
-
-      var thumb = document.createElement('div');
-      thumb.className = 'gh-thumb';
-      if (index === 0) {
-        thumb.classList.add('gh-active');
-      }
-      thumb.style.width = style.innerWidthPct + '%';
-      thumb.style.margin = style.marginY ? style.marginY + 'px auto' : '0';
-      if (style.border) {
-        thumb.style.border = '1px solid #f2f2f2';
-      }
-      if (style.shadow) {
-        thumb.style.boxShadow = '1px 2px 8px rgba(0, 0, 0, 0.15)';
-      }
-      if (style.rotate) {
-        var sign = target.count % 2 === 0 ? 1 : -1;
-        thumb.style.transform = 'rotate(' + (style.rotate * sign) + 'deg)';
-      }
-
-      var thumbImg = document.createElement('img');
-      thumbImg.src = imageUrl;
-      thumbImg.alt = entry.text || '';
-      thumb.appendChild(thumbImg);
-
-      thumb.addEventListener('mouseenter', function () { selectImage(index); });
-      thumb.addEventListener('click', function () { selectImage(index); });
-      thumb.addEventListener('focus', function () { selectImage(index); });
-      thumb.setAttribute('tabindex', '0');
-
-      target.el.appendChild(thumb);
+      target.indices.push(index);
       target.height += targetHeight;
       target.count += 1;
-
-      if (thumbEls) {
-        thumbEls[index] = thumb;
-      }
     });
 
-    if (columns.length > 3) {
+    return columns;
+  }
+
+  function renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls) {
+    ghGrid.classList.add('gh-grid-painting');
+
+    var containerHeight = ghGrid.clientHeight || 600;
+
+    // Pack once at full size first. Only if that genuinely needs more
+    // than 8 columns (i.e. more than 4 per side) do we shrink and
+    // re-pack — so galleries that fit in 3/3 or spill to 4/3 or 4/4
+    // never get smaller thumbnails, only ones that would need a 5th
+    // column per side do.
+    var plan = buildPaintingColumnPlan(images, containerHeight, 1);
+    var sizeScale = 1;
+
+    if (plan.length > 8) {
+      plan = buildPaintingColumnPlan(images, containerHeight, 0.85);
+      sizeScale = 0.85;
+    }
+
+    plan.forEach(function (col, colIndex) {
+      var colEl = document.createElement('div');
+      colEl.className = 'gh-col gh-col-' + col.style.name;
+      colEl.style.width = col.style.colWidth + 'px';
+      ghGrid.appendChild(colEl);
+      col.el = colEl;
+
+      col.indices.forEach(function (index, posInCol) {
+        var style = col.style;
+        var ratio = style.ratios[posInCol % style.ratios.length];
+
+        var thumb = document.createElement('div');
+        thumb.className = 'gh-thumb';
+        if (index === 0) {
+          thumb.classList.add('gh-active');
+        }
+        thumb.style.width = style.innerWidthPct + '%';
+        thumb.style.margin = style.marginY ? style.marginY + 'px auto' : '0';
+        if (style.border) {
+          thumb.style.border = '1px solid #f2f2f2';
+        }
+        if (style.shadow) {
+          thumb.style.boxShadow = '1px 2px 8px rgba(0, 0, 0, 0.15)';
+        }
+        if (style.rotate) {
+          var sign = posInCol % 2 === 0 ? 1 : -1;
+          thumb.style.transform = 'rotate(' + (style.rotate * sign) + 'deg)';
+        }
+
+        var thumbImg = document.createElement('img');
+        thumbImg.src = images[index];
+        thumbImg.alt = entry.text || '';
+        thumb.appendChild(thumbImg);
+
+        thumb.addEventListener('mouseenter', function () { selectImage(index); });
+        thumb.addEventListener('click', function () { selectImage(index); });
+        thumb.addEventListener('focus', function () { selectImage(index); });
+        thumb.setAttribute('tabindex', '0');
+
+        colEl.appendChild(thumb);
+        thumbEls[index] = thumb;
+      });
+    });
+
+    // Normal case (<=6 columns): split 3 left / rest right, as before.
+    // A 7th column goes to the left (4/3). An 8th goes to the right
+    // (4/4). Anything beyond 8 only happens after the shrink pass
+    // above, and still splits 4 left / rest right.
+    var splitLeftCount = plan.length <= 6 ? 3 : 4;
+
+    if (plan.length > 3) {
       var leftWrap = document.createElement('div');
       leftWrap.className = 'gh-painting-left';
       var rightWrap = document.createElement('div');
       rightWrap.className = 'gh-painting-right';
 
-      columns.forEach(function (col, idx) {
-        if (idx < 3) {
+      plan.forEach(function (col, idx) {
+        if (idx < splitLeftCount) {
           leftWrap.appendChild(col.el);
         } else {
           rightWrap.appendChild(col.el);
@@ -1203,6 +1359,19 @@
       currentIndex = index;
       if (ghPreviewImg) {
         ghPreviewImg.src = images[index];
+        ghPreviewImg.classList.remove('gh-preview-img-landscape');
+        (function () {
+          function applyLandscapeSizing() {
+            if (ghPreviewImg.naturalWidth && ghPreviewImg.naturalHeight && ghPreviewImg.naturalWidth > ghPreviewImg.naturalHeight) {
+              ghPreviewImg.classList.add('gh-preview-img-landscape');
+            }
+          }
+          if (ghPreviewImg.complete) {
+            applyLandscapeSizing();
+          } else {
+            ghPreviewImg.addEventListener('load', applyLandscapeSizing, { once: true });
+          }
+        })();
       }
       if (ghCounter) {
         ghCounter.textContent = (index + 1) + '/' + images.length;
@@ -1216,6 +1385,9 @@
 
     if (variant === 'painting') {
       renderPaintingMasonry(ghGrid, images, entry, ghPreviewImg, ghCounter, selectImage, thumbEls);
+      if (images.length) {
+        selectImage(0);
+      }
     } else {
       var isCollage = variant === 'collage';
       var containerWidth = ghGrid.clientWidth || 250;
