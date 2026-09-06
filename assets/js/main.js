@@ -1336,7 +1336,10 @@
           '<div class="gh-right-col" id="gh-right-col">' +
             previewHtml +
             '<div class="gh-book-footer">' +
-              '<div class="gh-book-text">' + bookText + '</div>' +
+              '<div class="gh-book-text-wrap" id="gh-book-text-wrap">' +
+                '<div class="gh-book-text" id="gh-book-text">' + bookText + '</div>' +
+                '<div class="gh-book-scrollbar" id="gh-book-scrollbar"><div class="gh-book-scrollbar-thumb" id="gh-book-scrollbar-thumb"></div></div>' +
+              '</div>' +
               (hasBookTemplateBuy ? '<button type="button" class="book-template-buy-btn" id="book-template-buy-btn">Buy</button>' : '') +
             '</div>' +
           '</div>' +
@@ -1359,14 +1362,34 @@
     var ghPreviewCaption = document.getElementById('gh-preview-caption');
     var imageCaptions = getEntryImageCaptions(entry);
 
-    // New, smaller, non-circular Book Template buy button — sits under
-    // the text inside .gh-right-col (not fixed/floating like the default
-    // Books "BUY ME" circle), and uses its own independent price data.
-    var bookTemplateBuyBtn = document.getElementById('book-template-buy-btn');
-    if (bookTemplateBuyBtn) {
-      bookTemplateBuyBtn.addEventListener('click', function () {
-        openStripeModal(entry, 'book_template', bookForTemplate);
-      });
+    // Fake scrollbar for .gh-book-text on mobile, where native
+    // ::-webkit-scrollbar styling is ignored by the browser and
+    // system scrollbars only flash briefly during an active touch
+    // scroll. This mirrors real scroll position/extent in JS instead.
+    var bookTextEl = document.getElementById('gh-book-text');
+    var bookScrollbarThumb = document.getElementById('gh-book-scrollbar-thumb');
+
+    if (bookTextEl && bookScrollbarThumb) {
+      var updateBookScrollbarThumb = function () {
+        var scrollHeight = bookTextEl.scrollHeight;
+        var clientHeight = bookTextEl.clientHeight;
+
+        if (scrollHeight <= clientHeight) {
+          bookScrollbarThumb.style.height = '100%';
+          bookScrollbarThumb.style.top = '0';
+          return;
+        }
+
+        var thumbHeightPct = Math.max(10, (clientHeight / scrollHeight) * 100);
+        var maxTopPct = 100 - thumbHeightPct;
+        var scrollPct = bookTextEl.scrollTop / (scrollHeight - clientHeight);
+
+        bookScrollbarThumb.style.height = thumbHeightPct + '%';
+        bookScrollbarThumb.style.top = (scrollPct * maxTopPct) + '%';
+      };
+
+      bookTextEl.addEventListener('scroll', updateBookScrollbarThumb, { passive: true });
+      updateBookScrollbarThumb();
     }
 
     if (ghInfoPanel) {

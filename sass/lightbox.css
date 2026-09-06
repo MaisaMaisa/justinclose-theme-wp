@@ -225,6 +225,13 @@
   padding: 0 24px 16px;
 }
 
+.gh-book-text-wrap {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  display: flex;
+}
+
 .gh-book-text {
   flex: 1;
   min-width: 0;
@@ -239,6 +246,10 @@
 }
 
 .gh-book-text::-webkit-scrollbar {
+  display: none;
+}
+
+.gh-book-scrollbar {
   display: none;
 }
 
@@ -566,7 +577,7 @@
   /* desktop: hidden, thumbnails handle navigation */
   background: transparent;
   border: none;
-  color: white;
+  color: #033ea5;
   font-size: 26px;
   line-height: 1;
   cursor: pointer;
@@ -607,9 +618,34 @@
   .gh-book-text {
     max-height: 35vh;
     font-size: 13px;
-    padding: 12px 0;
+    padding: 12px 0 12px 0;
+    padding-right: 14px;
+    scrollbar-width: none; /* Firefox — hidden, fake scrollbar replaces it */
+  }
+  .gh-book-text::-webkit-scrollbar {
+    display: none; /* WebKit — hidden, fake scrollbar replaces it */
+  }
+  .gh-book-scrollbar {
+    display: block;
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    right: 0;
+    width: 6px;
+    background: transparent;
+  }
+  .gh-book-scrollbar-thumb {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background: #1d1c1c;
+    border: 1px solid #ffffff;
+    border-radius: 3px;
+    transition: top 0.05s linear;
   }
   .book-template-buy-btn {
+    width: 100px;
+    height: 100px;
     align-self: anchor-center;
     margin: 0;
     font-size: 11px;
@@ -627,6 +663,13 @@
   .gh-nav-next {
     transform: rotate(0deg);
     bottom: 0;
+  }
+  .gh-stage-book .gh-nav-next {
+    bottom: -2%;
+  }
+  .gh-stage-book .gh-nav-next,
+  .gh-stage-book .gh-nav-prev {
+    color: white;
   }
   .gh-stage[data-variant=painting] .gh-grid.gh-grid-painting,
   .gh-stage[data-variant=collage] .gh-grid {
@@ -712,6 +755,23 @@
   color: #000;
 }
 
+@media (max-width: 700px) {
+  .film-vimeo {
+    width: 90%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+  }
+  .film-watch-wrap {
+    position: relative;
+    flex-direction: column;
+  }
+  .film-caption {
+    position: static;
+    margin-top: 12px;
+    padding: 0 20px;
+  }
+}
 .video-direct-wrap {
   position: relative;
   display: flex;
