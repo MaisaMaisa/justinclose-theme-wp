@@ -577,6 +577,10 @@
     pointer-events: none;
 }
 
+.gh-stage-book .gh-counter {
+    color: white;
+}
+
 .gh-nav-arrow {
     display: none;
     /* desktop: hidden, thumbnails handle navigation */
@@ -917,9 +921,12 @@
 .lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-text {
     fill: transparent;
 }
-
 .lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x {
-    stroke: #fff;
+    stroke: #fff!important;
+    mix-blend-mode: difference;
+}
+.lightbox-overlay.lb-book-template .lightbox-close .justin-circ-btn-x {
+    stroke: #fff!important;
     mix-blend-mode: difference;
 }
 

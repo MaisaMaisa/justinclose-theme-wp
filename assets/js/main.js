@@ -1736,6 +1736,7 @@
     // is in the 'Books' category (or if 'Books' is removed entirely).
     if (entry.layoutStyle === 'book_template' && getEntryImages(entry).length) {
       document.body.classList.remove('lb-upside-down');
+      elements.lightboxOverlay.classList.add('lb-book-template');
       renderGridHoverLightbox(entry);
     } else if (entry.cat === 'Books') {
       document.body.classList.remove('lb-upside-down');
@@ -1759,7 +1760,7 @@
     state.watchMode = false;
     document.body.classList.remove('lb-upside-down');
     elements.lightboxOverlay.style.removeProperty('--lightbox-tint');
-    elements.lightboxOverlay.classList.remove('open', 'watch-mode', 'lb-book');
+    elements.lightboxOverlay.classList.remove('open', 'watch-mode', 'lb-book', 'lb-book-template');
     if (elements.godModeBtn) {
       elements.godModeBtn.classList.remove('behind-popup');
     }
