@@ -93,7 +93,7 @@ Author URI: https://maisaimamovic.eu/
 .geist-mono-400 {
   font-family: "Geist Mono", monospace;
   font-optical-sizing: auto;
-  font-weight: 400;
+  font-weight: 100;
   font-style: normal;
 }
 
@@ -1457,7 +1457,8 @@ body {
     transition: max-height 0.35s ease;
     font-size: 15px;
     line-height: 1.4;
-    color: black;
+    // color: black;
+    color: #033ea5;
     padding: 0 16px;
 }
 
@@ -1519,12 +1520,14 @@ body {
 
 .buy-btn .justin-circ-btn-ring,
 .buy-btn .justin-circ-btn-x {
-    stroke: #fff;
+    // stroke: #fff;
+    stroke: #033ea5;
     mix-blend-mode: difference;
 }
 
 .buy-btn .justin-circ-btn-text {
-    fill: #fff;
+    // fill: #fff;
+    stroke: #033ea5;
     mix-blend-mode: difference;
 }
 
@@ -2193,7 +2196,8 @@ align-self: flex-end;
 }
 
 .justin-circ-btn-x {
-  stroke: #000;
+//   stroke: #000;
+  stroke: #033ea5;
   stroke-width: 1.4;
 }
 
@@ -2209,7 +2213,8 @@ align-self: flex-end;
 
 /* Close button's X — its own styling, independent of God Mode */
 .lightbox-close .justin-circ-btn-x {
-  stroke: white;
+//   stroke: white;
+  color: #033ea5;
   stroke-width: 1;
   transform-box: fill-box;
   transform-origin: center;

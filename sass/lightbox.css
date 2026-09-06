@@ -449,8 +449,7 @@
   gap: 12px;
   font-size: 13px;
   letter-spacing: 0.04em;
-  color: white;
-  text-shadow: #FC0 1px 0 10px;
+  color: #033ea5;
   pointer-events: none;
   z-index: 4;
 }
@@ -548,8 +547,7 @@
 .gh-counter {
   font-size: 13px;
   letter-spacing: 0.08em;
-  color: white;
-  text-shadow: #FC0 1px 0 10px;
+  color: #033ea5;
   pointer-events: none;
 }
 

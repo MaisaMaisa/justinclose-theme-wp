@@ -2,15 +2,15 @@
   position: fixed;
   left: 10px;
   top: 50px;
-  font-size: 18px;
-  line-height: 1.4;
+  font-size: 17px;
+  line-height: 1.57;
   pointer-events: none;
   transition: top 0.15s ease;
   display: inline-block;
   white-space: nowrap;
   z-index: 100;
   text-transform: lowercase;
-  color: #0045bd;
+  color: #033ea5;
 }
 
 #bio-label {

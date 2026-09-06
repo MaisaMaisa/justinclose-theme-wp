@@ -23,7 +23,8 @@
 }
 
 .justin-circ-btn-x {
-  stroke: #000;
+  // stroke: #000;
+  stroke: #033ea5;;
   stroke-width: 1.4;
 }
 
@@ -39,7 +40,8 @@
 
 /* Close button's X — its own styling, independent of God Mode */
 .lightbox-close .justin-circ-btn-x {
-  stroke: white;
+  // stroke: white;
+  color: #033ea5;
   stroke-width: 1;
   transform-box: fill-box;
   transform-origin: center;
