@@ -883,6 +883,7 @@ Author URI: https://maisaimamovic.eu/
   letter-spacing: 0.08em;
   color: #033ea5;
   pointer-events: none;
+  margin-top: 5px;
 }
 
 .gh-stage-book .gh-counter {
@@ -1206,12 +1207,9 @@ Author URI: https://maisaimamovic.eu/
   fill: transparent;
 }
 
-.lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x {
-  stroke: #fff !important;
-  mix-blend-mode: difference;
-}
-
-.lightbox-overlay.lb-book-template .lightbox-close .justin-circ-btn-x {
+.lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x,
+.lightbox-overlay.lb-book-template .lightbox-close .justin-circ-btn-x,
+.lb-book-template .lightbox-close .justin-circ-btn-x {
   stroke: #fff !important;
   mix-blend-mode: difference;
 }

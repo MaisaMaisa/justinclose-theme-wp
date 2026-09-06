@@ -575,6 +575,7 @@
     // text-shadow: #FC0 1px 0 10px;
     color: #033ea5;
     pointer-events: none;
+    margin-top: 5px;
 }
 
 .gh-stage-book .gh-counter {
@@ -921,11 +922,10 @@
 .lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-text {
     fill: transparent;
 }
-.lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x {
-    stroke: #fff!important;
-    mix-blend-mode: difference;
-}
-.lightbox-overlay.lb-book-template .lightbox-close .justin-circ-btn-x {
+
+.lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x,
+.lightbox-overlay.lb-book-template .lightbox-close .justin-circ-btn-x,
+.lb-book-template .lightbox-close .justin-circ-btn-x{
     stroke: #fff!important;
     mix-blend-mode: difference;
 }

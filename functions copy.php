@@ -228,6 +228,7 @@ if (!function_exists('justin_layout_variant_from_style')) {
     function justin_layout_variant_from_style($layout_style) {
         $map = [
             'grid_hover'          => 'photography',
+            'grid_hover_photo6'   => 'photography6',
             'grid_hover_painting' => 'painting',
             'grid_hover_collage'  => 'collage',
             // Book Template reuses the "photography" grid math/CSS.
@@ -277,6 +278,7 @@ function justin_render_project_common_box($post) {
     <label for="layout_style"><strong>Choose from the dropdown:</strong></label><br />
         <select name="layout_style" id="layout_style">
             <option value="grid_hover" <?php selected($layout_style, 'grid_hover'); ?>>Photography</option>
+            <option value="grid_hover_photo6" <?php selected($layout_style, 'grid_hover_photo6'); ?>>Photography (6/column)</option>
             <option value="grid_hover_painting" <?php selected($layout_style, 'grid_hover_painting'); ?>>Painting</option>
             <option value="grid_hover_collage" <?php selected($layout_style, 'grid_hover_collage'); ?>>Collage</option>
             <option value="book_template" <?php selected($layout_style, 'book_template'); ?>>Book (beta)</option>
@@ -485,6 +487,7 @@ function justin_layout_admin_polish() {
     // category auto-selected.
     $layout_category_slugs = [
         'grid_hover'          => 'photography',
+        'grid_hover_photo6'   => 'photography',
         'grid_hover_painting' => 'painting',
         'grid_hover_collage'  => 'collage',
         'photo_grid'          => 'misc',
@@ -592,7 +595,7 @@ function justin_layout_admin_polish() {
             }
 
             // Layouts that use the shared 'gallery' image field.
-            var GALLERY_LAYOUTS = ['grid_hover', 'grid_hover_painting', 'grid_hover_collage', 'photo_grid'];
+            var GALLERY_LAYOUTS = ['grid_hover', 'grid_hover_photo6', 'grid_hover_painting', 'grid_hover_collage', 'photo_grid'];
 
             function syncBoxVisibility() {
                 var value = layoutSelect.value;
@@ -792,6 +795,7 @@ add_action('save_post_post', function ($post_id) {
         $saved_layout_style = sanitize_text_field(wp_unslash($_POST['layout_style']));
         $allowed_layout_styles = [
             'grid_hover',
+            'grid_hover_photo6',
             'grid_hover_painting',
             'grid_hover_collage',
             'photo_grid',
@@ -1138,6 +1142,12 @@ function justin_render_settings_page() {
                 </tbody>
             </table>
 
+            <h2>God Mode description</h2>
+            <p>Shown underneath the channel number and title on every God Mode screen — one line for all channels, not per-video.</p>
+            <p>
+                <textarea name="justin_god_mode_description" rows="3" style="width:100%; max-width:600px;"><?php echo esc_textarea(get_option('justin_god_mode_description', '')); ?></textarea>
+            </p>
+
             <?php submit_button(); ?>
         </form>
     </div>
@@ -1240,6 +1250,11 @@ add_action('admin_init', function () {
         'type'              => 'array',
         'sanitize_callback' => 'justin_sanitize_god_mode_channels',
         'default'           => justin_default_god_mode_channels(),
+    ]);
+    register_setting('justin_settings_group', 'justin_god_mode_description', [
+        'type'              => 'string',
+        'sanitize_callback' => 'sanitize_text_field',
+        'default'           => '',
     ]);
 });
 
@@ -1548,6 +1563,7 @@ add_action('wp_enqueue_scripts', function () {
         'entries' => [],
         'photoGridTags' => justin_photo_grid_tags(),
         'godModeChannels' => [],
+        'godModeDescription' => get_option('justin_god_mode_description', ''),
         // Stripe: only the publishable key ever reaches the browser.
         // If this is empty, main.js falls back to plain buy_url links.
         'stripePublishableKey' => $stripe_publishable_key,
