@@ -1344,7 +1344,7 @@ Author URI: https://maisaimamovic.eu/
   inset: 0;
   z-index: 0;
   background-size: cover;
-  background-position: center;
+  background-position: top center;
   background-repeat: no-repeat;
   opacity: 0;
   transition: opacity 0.3s ease;
