@@ -1142,6 +1142,12 @@ function justin_render_settings_page() {
                 </tbody>
             </table>
 
+            <h2>God Mode description</h2>
+            <p>Shown underneath the channel number and title on every God Mode screen — one line for all channels, not per-video.</p>
+            <p>
+                <textarea name="justin_god_mode_description" rows="3" style="width:100%; max-width:600px;"><?php echo esc_textarea(get_option('justin_god_mode_description', '')); ?></textarea>
+            </p>
+
             <?php submit_button(); ?>
         </form>
     </div>
@@ -1244,6 +1250,11 @@ add_action('admin_init', function () {
         'type'              => 'array',
         'sanitize_callback' => 'justin_sanitize_god_mode_channels',
         'default'           => justin_default_god_mode_channels(),
+    ]);
+    register_setting('justin_settings_group', 'justin_god_mode_description', [
+        'type'              => 'string',
+        'sanitize_callback' => 'sanitize_text_field',
+        'default'           => '',
     ]);
 });
 
@@ -1552,6 +1563,7 @@ add_action('wp_enqueue_scripts', function () {
         'entries' => [],
         'photoGridTags' => justin_photo_grid_tags(),
         'godModeChannels' => [],
+        'godModeDescription' => get_option('justin_god_mode_description', ''),
         // Stripe: only the publishable key ever reaches the browser.
         // If this is empty, main.js falls back to plain buy_url links.
         'stripePublishableKey' => $stripe_publishable_key,

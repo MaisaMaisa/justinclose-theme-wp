@@ -61,6 +61,7 @@
   // God Mode channel state — fed by data.godModeChannels (from the
   // Appearance > Justin Settings repeater), not a single video URL.
   var godModeChannels = Array.isArray(data.godModeChannels) ? data.godModeChannels : [];
+  var godModeDescription = data.godModeDescription || '';
   var godModeIndex = 0;
   var godModeFlipping = false;
 
@@ -1859,9 +1860,12 @@
       '<div class="gm-screen">' +
         mediaHtml +
         '<div class="gm-info">' +
-          '<span class="gm-chnum">' + padChannelNumber(channel.number || (godModeIndex + 1)) + '</span>' +
-          '<span class="gm-chtitle">' + escapeHtml(channel.title || '') + '</span>' +
-          '<span class="gm-chname">' + escapeHtml(channel.name || '') + '</span>' +
+          '<div class="gm-info-line">' +
+            '<span class="gm-chnum">' + padChannelNumber(channel.number || (godModeIndex + 1)) + '</span>' +
+            '<span class="gm-chtitle">' + escapeHtml(channel.title || '') + '</span>' +
+            '<span class="gm-chname">' + escapeHtml(channel.name || '') + '</span>' +
+          '</div>' +
+          (godModeDescription ? '<div class="gm-chdesc">' + escapeHtml(godModeDescription) + '</div>' : '') +
         '</div>' +
       '</div>' +
       '<div class="gm-controls">' +
