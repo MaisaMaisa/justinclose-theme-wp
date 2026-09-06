@@ -361,6 +361,7 @@ Author URI: https://maisaimamovic.eu/
   flex: 1;
   height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-width: 0;
@@ -683,6 +684,10 @@ Author URI: https://maisaimamovic.eu/
   padding: 8px 12px 15px;
 }
 
+.gh-stage[data-variant=photography6] .gh-grid {
+  width: 150px;
+}
+
 /* Take the grid out of flex flow entirely so extra columns overlap the
    preview image instead of pushing it over or getting clipped/scrolled */
 .gh-stage[data-variant=painting] {
@@ -765,7 +770,7 @@ Author URI: https://maisaimamovic.eu/
      object-fit: unset;
 }
 
-.gh-preview img.gh-preview-img-landscape {
+.gh-stage[data-variant=painting] .gh-preview img.gh-preview-img-landscape {
   max-width: 40% !important;
   height: auto !important;
 }
@@ -1031,6 +1036,24 @@ Author URI: https://maisaimamovic.eu/
   color: #000;
 }
 
+.video-direct-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.video-direct-infobar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+}
+
 /* =====================================================================
  * 11. LIGHTBOX — INFO PANEL
  * The ⓘ toggle + sliding description panel shown between the main
@@ -1040,7 +1063,7 @@ Author URI: https://maisaimamovic.eu/
   align-items: center;
   width: 100%;
   justify-content: center;
-  position: fixed;
+  position: relative;
   bottom: 0;
   flex-shrink: 0;
   display: flex;
@@ -1064,7 +1087,8 @@ Author URI: https://maisaimamovic.eu/
   transition: max-height 0.35s ease;
   font-size: 15px;
   line-height: 1.4;
-  color: black;
+  color: #033ea5;
+  margin-top: 5px;
   padding: 0 16px;
 }
 

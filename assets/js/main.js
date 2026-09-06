@@ -36,6 +36,7 @@
     lightboxInfoPanel: document.getElementById('lightbox-info-panel'),
     lightboxThumbs: document.getElementById('lightbox-thumbs'),
     lightboxInfoToggle: document.querySelector('.lightbox-info-toggle'),
+    lightboxInfobar: document.querySelector('.lightbox-infobar'),
     lightboxClose: document.querySelector('.lightbox-close'),
     lightboxPrev: document.querySelector('.lightbox-arrow.prev'),
     lightboxNext: document.querySelector('.lightbox-arrow.next'),
@@ -867,24 +868,47 @@
 
   function renderVideoDirectLightbox(entry) {
     var embedUrl = getVideoEmbedUrl(entry.videoUrl);
+    var videoDirectInfo = getEntryInfo(entry);
 
+    // Film/video-direct gets its own local infobar wrapped together
+    // with the iframe inside #lightbox-stage, instead of using the
+    // shared .lightbox-infobar sibling in the template — same pattern
+    // buildVideoStage() already uses for the Film "watch mode" caption.
+    var html = '<div class="video-direct-wrap" id="video-direct-wrap">';
     if (embedUrl) {
-      elements.lightboxStage.innerHTML = '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
-    } else {
-      elements.lightboxStage.innerHTML = '';
+      html += '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
     }
+    if (videoDirectInfo) {
+      html +=
+        '<div class="lightbox-infobar video-direct-infobar">' +
+          '<button type="button" class="lightbox-info-toggle" id="video-direct-info-toggle" aria-label="Toggle info">ⓘ</button>' +
+          '<div class="lightbox-info-panel" id="video-direct-info-panel"></div>' +
+        '</div>';
+    }
+    html += '</div>';
+
+    elements.lightboxStage.innerHTML = html;
 
     elements.lightboxThumbs.innerHTML = '';
     elements.lightboxThumbs.style.display = 'none';
     elements.lightboxPrev.style.display = 'none';
     elements.lightboxNext.style.display = 'none';
-    elements.lightboxInfoToggle.style.display = '';
-    elements.lightboxInfoPanel.style.display = '';
-    var videoDirectInfo = getEntryInfo(entry);
-    elements.lightboxInfoPanel.innerHTML = videoDirectInfo;
-    if (!videoDirectInfo) {
-      elements.lightboxInfoToggle.style.display = 'none';
-      elements.lightboxInfoPanel.style.display = 'none';
+
+    // Hide the shared bottom infobar entirely for this layout — the
+    // local copy above takes its place, scoped to the video wrapper.
+    elements.lightboxInfoToggle.style.display = 'none';
+    elements.lightboxInfoPanel.style.display = 'none';
+    if (elements.lightboxInfobar) {
+      elements.lightboxInfobar.style.display = 'none';
+    }
+
+    if (videoDirectInfo) {
+      var localToggle = document.getElementById('video-direct-info-toggle');
+      var localPanel = document.getElementById('video-direct-info-panel');
+      localPanel.innerHTML = videoDirectInfo;
+      localToggle.addEventListener('click', function () {
+        localPanel.classList.toggle('open');
+      });
     }
   }
 
@@ -1421,11 +1445,23 @@
       var columns = 2;
 
       if (!isCollage) {
-        var grid = computeOptimalGrid(containerWidth, containerHeight, images.length, aspectRatio, 2, 10);
-        columns = grid.cols;
-        ghGrid.style.setProperty('--gh-cols', columns);
-        ghGrid.style.gridAutoFlow = 'column';
-        ghGrid.style.gridTemplateRows = 'repeat(' + grid.rows + ', 1fr)';
+        if (variant === 'photography6') {
+          // Fixed 6 rows per column, for galleries with fewer images
+          // than the standard Photography grid — columns grow to fit
+          // however many images there are, instead of the dynamic
+          // row/column balancing computeOptimalGrid does below.
+          var photo6Rows = 6;
+          columns = Math.max(1, Math.ceil(images.length / photo6Rows));
+          ghGrid.style.setProperty('--gh-cols', columns);
+          ghGrid.style.gridAutoFlow = 'column';
+          ghGrid.style.gridTemplateRows = 'repeat(' + photo6Rows + ', 1fr)';
+        } else {
+          var grid = computeOptimalGrid(containerWidth, containerHeight, images.length, aspectRatio, 2, 10);
+          columns = grid.cols;
+          ghGrid.style.setProperty('--gh-cols', columns);
+          ghGrid.style.gridAutoFlow = 'column';
+          ghGrid.style.gridTemplateRows = 'repeat(' + grid.rows + ', 1fr)';
+        }
       } else {
         ghGrid.style.setProperty('--gh-cols', columns);
       }
@@ -1486,7 +1522,7 @@
   }
 
   function isGridHoverLayout(layoutStyle) {
-    return layoutStyle === 'grid_hover' || layoutStyle === 'grid_hover_painting' || layoutStyle === 'grid_hover_collage' || layoutStyle === 'book_template';
+    return layoutStyle === 'grid_hover' || layoutStyle === 'grid_hover_photo6' || layoutStyle === 'grid_hover_painting' || layoutStyle === 'grid_hover_collage' || layoutStyle === 'book_template';
   }
 
   function renderPhotoGridLightbox(entry) {
@@ -1742,6 +1778,9 @@
     elements.lightboxPrev.style.display = '';
     elements.lightboxNext.style.display = '';
     elements.lightboxInfoToggle.style.display = '';
+    if (elements.lightboxInfobar) {
+      elements.lightboxInfobar.style.display = '';
+    }
   }
 
   function showPreviousImage() {

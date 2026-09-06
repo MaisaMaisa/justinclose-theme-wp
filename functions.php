@@ -228,6 +228,7 @@ if (!function_exists('justin_layout_variant_from_style')) {
     function justin_layout_variant_from_style($layout_style) {
         $map = [
             'grid_hover'          => 'photography',
+            'grid_hover_photo6'   => 'photography6',
             'grid_hover_painting' => 'painting',
             'grid_hover_collage'  => 'collage',
             // Book Template reuses the "photography" grid math/CSS.
@@ -277,11 +278,12 @@ function justin_render_project_common_box($post) {
     <label for="layout_style"><strong>Choose from the dropdown:</strong></label><br />
         <select name="layout_style" id="layout_style">
             <option value="grid_hover" <?php selected($layout_style, 'grid_hover'); ?>>Photography</option>
+            <option value="grid_hover_photo6" <?php selected($layout_style, 'grid_hover_photo6'); ?>>Photography (6/column)</option>
             <option value="grid_hover_painting" <?php selected($layout_style, 'grid_hover_painting'); ?>>Painting</option>
             <option value="grid_hover_collage" <?php selected($layout_style, 'grid_hover_collage'); ?>>Collage</option>
             <option value="book_template" <?php selected($layout_style, 'book_template'); ?>>Book (beta)</option>
             <option value="video_direct" <?php selected($layout_style, 'video_direct'); ?>>Film</option>
-            <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid (Misc)</option>
+            <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid</option>
             <option value="hover_only" <?php selected($layout_style, 'hover_only'); ?>>Background Hover</option>
         </select>
     </p>
@@ -485,6 +487,7 @@ function justin_layout_admin_polish() {
     // category auto-selected.
     $layout_category_slugs = [
         'grid_hover'          => 'photography',
+        'grid_hover_photo6'   => 'photography',
         'grid_hover_painting' => 'painting',
         'grid_hover_collage'  => 'collage',
         'photo_grid'          => 'misc',
@@ -592,7 +595,7 @@ function justin_layout_admin_polish() {
             }
 
             // Layouts that use the shared 'gallery' image field.
-            var GALLERY_LAYOUTS = ['grid_hover', 'grid_hover_painting', 'grid_hover_collage', 'photo_grid'];
+            var GALLERY_LAYOUTS = ['grid_hover', 'grid_hover_photo6', 'grid_hover_painting', 'grid_hover_collage', 'photo_grid'];
 
             function syncBoxVisibility() {
                 var value = layoutSelect.value;
@@ -792,6 +795,7 @@ add_action('save_post_post', function ($post_id) {
         $saved_layout_style = sanitize_text_field(wp_unslash($_POST['layout_style']));
         $allowed_layout_styles = [
             'grid_hover',
+            'grid_hover_photo6',
             'grid_hover_painting',
             'grid_hover_collage',
             'photo_grid',
