@@ -553,9 +553,12 @@ function justin_layout_admin_polish() {
             height: 160px;
         }
         .justin-media-caption-row {
-            display: flex;
+            display: none;
             gap: 4px;
             margin-top: 4px;
+        }
+        #justin-project-gallery.justin-captions-visible .justin-media-caption-row {
+            display: flex;
         }
         .justin-media-caption-title {
             flex: 1;
@@ -597,6 +600,7 @@ function justin_layout_admin_polish() {
 
                 if (galleryBox) {
                     galleryBox.style.display = shouldShowGallery ? '' : 'none';
+                    galleryBox.classList.toggle('justin-captions-visible', value === 'grid_hover_painting');
 
                     // WordPress meta boxes track their own open/closed state
                     // separately from display (a "closed" class, toggled by the

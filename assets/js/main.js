@@ -1370,18 +1370,20 @@
       if (ghPreviewImg) {
         ghPreviewImg.src = images[index];
         ghPreviewImg.classList.remove('gh-preview-img-landscape');
-        (function () {
-          function applyLandscapeSizing() {
-            if (ghPreviewImg.naturalWidth && ghPreviewImg.naturalHeight && ghPreviewImg.naturalWidth > ghPreviewImg.naturalHeight) {
-              ghPreviewImg.classList.add('gh-preview-img-landscape');
+        if (variant === 'painting') {
+          (function () {
+            function applyLandscapeSizing() {
+              if (ghPreviewImg.naturalWidth && ghPreviewImg.naturalHeight && ghPreviewImg.naturalWidth > ghPreviewImg.naturalHeight) {
+                ghPreviewImg.classList.add('gh-preview-img-landscape');
+              }
             }
-          }
-          if (ghPreviewImg.complete) {
-            applyLandscapeSizing();
-          } else {
-            ghPreviewImg.addEventListener('load', applyLandscapeSizing, { once: true });
-          }
-        })();
+            if (ghPreviewImg.complete) {
+              applyLandscapeSizing();
+            } else {
+              ghPreviewImg.addEventListener('load', applyLandscapeSizing, { once: true });
+            }
+          })();
+        }
       }
       if (ghPreviewCaption) {
         var caption = imageCaptions[index];

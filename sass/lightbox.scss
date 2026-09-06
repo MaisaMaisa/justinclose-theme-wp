@@ -446,7 +446,12 @@
     object-fit: unset;
 }
 
-.gh-preview img.gh-preview-img-landscape {
+// .gh-preview img.gh-preview-img-landscape {
+//     max-width: 40%!important;
+//     height: auto!important;
+// }
+
+.gh-stage[data-variant="painting"] .gh-preview img.gh-preview-img-landscape {
     max-width: 40%!important;
     height: auto!important;
 }
