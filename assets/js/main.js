@@ -1447,37 +1447,63 @@
       }
     } else {
       var isCollage = variant === 'collage';
-      var containerWidth = ghGrid.clientWidth || 250;
-      var containerHeight = ghGrid.clientHeight || 600;
-      var aspectRatio = isCollage ? 1 : (3 / 2);
+      // Plain Photography galleries (both the standard grid_hover layout
+      // and the old "6/column" variant) now always render the same way:
+      // a fixed 3-column, uncropped, top-to-bottom scrolling grid — the
+      // same idea as Collage, just 3 columns instead of 2, no rotation.
+      // Book Template keeps the OLD packed/cropped grid in the else
+      // branch below, since its rail sits beside fixed book text and
+      // needs a predictable height — so this only kicks in when the
+      // entry isn't a Book Template post.
+      var isUncroppedPhotography = (variant === 'photography' || variant === 'photography6') && !isBookTemplate;
 
       var columns = 2;
+      var appendTarget = ghGrid;
 
-      if (!isCollage) {
-        if (variant === 'photography6') {
-          // Fixed 6 rows per column, for galleries with fewer images
-          // than the standard Photography grid — columns grow to fit
-          // however many images there are, instead of the dynamic
-          // row/column balancing computeOptimalGrid does below.
-          var photo6Rows = 6;
-          columns = Math.max(1, Math.ceil(images.length / photo6Rows));
-          ghGrid.style.setProperty('--gh-cols', columns);
-          ghGrid.style.gridAutoFlow = 'column';
-          ghGrid.style.gridTemplateRows = 'repeat(' + photo6Rows + ', 1fr)';
-        } else {
-          var grid = computeOptimalGrid(containerWidth, containerHeight, images.length, aspectRatio, 2, 10);
-          columns = grid.cols;
-          ghGrid.style.setProperty('--gh-cols', columns);
-          ghGrid.style.gridAutoFlow = 'column';
-          ghGrid.style.gridTemplateRows = 'repeat(' + grid.rows + ', 1fr)';
-        }
-      } else {
+      if (isUncroppedPhotography) {
+        // Cancel the base .gh-grid class's default 2-column CSS Grid
+        // layout (display:grid + grid-template-columns) on the OUTER
+        // #gh-grid — otherwise the inner multicol wrapper below gets
+        // placed as a single child inside just ONE of those grid
+        // columns, squeezing it to half-width (tiny thumbnails) while
+        // the other half sits empty.
+        ghGrid.classList.add('gh-grid-photography');
+        // Multicol needs its own wrapper with an unconstrained (auto)
+        // height. #gh-grid has a fixed height + overflow-y:auto for
+        // scrolling — if the column-count rules lived directly on it,
+        // the browser doesn't scroll the overflow vertically; instead
+        // it silently starts a NEW set of columns to the side once the
+        // fixed box fills up (a "third column" sliver), and scrolling
+        // never kicks in because the overflow is horizontal, not
+        // vertical. This inner div is what actually grows taller than
+        // #gh-grid as thumbnails stack up; #gh-grid's normal
+        // overflow-y:auto scrolls it exactly like any other
+        // overflowing content.
+        var photoInner = document.createElement('div');
+        photoInner.className = 'gh-grid-photography-inner';
+        ghGrid.appendChild(photoInner);
+        appendTarget = photoInner;
+      } else if (isCollage) {
         ghGrid.style.setProperty('--gh-cols', columns);
+      } else {
+        // Book Template's thumbnail rail only — unchanged: still packs
+        // thumbnails to fill a fixed height and crops to fit.
+        var containerWidth = ghGrid.clientWidth || 250;
+        var containerHeight = ghGrid.clientHeight || 600;
+        var aspectRatio = 3 / 2;
+        var grid = computeOptimalGrid(containerWidth, containerHeight, images.length, aspectRatio, 2, 10);
+        columns = grid.cols;
+        ghGrid.style.setProperty('--gh-cols', columns);
+        ghGrid.style.gridAutoFlow = 'column';
+        ghGrid.style.gridTemplateRows = 'repeat(' + grid.rows + ', 1fr)';
       }
 
       images.forEach(function (imageUrl, index) {
         var thumb = document.createElement('div');
         thumb.className = 'gh-thumb';
+        if (isUncroppedPhotography) {
+          thumb.classList.add('gh-thumb-uncropped');
+        }
         if (index === 0) {
           thumb.classList.add('gh-active');
         }
@@ -1492,7 +1518,7 @@
         thumb.addEventListener('focus', function () { selectImage(index); });
         thumb.setAttribute('tabindex', '0');
 
-        ghGrid.appendChild(thumb);
+        appendTarget.appendChild(thumb);
         thumbEls.push(thumb);
       });
     }

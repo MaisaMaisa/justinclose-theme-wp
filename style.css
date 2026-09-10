@@ -370,7 +370,7 @@ Author URI: https://maisaimamovic.eu/
 
 .lightbox-main img:not(.pg-media, .gh-thumb img) {
   height: 90%;
-  max-width: none;
+  max-width: 100%;
   -o-object-fit: cover;
      object-fit: cover;
   display: block;
@@ -465,7 +465,6 @@ Author URI: https://maisaimamovic.eu/
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(var(--gh-cols, 2), 1fr);
-  align-content: end;
   height: 100%;
   padding: 0;
   gap: 0;
@@ -480,6 +479,8 @@ Author URI: https://maisaimamovic.eu/
 
 .gh-thumb {
   position: relative;
+  display: flex;
+  align-items: center;
   width: 100%;
   /* grid column controls sizing now */
   box-sizing: border-box;
@@ -494,11 +495,6 @@ Author URI: https://maisaimamovic.eu/
   -o-object-fit: cover;
      object-fit: cover;
   display: block;
-}
-
-.gh-thumb.gh-active {
-  outline: 2px solid white;
-  outline-offset: -2px;
 }
 
 .gh-preview {
@@ -516,7 +512,7 @@ Author URI: https://maisaimamovic.eu/
   flex-direction: column;
   align-items: center;
   max-width: 100%;
-  max-height: 90%;
+  max-height: 85%;
 }
 
 .gh-preview img {
@@ -695,8 +691,41 @@ Author URI: https://maisaimamovic.eu/
   padding: 8px 12px 15px;
 }
 
-.gh-stage[data-variant=photography6] .gh-grid {
-  width: 150px;
+/* Cancels .gh-grid's base display:grid/grid-template-columns for
+   Photography, so the single .gh-grid-photography-inner child gets
+   the full rail width instead of being squeezed into one cell of a
+   2-column CSS Grid it doesn't need. */
+.gh-grid.gh-grid-photography {
+  display: block;
+}
+
+.gh-grid-photography-inner {
+  -moz-column-count: 2;
+       column-count: 2;
+  -moz-column-gap: 5px;
+       column-gap: 5px;
+  padding: 5px;
+  height: auto;
+}
+
+.gh-thumb-uncropped {
+  border: none;
+  -moz-column-break-inside: avoid;
+       break-inside: avoid;
+  -webkit-column-break-inside: avoid; /* Safari */
+  margin-bottom: 5px;
+}
+
+.gh-thumb-uncropped img {
+  width: 100%;
+  height: auto;
+  -o-object-fit: unset;
+     object-fit: unset;
+  display: block;
+}
+
+.gh-thumb-uncropped:hover {
+  opacity: 0.85;
 }
 
 /* Take the grid out of flex flow entirely so extra columns overlap the
