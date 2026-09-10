@@ -782,12 +782,19 @@
   height: 100%;
 }
 
-.video-direct-infobar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 5;
+.video-direct-info-panel {
+  width: 90%;
+  max-width: 900px;
+  box-sizing: border-box;
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #033ea5;
+  text-align: center;
+}
+
+.video-direct-info-panel p {
+  margin: 0;
 }
 
 /* =====================================================================

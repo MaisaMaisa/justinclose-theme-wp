@@ -871,14 +871,20 @@
     var embedUrl = getVideoEmbedUrl(entry.videoUrl);
     var videoDirectInfo = getEntryInfo(entry);
 
-    // Film/video-direct: info text sits permanently under the video,
-    // matching its width — no toggle, always visible.
+    // Film/video-direct gets its own local infobar wrapped together
+    // with the iframe inside #lightbox-stage, instead of using the
+    // shared .lightbox-infobar sibling in the template — same pattern
+    // buildVideoStage() already uses for the Film "watch mode" caption.
     var html = '<div class="video-direct-wrap" id="video-direct-wrap">';
     if (embedUrl) {
       html += '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
     }
     if (videoDirectInfo) {
-      html += '<div class="video-direct-info-panel" id="video-direct-info-panel">' + videoDirectInfo + '</div>';
+      html +=
+        '<div class="lightbox-infobar video-direct-infobar">' +
+          '<button type="button" class="lightbox-info-toggle" id="video-direct-info-toggle" aria-label="Toggle info">ⓘ</button>' +
+          '<div class="lightbox-info-panel" id="video-direct-info-panel"></div>' +
+        '</div>';
     }
     html += '</div>';
 
@@ -890,11 +896,20 @@
     elements.lightboxNext.style.display = 'none';
 
     // Hide the shared bottom infobar entirely for this layout — the
-    // local panel above takes its place, scoped to the video wrapper.
+    // local copy above takes its place, scoped to the video wrapper.
     elements.lightboxInfoToggle.style.display = 'none';
     elements.lightboxInfoPanel.style.display = 'none';
     if (elements.lightboxInfobar) {
       elements.lightboxInfobar.style.display = 'none';
+    }
+
+    if (videoDirectInfo) {
+      var localToggle = document.getElementById('video-direct-info-toggle');
+      var localPanel = document.getElementById('video-direct-info-panel');
+      localPanel.innerHTML = videoDirectInfo;
+      localToggle.addEventListener('click', function () {
+        localPanel.classList.toggle('open');
+      });
     }
   }
 

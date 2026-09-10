@@ -32,21 +32,21 @@
 }
 
 #nav-line span.cat:hover {
-  color: #0045bd !important;
+  color: #033ea5 !important;
 }
 
 #nav-line span.cat:hover::before {
   transform: rotate(45deg);
-  color: #0045bd !important;
+  color: #033ea5 !important;
 }
 
 #nav-line span.cat.active {
-  color: #0045bd !important;
+  color: #033ea5 !important;
 }
 
 #nav-line span.cat.active::before {
   transform: rotate(45deg);
-  color: #0045bd;
+  color: #033ea5;
 }
 
 #nav-line span.cat-reset {
@@ -63,7 +63,7 @@
 #nav-line span.cat-reset::before {
   content: "+";
   display: inline-block;
-  color: #0045bd;
+  color: #033ea5;
   font-size: 20px;
   transform: rotate(45deg);
 }
