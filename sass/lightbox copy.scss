@@ -392,32 +392,18 @@
     display: block;
 }
 
-// .gh-grid-photography-inner {
-//     column-gap: 5px;
-//     padding: 5px;
-//     height: auto;
-// }
-
 .gh-grid-photography-inner {
-    display: flex;
-    gap: 5px;
+    column-count: 2;
+    column-gap: 5px;
     padding: 5px;
     height: auto;
-}
-
-.gh-photo-col {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    flex: 1;
-    min-width: 0;
 }
 
 .gh-thumb-uncropped {
     border: none;
     break-inside: avoid;
     -webkit-column-break-inside: avoid; /* Safari */
-    // margin-bottom: 5px;
+    margin-bottom: 5px;
 }
 
 .gh-thumb-uncropped img {

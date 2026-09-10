@@ -1479,33 +1479,10 @@
         // #gh-grid as thumbnails stack up; #gh-grid's normal
         // overflow-y:auto scrolls it exactly like any other
         // overflowing content.
-        // Fixed 2-column masonry looks unbalanced with very few images
-        // (e.g. 5 images split 3/2 leaves one column visibly shorter,
-        // with no way for CSS alone to know to use fewer columns
-        // instead). So the column count is decided here per-gallery:
-        // small galleries render as a single centered column; anything
-        // with enough images to fill two columns reasonably uses 2.
-        // CSS column-count only balances columns reliably when the
-        // container has an explicit height — with height:auto (needed
-        // so it can grow to fit content) browsers fall back to filling
-        // column 1 completely before spilling into column 2, leaving
-        // column 2 mostly empty. So columns are split explicitly here
-        // instead: images are distributed round-robin (1st -> col 1,
-        // 2nd -> col 2, 3rd -> col 1, ...) into real flex columns, which
-        // guarantees both columns get an equal image count every time.
-        var photoColumnCount = images.length <= 8 ? 1 : 2;
-
         var photoInner = document.createElement('div');
         photoInner.className = 'gh-grid-photography-inner';
         ghGrid.appendChild(photoInner);
-
-        var photoColumnEls = [];
-        for (var pc = 0; pc < photoColumnCount; pc += 1) {
-          var photoColumnEl = document.createElement('div');
-          photoColumnEl.className = 'gh-photo-col';
-          photoInner.appendChild(photoColumnEl);
-          photoColumnEls.push(photoColumnEl);
-        }
+        appendTarget = photoInner;
       } else if (isCollage) {
         ghGrid.style.setProperty('--gh-cols', columns);
       } else {
@@ -1541,11 +1518,7 @@
         thumb.addEventListener('focus', function () { selectImage(index); });
         thumb.setAttribute('tabindex', '0');
 
-        if (isUncroppedPhotography) {
-          photoColumnEls[index % photoColumnCount].appendChild(thumb);
-        } else {
-          appendTarget.appendChild(thumb);
-        }
+        appendTarget.appendChild(thumb);
         thumbEls.push(thumb);
       });
     }
