@@ -803,7 +803,6 @@
   bottom: 0;
   flex-shrink: 0;
   display: flex;
-  padding: 2px 12px;
 }
 
 .lightbox-info-toggle {
