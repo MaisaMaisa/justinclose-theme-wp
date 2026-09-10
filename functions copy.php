@@ -9,6 +9,11 @@ add_action('after_setup_theme', function () {
     add_theme_support('post-thumbnails');
 });
 
+add_filter('wp_image_editors', function ($editors) {
+    return ['WP_Image_Editor_Imagick', 'WP_Image_Editor_GD'];
+});
+
+add_filter('big_image_size_threshold', '__return_false');
 
 /* =====================================================================
  * 2. GENERAL HELPERS
@@ -31,6 +36,24 @@ if (!function_exists('justin_normalize_image_url')) {
         return '';
     }
 }
+
+// if (!function_exists('justin_normalize_image_url')) {
+//     function justin_normalize_image_url($image) {
+//         if (is_array($image) && !empty($image['url'])) {
+//             return $image['url'];
+//         }
+
+//         if (is_numeric($image)) {
+//             return wp_get_attachment_image_url((int) $image, 'large') ?: '';
+//         }
+
+//         if (is_string($image)) {
+//             return $image;
+//         }
+
+//         return '';
+//     }
+// }
 
 if (!function_exists('justin_extract_image_urls')) {
     function justin_extract_image_urls($images) {
@@ -1534,7 +1557,12 @@ add_action('widgets_init', function () {
  * ===================================================================== */
 
 add_action('wp_enqueue_scripts', function () {
-    wp_enqueue_style('justin-style', get_stylesheet_uri(), [], '1.1');
+    wp_enqueue_style(
+        'justin-style',
+        get_stylesheet_uri(),
+        [],
+        filemtime(get_stylesheet_directory() . '/style.css')
+    );
     wp_enqueue_style('justin-font', 'https://fonts.googleapis.com/css2?family=Nothing+You+Could+Do&display=swap', [], null);
 
     // Stripe's own JS SDK must load before main.js when Stripe is
@@ -1548,7 +1576,7 @@ add_action('wp_enqueue_scripts', function () {
     }
 
     // wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.1', true);
-    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', $main_js_deps, '1.3', true);
+    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', $main_js_deps, '1.4', true);
 
     // God Mode styling only — the channel logic itself lives in main.js,
     // reusing the existing #god-mode-overlay / #god-mode-btn / #god-mode-frame

@@ -9,11 +9,17 @@ add_action('after_setup_theme', function () {
     add_theme_support('post-thumbnails');
 });
 
-add_filter('wp_image_editors', function ($editors) {
-    return ['WP_Image_Editor_Imagick', 'WP_Image_Editor_GD'];
-});
-
 add_filter('big_image_size_threshold', '__return_false');
+
+add_filter('template_include', function ($template) {
+    if (is_singular('post')) {
+        $home_template = locate_template(['front-page.php', 'index.php']);
+        if ($home_template) {
+            return $home_template;
+        }
+    }
+    return $template;
+});
 
 /* =====================================================================
  * 2. GENERAL HELPERS
@@ -1586,6 +1592,7 @@ add_action('wp_enqueue_scripts', function () {
     $data = [
         'siteTitle' => get_bloginfo('name'),
         'siteDescription' => wp_kses_post( get_theme_mod( 'justin_bio_copy', get_bloginfo('description') ) ),
+        'initialSlug' => is_singular('post') ? get_queried_object()->post_name : '',
         'cats' => [],
         'catBios' => [],
         'entries' => [],
@@ -1678,6 +1685,7 @@ add_action('wp_enqueue_scripts', function () {
 
         $entry = [
             'id' => $post->ID,
+            'slug' => $post->post_name,
             'text' => html_entity_decode(get_the_title($post), ENT_QUOTES, 'UTF-8'),
             'cat' => $cat_name,
             'info' => wp_kses_post(justin_get_meta($post->ID, 'info_text')),

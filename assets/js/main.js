@@ -1726,6 +1726,13 @@
       return;
     }
 
+    if (entry.slug) {
+      var entryUrl = '/' + entry.slug + '/';
+      if (window.location.pathname !== entryUrl) {
+        window.history.pushState({ entrySlug: entry.slug }, '', entryUrl);
+      }
+    }
+
     state.activeEntryIndex = index;
 
     // Reset any inline layout overrides a previous render may have left
@@ -1779,6 +1786,10 @@
 
   function closeLightbox() {
     state.activeEntryIndex = -1;
+
+    if (window.location.pathname !== '/') {
+      window.history.pushState({}, '', '/');
+    }
     state.activeImageIndex = 0;
     state.watchMode = false;
     document.body.classList.remove('lb-upside-down');
@@ -1981,6 +1992,36 @@
   renderNav();
   setBioText(siteBio);
   renderList();
+
+  function findEntryIndexBySlug(slug) {
+    for (var i = 0; i < entries.length; i += 1) {
+      if (entries[i] && entries[i].slug === slug) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  // Deep link: if this page was loaded directly at /project-name/,
+  // open that project's lightbox on load.
+  if (data.initialSlug) {
+    var initialIndex = findEntryIndexBySlug(data.initialSlug);
+    if (initialIndex !== -1) {
+      openEntry(initialIndex);
+    }
+  }
+
+  // Browser back/forward between a project URL and the homepage.
+  window.addEventListener('popstate', function () {
+    var slug = window.location.pathname.replace(/^\/|\/$/g, '');
+    var index = slug ? findEntryIndexBySlug(slug) : -1;
+
+    if (index !== -1) {
+      openEntry(index);
+    } else {
+      closeLightbox();
+    }
+  });
 
   if (elements.bioToggle) {
     elements.bioToggle.addEventListener('click', toggleBioSection);
