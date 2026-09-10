@@ -1509,22 +1509,30 @@
       } else if (isCollage) {
         ghGrid.style.setProperty('--gh-cols', columns);
       } else {
-        // Book Template's thumbnail rail only — unchanged: still packs
-        // thumbnails to fill a fixed height and crops to fit.
-        var containerWidth = ghGrid.clientWidth || 250;
-        var containerHeight = ghGrid.clientHeight || 600;
-        var aspectRatio = 3 / 2;
-        var grid = computeOptimalGrid(containerWidth, containerHeight, images.length, aspectRatio, 2, 10);
-        columns = grid.cols;
-        ghGrid.style.setProperty('--gh-cols', columns);
-        ghGrid.style.gridAutoFlow = 'column';
-        ghGrid.style.gridTemplateRows = 'repeat(' + grid.rows + ', 1fr)';
+        // Book Template 2's thumbnail rail: fixed 2 columns, uncropped,
+        // scrollable — a standalone block, separate from Photography's
+        // dynamic 1/2-column logic above (not shared/merged on purpose).
+        ghGrid.classList.add('gh-grid-book-thumbs');
+
+        var bookThumbInner = document.createElement('div');
+        bookThumbInner.className = 'gh-grid-book-inner';
+        ghGrid.appendChild(bookThumbInner);
+
+        var bookThumbCols = [];
+        for (var bc = 0; bc < 2; bc += 1) {
+          var bookThumbColEl = document.createElement('div');
+          bookThumbColEl.className = 'gh-book-thumb-col';
+          bookThumbInner.appendChild(bookThumbColEl);
+          bookThumbCols.push(bookThumbColEl);
+        }
+
+        appendTarget = null; // signals the forEach below to use bookThumbCols instead
       }
 
       images.forEach(function (imageUrl, index) {
         var thumb = document.createElement('div');
         thumb.className = 'gh-thumb';
-        if (isUncroppedPhotography) {
+        if (isUncroppedPhotography || isBookTemplate) {
           thumb.classList.add('gh-thumb-uncropped');
         }
         if (index === 0) {
@@ -1543,6 +1551,8 @@
 
         if (isUncroppedPhotography) {
           photoColumnEls[index % photoColumnCount].appendChild(thumb);
+        } else if (isBookTemplate) {
+          bookThumbCols[index % 2].appendChild(thumb);
         } else {
           appendTarget.appendChild(thumb);
         }

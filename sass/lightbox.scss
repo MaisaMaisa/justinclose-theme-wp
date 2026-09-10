@@ -252,7 +252,7 @@
     margin: 0;
     font-size: 15px;
     line-height: 1.5;
-    color: white;
+    color: #033ea5;
     // background: rgba(255, 255, 255, 0.85);
     scrollbar-width: none;
 }
@@ -321,12 +321,10 @@
     width: 200px;
     height: 200px;
     border-radius: 50%;
-    border: 1px solid white;
+    border: 1px solid #033ea5;
     background: transparent;
-    border: 1px solid white;
     border-radius: 999px;
-    background: transparent;
-    color: white;
+    color: #033ea5;
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -638,9 +636,9 @@
     margin-top: 5px;
 }
 
-.gh-stage-book .gh-counter {
-    color: white;
-}
+// .gh-stage-book .gh-counter {
+//     color: white;
+// }
 
 .gh-nav-arrow {
     display: none;
@@ -976,6 +974,30 @@
     margin: 20px 0;
 }
 
+/* Book Template 2: fixed 2-column, uncropped, scrollable thumbnail
+   rail. Cancels .gh-grid's base display:grid the same way Photography
+   does, but as its own independent block/classes. */
+.gh-grid.gh-grid-book-thumbs {
+    display: block;
+}
+
+.gh-grid-book-inner {
+    display: flex;
+    align-content: flex-start;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px;
+    height: auto;
+}
+
+.gh-book-thumb-col {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 0;
+}
+
 .buy-btn {
     display: inline-flex;
     align-items: center;
@@ -1047,12 +1069,12 @@
     fill: transparent;
 }
 
-.lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x,
-.lightbox-overlay.lb-book-template .lightbox-close .justin-circ-btn-x,
-.lb-book-template .lightbox-close .justin-circ-btn-x{
-    stroke: #fff!important;
-    mix-blend-mode: difference;
-}
+// .lightbox-overlay.lb-book .lightbox-close .justin-circ-btn-x,
+// .lightbox-overlay.lb-book-template .lightbox-close .justin-circ-btn-x,
+// .lb-book-template .lightbox-close .justin-circ-btn-x{
+//     stroke: #fff!important;
+//     mix-blend-mode: difference;
+// }
 
 @media (max-width: 700px) {
     .book-stage-v3 {
