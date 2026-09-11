@@ -1455,7 +1455,7 @@
       // branch below, since its rail sits beside fixed book text and
       // needs a predictable height — so this only kicks in when the
       // entry isn't a Book Template post.
-      var isUncroppedPhotography = (variant === 'photography' || variant === 'photography6') && !isBookTemplate;
+      var isUncroppedPhotography = variant === 'photography' && !isBookTemplate;
 
       var columns = 2;
       var appendTarget = ghGrid;
@@ -1594,7 +1594,7 @@
   }
 
   function isGridHoverLayout(layoutStyle) {
-    return layoutStyle === 'grid_hover' || layoutStyle === 'grid_hover_photo6' || layoutStyle === 'grid_hover_painting' || layoutStyle === 'grid_hover_collage' || layoutStyle === 'book_template';
+    return layoutStyle === 'grid_hover' || layoutStyle === 'grid_hover_painting' || layoutStyle === 'grid_hover_collage' || layoutStyle === 'book_template';
   }
 
   function renderPhotoGridLightbox(entry) {
