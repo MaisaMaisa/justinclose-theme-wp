@@ -1111,10 +1111,10 @@
 
     function buildPaintingColumnPlan(images, containerHeight, sizeScale) {
     var styleCycle = [
-      { name: 'rigid',    colWidth: 120 * sizeScale, innerWidthPct: 100 * sizeScale, marginY: 0,  ratios: [3 / 4, 1 / 1],       border: true,  shadow: false, rotate: 0 },
-      { name: 'floating', colWidth: 120 * sizeScale, innerWidthPct: 80 * sizeScale,  marginY: 20, ratios: [4 / 5, 1 / 1],       border: false, shadow: true,  rotate: 0 },
-      { name: 'sparse',   colWidth: 130 * sizeScale, innerWidthPct: 90 * sizeScale,  marginY: 36, ratios: [5 / 6],              border: false, shadow: true,  rotate: 0 },
-      { name: 'loose',    colWidth: 110 * sizeScale, innerWidthPct: 65 * sizeScale,  marginY: 28, ratios: [1 / 1, 3 / 5, 5 / 4], border: false, shadow: true,  rotate: 1.5 },
+      { name: 'rigid',    colWidth: 115 * sizeScale, innerWidthPct: 100 * sizeScale, marginY: 0,  ratios: [3 / 4, 1 / 1],       border: true,  shadow: false, rotate: 0 },
+      { name: 'floating', colWidth: 115 * sizeScale, innerWidthPct: 80 * sizeScale,  marginY: 20, ratios: [4 / 5, 1 / 1],       border: false, shadow: true,  rotate: 0 },
+      { name: 'sparse',   colWidth: 125 * sizeScale, innerWidthPct: 90 * sizeScale,  marginY: 36, ratios: [5 / 6],              border: false, shadow: true,  rotate: 0 },
+      { name: 'loose',    colWidth: 105 * sizeScale, innerWidthPct: 65 * sizeScale,  marginY: 28, ratios: [1 / 1, 3 / 5, 5 / 4], border: false, shadow: true,  rotate: 1.5 },
     ];
 
     var columns = [];
