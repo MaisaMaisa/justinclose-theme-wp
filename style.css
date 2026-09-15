@@ -1254,17 +1254,46 @@ Author URI: https://maisaimamovic.eu/
   display: flex;
   align-content: flex-start;
   justify-content: center;
-  gap: 5px;
-  padding: 5px;
+  gap: 10px; /* CHANGE from 5px */
+  padding: 24px 18px; /* CHANGE from 5px — matches collage's padding */
   height: auto;
 }
 
 .gh-book-thumb-col {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 18px; /* CHANGE from 5px — matches collage's vertical gap */
   flex: 1;
   min-width: 0;
+}
+
+/* Book Template 2 thumbnails styled like Collage — scoped to
+   .gh-grid-book-thumbs only, so Collage and every other layout are
+   untouched. */
+.gh-grid-book-thumbs .gh-thumb {
+  border: none;
+  box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease;
+}
+
+.gh-grid-book-thumbs .gh-thumb:hover {
+  transform: scale(1.05) rotate(0deg);
+}
+
+.gh-grid-book-thumbs .gh-thumb:nth-child(4n+1) {
+  transform: translateX(-8px) rotate(-2deg);
+}
+
+.gh-grid-book-thumbs .gh-thumb:nth-child(4n+2) {
+  transform: translateX(10px) rotate(2.5deg);
+}
+
+.gh-grid-book-thumbs .gh-thumb:nth-child(4n+3) {
+  transform: translateX(-6px) rotate(-1.5deg);
+}
+
+.gh-grid-book-thumbs .gh-thumb:nth-child(4n) {
+  transform: translateX(8px) rotate(2deg);
 }
 
 .buy-btn {

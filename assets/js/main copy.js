@@ -849,40 +849,22 @@
    * applies to a given entry.
    * ===================================================================== */
 
-  // function buildVideoStage(entry) {
-  //   var videoUrl = entry && entry.film ? entry.film.videoUrl : '';
-  //   var embedUrl = getVideoEmbedUrl(videoUrl);
-  //   var caption = getEntryInfo(entry);
-
-  //   if (embedUrl) {
-  //     elements.lightboxStage.innerHTML =
-  //       '<div class="film-watch-wrap">' +
-  //         '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>' +
-  //       '</div>' +
-  //       (caption ? '<div class="film-caption">' + caption + '</div>' : '');
-  //   } else {
-  //     elements.lightboxStage.innerHTML = '';
-  //   }
-
-  //   elements.lightboxThumbs.innerHTML = '';
-  // }
-
   function buildVideoStage(entry) {
-      var videoUrl = entry && entry.film ? entry.film.videoUrl : '';
-      var embedUrl = getVideoEmbedUrl(videoUrl);
-      var caption = getEntryInfo(entry);
+    var videoUrl = entry && entry.film ? entry.film.videoUrl : '';
+    var embedUrl = getVideoEmbedUrl(videoUrl);
+    var caption = getEntryInfo(entry);
 
-      if (embedUrl) {
-        elements.lightboxStage.innerHTML =
-          '<div class="film-watch-wrap">' +
-            '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>' +
-            (caption ? '<div class="film-caption">' + caption + '</div>' : '') +
-          '</div>';
-      } else {
-        elements.lightboxStage.innerHTML = '';
-      }
+    if (embedUrl) {
+      elements.lightboxStage.innerHTML =
+        '<div class="film-watch-wrap">' +
+          '<iframe class="film-vimeo" src="' + embedUrl + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>' +
+        '</div>' +
+        (caption ? '<div class="film-caption">' + caption + '</div>' : '');
+    } else {
+      elements.lightboxStage.innerHTML = '';
+    }
 
-      elements.lightboxThumbs.innerHTML = '';
+    elements.lightboxThumbs.innerHTML = '';
   }
 
   function renderVideoDirectLightbox(entry) {

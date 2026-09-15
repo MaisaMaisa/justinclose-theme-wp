@@ -281,13 +281,12 @@ if (!function_exists('justin_register_meta_boxes')) {
         add_meta_box('justin-project-common', 'Lightbox Layout', 'justin_render_project_common_box', 'post', 'normal', 'high');
         add_meta_box('justin-project-gallery', 'Gallery / Visuals', 'justin_render_project_gallery_box', 'post', 'normal', 'default');
         add_meta_box('justin-project-film', 'Film', 'justin_render_project_film_box', 'post', 'normal', 'default');
-        add_meta_box('justin-project-books', 'Book Template 1', 'justin_render_project_books_box', 'post', 'normal', 'default');
         // Separate box for Book Template's own thumbnail set, kept
         // apart from Gallery/Visuals so its Photo Grid tag UI never shows
         // up here. Only relevant when Lightbox Layout = Book Template
         // (hidden otherwise via justin_layout_admin_polish() below, along
         // with every other layout-specific meta box).
-        add_meta_box('justin-project-book-template', 'Book Template 2', 'justin_render_project_book_template_box', 'post', 'normal', 'default');
+        add_meta_box('justin-project-book-template', 'Book Template', 'justin_render_project_book_template_box', 'post', 'normal', 'default');
     }
 }
 
@@ -308,7 +307,7 @@ function justin_render_project_common_box($post) {
             <option value="grid_hover" <?php selected($layout_style, 'grid_hover'); ?>>Photography</option>
             <option value="grid_hover_painting" <?php selected($layout_style, 'grid_hover_painting'); ?>>Painting</option>
             <option value="grid_hover_collage" <?php selected($layout_style, 'grid_hover_collage'); ?>>Collage</option>
-            <option value="book_template" <?php selected($layout_style, 'book_template'); ?>>Book (beta)</option>
+            <option value="book_template" <?php selected($layout_style, 'book_template'); ?>>Book</option>
             <option value="video_direct" <?php selected($layout_style, 'video_direct'); ?>>Film</option>
             <option value="photo_grid" <?php selected($layout_style, 'photo_grid'); ?>>Photo Grid</option>
             <option value="hover_only" <?php selected($layout_style, 'hover_only'); ?>>Background Hover</option>
@@ -382,31 +381,6 @@ function justin_render_project_film_box($post) {
             <input type="checkbox" name="disable_info_text" value="1" <?php checked($disable_info_text); ?> />
             Disable info text (hides the ⓘ info panel entirely, even if Info text above has content)
         </label>
-    </p>
-    <?php
-}
-
-function justin_render_project_books_box($post) {
-    $buy_url  = justin_get_meta($post->ID, 'buy_url');
-    $price    = justin_get_meta($post->ID, 'buy_price');
-    $currency = justin_get_meta($post->ID, 'buy_currency', 'eur');
-    ?>
-    <p>With this one: content now comes straight from the
-    main post editor above &mdash; write/format it there (images, paragraphs,
-    etc.) and it will be shown as the lightbox background.</p>
-    <p>
-        <label for="buy_price"><strong>Price per copy</strong></label><br />
-        <input type="number" step="0.01" min="0" name="buy_price" id="buy_price" value="<?php echo esc_attr($price); ?>" style="width:150px;" />
-        <select name="buy_currency" id="buy_currency">
-            <?php foreach (justin_stripe_currencies() as $code => $label) : ?>
-                <option value="<?php echo esc_attr($code); ?>" <?php selected($currency, $code); ?>><?php echo esc_html($label); ?></option>
-            <?php endforeach; ?>
-        </select>
-        <br><span style="color:#666;">Set a price + your Stripe publishable/secret keys under Appearance &gt; Justin Settings to enable the in-page BUY ME checkout. Leave the price at 0 to skip Stripe and just use the Buy URL below.</span>
-    </p>
-    <p>
-        <label for="buy_url"><strong>Buy URL (fallback if Stripe isn't configured)</strong></label><br />
-        <input type="url" name="buy_url" id="buy_url" value="<?php echo esc_attr($buy_url); ?>" style="width:100%;" />
     </p>
     <?php
 }
@@ -611,7 +585,6 @@ function justin_layout_admin_polish() {
             var galleryBox = document.getElementById('justin-project-gallery');
             var tagAssign = document.getElementById('justin-gallery-tag-assign');
             var filmBox = document.getElementById('justin-project-film');
-            var booksBox = document.getElementById('justin-project-books');
             var bookTemplateBox = document.getElementById('justin-project-book-template');
             var hoverOnlyField = document.getElementById('justin-hover-only-field');
             var autoSelectCheckbox = document.getElementById('auto_select_layout_category');
@@ -652,10 +625,6 @@ function justin_layout_admin_polish() {
 
                 if (filmBox) {
                     filmBox.style.display = (value === 'video_direct') ? '' : 'none';
-                }
-
-                if (booksBox) {
-                    booksBox.style.display = (value === 'book_template') ? '' : 'none';
                 }
 
                 if (bookTemplateBox) {
@@ -751,11 +720,11 @@ add_action('save_post_post', function ($post_id) {
         return;
     }
 
-    $text_fields = ['info_text', 'film_video_url', 'buy_url', 'hover_link_url'];
+    $text_fields = ['info_text', 'film_video_url', 'hover_link_url'];
     foreach ($text_fields as $field_name) {
         if (isset($_POST[$field_name])) {
             $value = wp_unslash($_POST[$field_name]);
-            $value = ($field_name === 'buy_url') ? esc_url_raw($value) : sanitize_text_field($value);
+            $value = sanitize_text_field($value);
             // if ($field_name === 'info_text' || $field_name === 'body_text' || $field_name === 'book_text' || $field_name === 'teaser_text') {
             //     $value = wp_kses_post(wp_unslash($_POST[$field_name]));
             // }
@@ -767,20 +736,6 @@ add_action('save_post_post', function ($post_id) {
             }
             update_post_meta($post_id, $field_name, $value);
         }
-    }
-
-    // Book price + currency (Stripe).
-    if (isset($_POST['buy_price'])) {
-        $buy_price = (float) wp_unslash($_POST['buy_price']);
-        update_post_meta($post_id, 'buy_price', max(0, $buy_price));
-    }
-
-    if (isset($_POST['buy_currency'])) {
-        $buy_currency = sanitize_text_field(wp_unslash($_POST['buy_currency']));
-        if (!isset(justin_stripe_currencies()[$buy_currency])) {
-            $buy_currency = 'eur';
-        }
-        update_post_meta($post_id, 'buy_currency', $buy_currency);
     }
 
     // Book Template price + currency + buy url — independent of the Books
@@ -942,13 +897,16 @@ function justin_create_payment_intent() {
         wp_send_json_error(['message' => 'Stripe is not configured yet.'], 400);
     }
 
-    if ($source === 'book_template') {
-        $price_major = (float) justin_get_meta($post_id, 'book_template_price', 0);
-        $currency    = justin_get_meta($post_id, 'book_template_currency', 'eur');
-    } else {
-        $price_major = (float) justin_get_meta($post_id, 'buy_price', 0);
-        $currency    = justin_get_meta($post_id, 'buy_currency', 'eur');
-    }
+    // if ($source === 'book_template') {
+    //     $price_major = (float) justin_get_meta($post_id, 'book_template_price', 0);
+    //     $currency    = justin_get_meta($post_id, 'book_template_currency', 'eur');
+    // } else {
+    //     $price_major = (float) justin_get_meta($post_id, 'buy_price', 0);
+    //     $currency    = justin_get_meta($post_id, 'buy_currency', 'eur');
+    // }
+
+    $price_major = (float) justin_get_meta($post_id, 'book_template_price', 0);
+    $currency    = justin_get_meta($post_id, 'book_template_currency', 'eur');
 
     $currencies  = justin_stripe_currencies();
 
@@ -1707,31 +1665,31 @@ add_action('wp_enqueue_scripts', function () {
             $entry['images'] = $entry['film']['images'];
         }
 
-        if ($cat_name === 'Books') {
-            setup_postdata($post);
+        // if ($cat_name === 'Books') {
+        //     setup_postdata($post);
 
-            $price_major = (float) justin_get_meta($post->ID, 'buy_price', 0);
-            $currency    = justin_get_meta($post->ID, 'buy_currency', 'eur');
+        //     $price_major = (float) justin_get_meta($post->ID, 'buy_price', 0);
+        //     $currency    = justin_get_meta($post->ID, 'buy_currency', 'eur');
 
-            // Book Template's own thumbnail set, completely separate
-            // from the regular 'gallery' field. getEntryImages() in
-            // main.js checks entry.book.images first, so Book Template
-            // posts use these instead of falling back to entry.images.
-            $book_template_ids = justin_get_attachment_ids(justin_get_meta($post->ID, 'book_template_images'));
+        //     // Book Template's own thumbnail set, completely separate
+        //     // from the regular 'gallery' field. getEntryImages() in
+        //     // main.js checks entry.book.images first, so Book Template
+        //     // posts use these instead of falling back to entry.images.
+        //     $book_template_ids = justin_get_attachment_ids(justin_get_meta($post->ID, 'book_template_images'));
 
-            $entry['book'] = [
-                'content'    => apply_filters('the_content', $post->post_content),
-                'buyUrl'     => esc_url_raw(justin_get_meta($post->ID, 'buy_url')),
-                // priceCents/currency drive the Stripe modal. If priceCents
-                // is 0, main.js falls back to plain buyUrl behavior.
-                'priceCents' => (int) round($price_major * 100),
-                'currency'   => $currency,
-                'title'      => html_entity_decode(get_the_title($post), ENT_QUOTES, 'UTF-8'),
-                'images'     => justin_extract_image_urls($book_template_ids),
-            ];
+        //     $entry['book'] = [
+        //         'content'    => apply_filters('the_content', $post->post_content),
+        //         'buyUrl'     => esc_url_raw(justin_get_meta($post->ID, 'buy_url')),
+        //         // priceCents/currency drive the Stripe modal. If priceCents
+        //         // is 0, main.js falls back to plain buyUrl behavior.
+        //         'priceCents' => (int) round($price_major * 100),
+        //         'currency'   => $currency,
+        //         'title'      => html_entity_decode(get_the_title($post), ENT_QUOTES, 'UTF-8'),
+        //         'images'     => justin_extract_image_urls($book_template_ids),
+        //     ];
 
-            wp_reset_postdata();
-        }
+        //     wp_reset_postdata();
+        // }
 
         // if ($cat_name === 'Books') {
         //     $book_images = justin_extract_image_urls(justin_get_attachment_ids(justin_get_meta($post->ID, 'book_images')));
