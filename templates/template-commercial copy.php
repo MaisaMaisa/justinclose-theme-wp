@@ -20,11 +20,6 @@ if (!function_exists('justin_link_list_extract_tag_attrs')) {
 
         if (preg_match('/style\s*=\s*"([^"]*)"/i', $open_tag, $matches)) {
             $style = $matches[1];
-            // Strip any font-family declaration so the cycling font
-            // classes always control typeface — only other inline
-            // styles (e.g. color) are preserved.
-            $style = preg_replace('/font-family\s*:[^;]+;?/i', '', $style);
-            $style = trim($style, "; \t\n\r\0\x0B");
         }
         if (preg_match('/class\s*=\s*"([^"]*)"/i', $open_tag, $matches)) {
             $class = $matches[1];
@@ -107,12 +102,12 @@ $font_classes = [
     'oxanium-reg',
     // 'rubik-spray-paint-regular',
     'big-shoulders-regular',
-    // 'anton-regular',
+    'anton-regular',
     // 'six-caps-regular',
     'sirin-stencil-regular',
     'jura-400',
     'syne-tactile-regular',
-    // 'geist-mono-400',
+    'geist-mono-400',
     'sofia-sans-semi-condensed-regular',
     'nova-flat-regular',
     // 'matemasie-regular',
