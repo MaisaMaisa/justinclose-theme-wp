@@ -115,10 +115,6 @@
       return entry.bookTemplate.images.slice();
     }
 
-    if (entry.book && Array.isArray(entry.book.images)) {
-      return entry.book.images.slice();
-    }
-
     return Array.isArray(entry.images) ? entry.images.slice() : [];
   }
 
@@ -183,10 +179,7 @@
     var hasImages = getEntryImages(entry).length > 0;
     var hasFilmVideo = !!(entry.film && entry.film.videoUrl && String(entry.film.videoUrl).trim().length);
     var hasDirectVideo = !!(entry.videoUrl && String(entry.videoUrl).trim().length);
-    var hasBookContent = !!(
-      (entry.book && entry.book.content && String(entry.book.content).trim().length) ||
-      (entry.bookTemplate && entry.bookTemplate.content && String(entry.bookTemplate.content).trim().length)
-    );
+    var hasBookContent = !!(entry.bookTemplate && entry.bookTemplate.content && String(entry.bookTemplate.content).trim().length);
 
     return !hasImages && !hasFilmVideo && !hasDirectVideo && !hasBookContent;
   }
@@ -1391,6 +1384,16 @@
       });
     }
 
+    // Wires up the Book Template buy button to Stripe (or its buyUrl
+    // fallback if Stripe isn't configured/priced). The button itself is
+    // only ever created in the HTML above when hasBookTemplateBuy is true.
+    var bookTemplateBuyBtn = document.getElementById('book-template-buy-btn');
+    if (bookTemplateBuyBtn) {
+      bookTemplateBuyBtn.addEventListener('click', function () {
+        openStripeModal(entry, 'book_template', bookForTemplate);
+      });
+    }
+
     var currentIndex = 0;
     var thumbEls = [];
 
@@ -1717,50 +1720,6 @@
     }
   }
 
-  function renderBookStage(entry) {
-    var book = entry.book || {};
-
-    elements.lightboxOverlay.classList.add('lb-book');
-
-    var html =
-      '<div class="book-stage-v3" id="book-stage-v3">' +
-        '<div class="book-content">' + (book.content || '') + '</div>' +
-      '</div>';
-
-    elements.lightboxStage.innerHTML = html;
-    elements.lightboxStage.style.display = 'block';
-    elements.lightboxStage.style.width = '100%';
-    elements.lightboxStage.style.height = '100%';
-    elements.lightboxStage.style.padding = '0';
-    elements.lightboxStage.style.margin = '0';
-    elements.lightboxThumbs.innerHTML = '';
-
-    if (book.buyUrl || book.priceCents) {
-      var buyBtnWrap = document.createElement('div');
-      buyBtnWrap.className = 'buy-btn-wrap buy-btn-wrap-fixed';
-
-      var buyBtn = document.createElement('button');
-      buyBtn.type = 'button';
-      buyBtn.className = 'buy-btn';
-      buyBtn.textContent = 'BUY ME';
-
-      buyBtn.addEventListener('click', function () {
-        openStripeModal(entry, 'book', book);
-      });
-
-      buyBtnWrap.appendChild(buyBtn);
-      elements.lightboxOverlay.appendChild(buyBtnWrap);
-      state.activeBookBuyBtn = buyBtnWrap;
-    }
-
-    elements.lightboxThumbs.style.display = 'none';
-    elements.lightboxInfoToggle.style.display = 'none';
-    elements.lightboxInfoPanel.style.display = 'none';
-    elements.lightboxPrev.style.display = 'none';
-    elements.lightboxNext.style.display = 'none';
-  }
-
-
   /* =====================================================================
    * 6. LIGHTBOX CONTROLLER
    * Opens/closes the lightbox and picks which renderer from section 5
@@ -1798,8 +1757,6 @@
     // decides whether it needs to override it again.
     elements.lightboxStage.removeAttribute('style');
 
-    elements.lightboxOverlay.classList.remove('lb-book');
-
     var lightboxColor = categoryLightboxColors[entry.cat] || '';
     elements.lightboxOverlay.style.setProperty('--lightbox-tint', lightboxColor || '');
 
@@ -1817,9 +1774,6 @@
       document.body.classList.remove('lb-upside-down');
       elements.lightboxOverlay.classList.add('lb-book-template');
       renderGridHoverLightbox(entry);
-    } else if (entry.cat === 'Books') {
-      document.body.classList.remove('lb-upside-down');
-      renderBookStage(entry);
     } else {
       if (isGridHoverLayout(entry.layoutStyle) && getEntryImages(entry).length) {
         renderGridHoverLightbox(entry);
@@ -1844,14 +1798,10 @@
     document.body.classList.remove('lb-upside-down');
     elements.lightboxOverlay.style.removeProperty('--lightbox-tint');
     // elements.lightboxOverlay.classList.remove('open', 'watch-mode', 'lb-book', 'lb-book-template');
-    elements.lightboxOverlay.classList.remove('open', 'watch-mode', 'lb-book', 'lb-book-template', 'lb-photo-grid'); // ADD lb-photo-grid
+    elements.lightboxOverlay.classList.remove('open', 'watch-mode', 'lb-book-template', 'lb-photo-grid');
     if (elements.godModeBtn) {
       elements.godModeBtn.classList.remove('behind-popup');
     }
-    if (state.activeBookBuyBtn && state.activeBookBuyBtn.parentNode) {
-      state.activeBookBuyBtn.parentNode.removeChild(state.activeBookBuyBtn);
-    }
-    state.activeBookBuyBtn = null;
     document.body.style.overflow = '';
     elements.lightboxOverlay.classList.remove('open', 'watch-mode');
     elements.lightboxOverlay.setAttribute('aria-hidden', 'true');

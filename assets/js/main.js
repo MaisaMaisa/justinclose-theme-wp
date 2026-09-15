@@ -1936,7 +1936,7 @@
     screen.style.transform = 'rotateX(' + rotateFrom + 'deg)';
 
     setTimeout(function () {
-      godModeIndex = direction === 'down'
+      godModeIndex = direction === 'up'
         ? (godModeIndex + 1) % godModeChannels.length
         : (godModeIndex - 1 + godModeChannels.length) % godModeChannels.length;
 
