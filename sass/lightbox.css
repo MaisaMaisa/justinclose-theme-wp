@@ -48,6 +48,10 @@
   margin: 0 auto;
 }
 
+.lightbox-overlay.lb-photo-grid .lightbox-close .justin-circ-btn-x {
+  stroke: #fff !important;
+}
+
 .lightbox-arrow {
   position: absolute;
   top: 50%;
@@ -419,8 +423,7 @@
   height: 100%;
   width: -moz-max-content;
   width: max-content;
-  /* grows freely — no cap, no clipping */
-  overflow: visible;
+  overflow: scroll;
   z-index: 3;
   /* sits above the preview image */
   pointer-events: none;
@@ -731,8 +734,8 @@
 }
 
 .film-vimeo {
-  width: 90%;
-  max-width: 900px;
+  width: 100%; /* CHANGE from 90% */
+  max-width: none; /* CHANGE from 900px */
   height: 500px;
   border: none;
   flex-shrink: 0;
@@ -740,22 +743,25 @@
 
 .film-watch-wrap {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 90%; /* CHANGE from 100% */
+  max-width: 900px; /* ADD */
   height: 100%;
+  margin: 0 auto; /* ADD */
 }
 
 .film-caption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 30px;
+  position: static;
+  width: 100%; /* CHANGE from 90% */
+  /* remove max-width: 900px entirely */
+  margin-top: 12px;
   text-align: center;
   font-size: 15px;
   line-height: 1.4;
   color: black;
-  padding: 0 40px;
+  padding: 0;
   pointer-events: none;
 }
 .film-caption p {
@@ -806,25 +812,32 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 90%; /* CHANGE from 100% */
+  max-width: 900px; /* ADD */
   height: 100%;
+  margin: 0 auto; /* ADD */
 }
 
 .video-direct-info-panel {
-  width: 90%;
-  max-width: 900px;
+  width: 99%; /* CHANGE from 90% */
+  /* remove max-width: 900px entirely */
+  text-align: justify;
   box-sizing: border-box;
-  margin-top: 12px;
+  margin-top: 15px;
   font-size: 15px;
   line-height: 1.4;
   color: #033ea5;
-  text-align: center;
 }
 
 .video-direct-info-panel p {
   margin: 0;
 }
 
+@media (max-width: 700px) {
+  .video-direct-info-panel {
+    width: 90% !important;
+  }
+}
 /* =====================================================================
  * 11. LIGHTBOX — INFO PANEL
  * The ⓘ toggle + sliding description panel shown between the main

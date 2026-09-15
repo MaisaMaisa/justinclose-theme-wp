@@ -52,6 +52,10 @@
     margin: 0 auto;
 }
 
+.lightbox-overlay.lb-photo-grid .lightbox-close .justin-circ-btn-x{
+  stroke: #fff!important;
+}
+
 .lightbox-arrow {
     position: absolute;
     top: 50%;
@@ -146,7 +150,6 @@
     flex-shrink: 0;
     display: grid;
     grid-template-columns: repeat(var(--gh-cols, 2), 1fr);
-    // align-content: end;
     height: 100%;
     padding: 0;
     gap: 0;
@@ -178,18 +181,12 @@
     display: block;
 }
 
-// .gh-thumb.gh-active {
-//     outline: 2px solid white;
-//     outline-offset: -2px;
-// }
-
 .gh-preview {
     flex: 1;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    // background: #fff;
     overflow: hidden;
     min-width: 0;
 }
@@ -445,8 +442,7 @@
     left: 0;
     height: 100%;
     width: max-content;
-    /* grows freely — no cap, no clipping */
-    overflow: visible;
+    overflow: scroll;
     z-index: 3;
     /* sits above the preview image */
     pointer-events: none;
@@ -793,33 +789,69 @@
     background: #000;
 }
 
+// .film-vimeo {
+//     width: 90%;
+//     max-width: 900px;
+//     height: 500px;
+//     border: none;
+//     flex-shrink: 0;
+// }
+
 .film-vimeo {
-    width: 90%;
-    max-width: 900px;
+    width: 100%;        /* CHANGE from 90% */
+    max-width: none;    /* CHANGE from 900px */
     height: 500px;
     border: none;
     flex-shrink: 0;
 }
 
+// .film-watch-wrap {
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     width: 100%;
+//     height: 100%;
+// }
+
+// .film-caption {
+//     position: absolute;
+//     left: 0;
+//     right: 0;
+//     bottom: 30px;
+//     text-align: center;
+//     font-size: 15px;
+//     line-height: 1.4;
+//     color: black;
+//     // text-shadow: #FC0 1px 0 10px;
+//     padding: 0 40px;
+//     pointer-events: none;
+
+//     p {
+//         margin: 0;
+//     }
+// }
+
 .film-watch-wrap {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    width: 90%;          /* CHANGE from 100% */
+    max-width: 900px;    /* ADD */
     height: 100%;
+    margin: 0 auto;       /* ADD */
 }
 
 .film-caption {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 30px;
+    position: static;
+    width: 100%;          /* CHANGE from 90% */
+    /* remove max-width: 900px entirely */
+    margin-top: 12px;
     text-align: center;
     font-size: 15px;
     line-height: 1.4;
     color: black;
-    // text-shadow: #FC0 1px 0 10px;
-    padding: 0 40px;
+    padding: 0;
     pointer-events: none;
 
     p {
@@ -874,23 +906,32 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    width: 90%;          /* CHANGE from 100% */
+    max-width: 900px;    /* ADD */
     height: 100%;
+    margin: 0 auto;       /* ADD */
 }
 
 .video-direct-info-panel {
-    width: 90%;
-    max-width: 900px;
+    width: 99%;          /* CHANGE from 90% */
+    /* remove max-width: 900px entirely */
+    text-align: justify;
     box-sizing: border-box;
-    margin-top: 12px;
+    margin-top: 15px;
     font-size: 15px;
     line-height: 1.4;
     color: #033ea5;
-    text-align: center;
 }
 
 .video-direct-info-panel p {
     margin: 0;
+}
+
+@media (max-width: 700px) {
+
+    .video-direct-info-panel {
+        width: 90%!important;    
+    }
 }
 
 /* =====================================================================
