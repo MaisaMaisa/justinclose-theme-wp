@@ -1313,14 +1313,12 @@
           '<div class="gh-grid" id="gh-grid"></div>' +
           '<div class="gh-right-col" id="gh-right-col">' +
             previewHtml +
-            '<div class="gh-book-footer">' +
-              '<div class="gh-book-text-wrap" id="gh-book-text-wrap">' +
-                '<div class="gh-book-text" id="gh-book-text">' + bookText + '</div>' +
-                '<div class="gh-book-scrollbar" id="gh-book-scrollbar"><div class="gh-book-scrollbar-thumb" id="gh-book-scrollbar-thumb"></div></div>' +
-              '</div>' +
-              (hasBookTemplateBuy ? '<button type="button" class="book-template-buy-btn" id="book-template-buy-btn">Buy</button>' : '') +
+            '<div class="gh-book-text-wrap" id="gh-book-text-wrap">' +
+              '<div class="gh-book-text" id="gh-book-text">' + bookText + '</div>' +
+              '<div class="gh-book-scrollbar" id="gh-book-scrollbar"><div class="gh-book-scrollbar-thumb" id="gh-book-scrollbar-thumb"></div></div>' +
             '</div>' +
           '</div>' +
+          (hasBookTemplateBuy ? '<div class="gh-book-buy-col" id="gh-book-buy-col"><button type="button" class="book-template-buy-btn" id="book-template-buy-btn">Buy</button></div>' : '') +
         '</div>';
     } else {
       html =

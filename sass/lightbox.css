@@ -213,23 +213,26 @@
   min-height: 0;
 }
 
-/* Wraps the book text and buy button so they can sit side by side
-   (row) instead of stacked. Adjust align-items/gap here to change how
-   they line up against each other. */
-.gh-book-footer {
+/* Text now sits directly under the preview image inside .gh-right-col,
+   full width of that column (same container/width as the image), and
+   centered. The buy button lives in its own column, .gh-book-buy-col,
+   as a sibling of .gh-grid / .gh-right-col. */
+.gh-book-text-wrap {
   flex-shrink: 0;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  text-align: center;
   padding: 0 24px 16px;
 }
 
-.gh-book-text-wrap {
-  flex: 1;
-  min-width: 0;
-  position: relative;
+.gh-book-buy-col {
+  flex-shrink: 0;
+  width: 260px;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .gh-book-text {
@@ -303,7 +306,6 @@
   flex-shrink: 0;
   align-self: anchor-center;
   display: inline-flex;
-  align-items: center;
   justify-content: center;
   padding: 9px 22px;
   width: 200px;
@@ -640,11 +642,12 @@
   .gh-stage-book .gh-right-col {
     height: 100%;
   }
-  .gh-book-footer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
+  .gh-book-text-wrap {
     padding: 0 16px 12px;
+  }
+  .gh-book-buy-col {
+    width: 100%;
+    padding: 12px 0;
   }
   .gh-book-text {
     max-height: 35vh;
