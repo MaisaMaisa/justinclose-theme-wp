@@ -357,50 +357,16 @@ jQuery(function ($) {
     frame.on('select', function () {
       var selection = frame.state().get('selection');
       var attachments = selection.toJSON();
-
-      if (!isMultiple) {
-        var singleId = attachments[0] ? attachments[0].id : '';
-        $field.find('.justin-media-value').val(singleId || '');
-        refreshSinglePreview($field, attachments[0]);
-        return;
-      }
-
-      // Multi-image fields: APPEND the newly picked images to whatever
-      // is already in the DOM instead of rebuilding the preview from
-      // the frame's selection. This is what actually prevents wipeout —
-      // it never depends on the picker already "knowing" about the old
-      // images, so it can't silently fail the way pre-loading the
-      // frame's selection on 'open' can.
-      var $preview = $field.find('.justin-media-preview');
-      var existingIds = $preview.find('.justin-media-thumb').map(function () {
-        return String($(this).data('id'));
-      }).get();
-
-      var $captionsInput = getCaptionsInput($field);
-      var oldCaptions = {};
-      if ($captionsInput) {
-        try {
-          oldCaptions = JSON.parse($captionsInput.val() || '{}');
-        } catch (e) {
-          oldCaptions = {};
-        }
-      }
-
-      attachments.forEach(function (attachment) {
-        var idStr = String(attachment.id);
-        if (existingIds.indexOf(idStr) !== -1) {
-          return; // already in the gallery — skip, don't duplicate
-        }
-        if (attachment && attachment.url) {
-          $preview.append(buildThumbMarkup(attachment, $captionsInput ? oldCaptions[attachment.id] : undefined));
-          existingIds.push(idStr);
-        }
+      var ids = attachments.map(function (item) {
+        return item.id;
       });
 
-      initSortable($field);
-      syncOrderFromDOM($field);
-      if ($captionsInput) {
-        syncCaptionsFromDOM($field);
+      $field.find('.justin-media-value').val(isMultiple ? ids.join(',') : ids[0] || '');
+
+      if (isMultiple) {
+        refreshGalleryPreview($field, attachments);
+      } else {
+        refreshSinglePreview($field, attachments[0]);
       }
     });
 

@@ -2034,7 +2034,7 @@ body.god-mode-active > *:not(#god-mode-overlay):not(#god-mode-btn) {
   height: 100%;
   flex-direction: column;
   align-items: end;
-  justify-content: center;
+  justify-content: flex-end;
   right: 0;
 }
 
