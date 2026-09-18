@@ -235,14 +235,27 @@ if (!function_exists('justin_render_media_preview')) {
     }
 }
 
-if (!function_exists('justin_photo_grid_tags')) {
-    function justin_photo_grid_tags() {
-        $base_tags = [
+if (!function_exists('justin_base_photo_grid_tags')) {
+    function justin_base_photo_grid_tags() {
+        return [
             'Roads', 'Balcony', 'Clouds', 'Street People', 'Nature', 'Food',
             'Rejections', 'Cats', 'Dogs', 'Rocks', 'Architecture', 'Myself',
             'Beds', 'Signs', 'StudioGirls', 'Guys', 'Friends', 'Home',
             'Drawings', 'Other',
         ];
+    }
+}
+
+if (!function_exists('justin_removed_default_photo_grid_tags')) {
+    function justin_removed_default_photo_grid_tags() {
+        $removed = get_option('justin_removed_photo_grid_default_tags', []);
+        return is_array($removed) ? $removed : [];
+    }
+}
+
+if (!function_exists('justin_photo_grid_tags')) {
+    function justin_photo_grid_tags() {
+        $base_tags = array_diff(justin_base_photo_grid_tags(), justin_removed_default_photo_grid_tags());
 
         $custom_tags = get_option('justin_custom_photo_grid_tags', []);
         if (!is_array($custom_tags)) {
@@ -349,8 +362,7 @@ function justin_render_project_gallery_box($post) {
     <p>Used for Photography, Painting, and Collage, and Photo Grid content.</p>
     <?php justin_render_media_preview('Gallery images', 'gallery', $gallery, true, 'gallery_image_captions', $gallery_captions_map); ?>
 
-    <div id="justin-gallery-tag-assign" data-tags='<?php echo esc_attr(wp_json_encode($all_tags)); ?>' data-custom-tags='<?php echo esc_attr(wp_json_encode($custom_tags)); ?>'>
-        <p><strong>Photo Grid tags</strong> <span style="color:#777;">(only used when Lightbox Layout = Photo Grid)</span></p>
+    <div id="justin-gallery-tag-assign" data-tags='<?php echo esc_attr(wp_json_encode($all_tags)); ?>' data-custom-tags='<?php echo esc_attr(wp_json_encode($all_tags)); ?>'>        <p><strong>Photo Grid tags</strong> <span style="color:#777;">(only used when Lightbox Layout = Photo Grid)</span></p>
         <div class="justin-add-tag-row" style="margin:10px 0;">
             <input type="text" id="justin-new-tag-input" placeholder="New tag name" style="width:200px;" />
             <button type="button" class="button" id="justin-add-tag-btn">Add tag</button>
@@ -1008,15 +1020,46 @@ add_action('wp_ajax_justin_delete_photo_grid_tag', function () {
         $custom_tags = [];
     }
 
-    $filtered = array_values(array_filter($custom_tags, function ($tag) use ($tag_to_delete) {
-        return strcasecmp($tag, $tag_to_delete) !== 0;
-    }));
-
-    if (count($filtered) === count($custom_tags)) {
-        wp_send_json_error(['message' => 'That tag is a built-in tag and cannot be deleted.'], 400);
+    $is_custom = false;
+    foreach ($custom_tags as $tag) {
+        if (strcasecmp($tag, $tag_to_delete) === 0) {
+            $is_custom = true;
+            break;
+        }
     }
 
-    update_option('justin_custom_photo_grid_tags', $filtered);
+    if ($is_custom) {
+        $custom_tags = array_values(array_filter($custom_tags, function ($tag) use ($tag_to_delete) {
+            return strcasecmp($tag, $tag_to_delete) !== 0;
+        }));
+        update_option('justin_custom_photo_grid_tags', $custom_tags);
+    } else {
+        $is_base = false;
+        foreach (justin_base_photo_grid_tags() as $tag) {
+            if (strcasecmp($tag, $tag_to_delete) === 0) {
+                $is_base = true;
+                break;
+            }
+        }
+
+        if (!$is_base) {
+            wp_send_json_error(['message' => 'Tag not found.'], 400);
+        }
+
+        $removed = justin_removed_default_photo_grid_tags();
+        $already_removed = false;
+        foreach ($removed as $tag) {
+            if (strcasecmp($tag, $tag_to_delete) === 0) {
+                $already_removed = true;
+                break;
+            }
+        }
+
+        if (!$already_removed) {
+            $removed[] = $tag_to_delete;
+            update_option('justin_removed_photo_grid_default_tags', array_values(array_unique($removed)));
+        }
+    }
 
     // Best-effort cleanup: strip the deleted tag from any post that
     // already has it saved against an image, so it doesn't linger in
