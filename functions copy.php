@@ -422,7 +422,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
     if ($hook === 'post.php' || $hook === 'post-new.php') {
         wp_enqueue_media();
         wp_enqueue_script('jquery');
-        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.5', true);
+        wp_enqueue_script('justin-admin-metaboxes', get_template_directory_uri() . '/assets/js/admin-metaboxes.js', ['jquery'], '1.6', true);
         wp_localize_script('justin-admin-metaboxes', 'JUSTIN_ADMIN', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce('justin_photo_grid_tag_nonce'),
@@ -1536,7 +1536,7 @@ add_action('wp_enqueue_scripts', function () {
     }
 
     // wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.1', true);
-    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', $main_js_deps, '1.4', true);
+    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', $main_js_deps, '1.5', true);
 
     // God Mode styling only — the channel logic itself lives in main.js,
     // reusing the existing #god-mode-overlay / #god-mode-btn / #god-mode-frame

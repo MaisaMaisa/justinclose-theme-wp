@@ -39,24 +39,11 @@
 
 .footer-eyes-link {
   font-size: 30px;
-  display: inline-block;
   transition: transform 0.3s ease;
 }
 
 /* default eyes widget: starts normal, flips on hover */
-.footer-eyes-link-wrap:hover .footer-eyes-link {
-  transform: scaleX(-1);
-}
-
 /* video-grid homepage link: starts flipped, un-flips on hover */
-.footer-eyes-link--video-home {
-  transform: scaleX(-1);
-}
-
-.footer-eyes-link-wrap:hover .footer-eyes-link--video-home {
-  transform: scaleX(1);
-}
-
 .footer-info-popup {
   position: absolute;
   bottom: 100%;
