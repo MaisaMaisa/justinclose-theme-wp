@@ -10,7 +10,7 @@
 }
 
 #list summary {
-  font-size: 17px;
+  font-size: clamp(14px, 1.15vw, 22px);
   line-height: 1.55;
   cursor: pointer;
   list-style: none;

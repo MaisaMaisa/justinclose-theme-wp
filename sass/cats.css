@@ -13,7 +13,7 @@
 #nav-line span.cat {
   cursor: pointer;
   padding: 0 15px;
-  font-size: 15px;
+  font-size: clamp(13px, 1vw, 19px);
   transition: color 0.2s ease;
   color: transparent !important;
   text-transform: lowercase;
@@ -27,7 +27,7 @@
   content: "+";
   display: inline-block;
   color: black;
-  font-size: 14px;
+  font-size: clamp(12px, 0.95vw, 18px);
   transition: transform 0.2s ease;
 }
 
@@ -64,7 +64,7 @@
   content: "+";
   display: inline-block;
   color: #033ea5;
-  font-size: 20px;
+  font-size: clamp(13px, 1.3vw, 24px);
   transform: rotate(45deg);
 }
 

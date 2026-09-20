@@ -1,6 +1,7 @@
 .link-list-wrap {
   min-height: 100vh;
   padding: 0.5%;
+  font-size: clamp(14px, 1.15vw, 22px);
 }
 
 .link-list-line {

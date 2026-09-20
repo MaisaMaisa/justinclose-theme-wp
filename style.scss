@@ -38,7 +38,7 @@ body {
 }
 
 #page {
-    margin-left: 65px;
+    margin-left: clamp(65px, 4.3vw, 140px);
     padding-right: 5px;
 }
 

@@ -2,7 +2,8 @@
     position: fixed;
     left: 10px;
     top: 50px;
-    font-size: 17px;
+    // font-size: 17px;
+    font-size: clamp(14px, 1.15vw, 22px);
     line-height: 1.5;
     pointer-events: none;
     transition: top 0.15s ease;
