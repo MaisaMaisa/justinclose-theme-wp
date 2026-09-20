@@ -885,6 +885,19 @@ add_action('admin_init', function () {
     ]);
 });
 
+add_action('admin_init', function () {
+    register_setting('justin_settings_group', 'justin_front_bg_color', [
+        'type'              => 'string',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'default'           => '',
+    ]);
+    register_setting('justin_settings_group', 'justin_front_bg_enabled', [
+        'type'              => 'string',
+        'sanitize_callback' => 'sanitize_text_field',
+        'default'           => '',
+    ]);
+});
+
 if (!function_exists('justin_stripe_currencies')) {
     function justin_stripe_currencies() {
         return ['eur' => 'EUR', 'usd' => 'USD', 'gbp' => 'GBP'];
@@ -1174,11 +1187,50 @@ function justin_render_settings_page() {
                 <textarea name="justin_god_mode_description" rows="3" style="width:100%; max-width:600px;"><?php echo esc_textarea(get_option('justin_god_mode_description', '')); ?></textarea>
             </p>
 
+            <h2>Homepage background</h2>
+            <p>Only affects the homepage (front-page.php). The password-protected page and other pages are unchanged.</p>
+            <table class="form-table">
+                <tr>
+                    <th>Custom background</th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="justin_front_bg_enabled" value="1" <?php checked(get_option('justin_front_bg_enabled', ''), '1'); ?> />
+                            Use a custom background color
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="justin_front_bg_color">Color</label></th>
+                    <td>
+                        <input type="color" id="justin_front_bg_color" name="justin_front_bg_color" value="<?php echo esc_attr(get_option('justin_front_bg_color', '') ?: '#ffffff'); ?>" />
+                    </td>
+                </tr>
+            </table>
+
             <?php submit_button(); ?>
         </form>
     </div>
     <?php
 }
+
+add_action('wp_head', function () {
+    // Your template_include filter renders single posts through
+    // front-page.php too, so both count as "front-page.php".
+    if (!is_front_page() && !is_singular('post')) {
+        return;
+    }
+
+    if (get_option('justin_front_bg_enabled', '') !== '1') {
+        return;
+    }
+
+    $color = sanitize_hex_color(get_option('justin_front_bg_color', ''));
+    if (!$color) {
+        return;
+    }
+
+    echo '<style id="justin-front-bg">html, body { background: ' . esc_attr($color) . ' !important; }</style>';
+});
 
 function justin_render_site_settings_box() {
     ?>
@@ -1439,10 +1491,16 @@ class Justin_Eyes_Link_Widget extends WP_Widget {
         }
 
         $page_id = absint($instance['page_id'] ?? 0);
-        if (!$page_id || get_post_status($page_id) !== 'publish') {
-            return;
+
+        if ($page_id && get_post_status($page_id) === 'publish') {
+            $url   = get_permalink($page_id);
+            $label = get_the_title($page_id);
+        } else {
+            // No page selected -> link to the homepage
+            $url   = home_url('/');
+            $label = __('Back to homepage', 'justin');
         }
-        $url = get_permalink($page_id);
+
         if (!$url) {
             return;
         }
@@ -1456,7 +1514,7 @@ class Justin_Eyes_Link_Widget extends WP_Widget {
         printf(
         '<span class="footer-eyes-link-wrap"><a class="footer-eyes-link" href="%s" aria-label="%s">%s</a></span>',
         esc_url($url),
-        esc_attr(get_the_title($page_id)),
+        esc_attr($label),
         esc_html($emoji)
         );
         echo $args['after_widget'];
@@ -1511,6 +1569,17 @@ add_action('widgets_init', function () {
         'name'          => 'Footer Widgets',
         'id'            => 'footer-widgets',
         'description'   => 'Icon widgets shown in the site footer. Drag to reorder.',
+        'before_widget' => '<div id="%1$s" class="footer-widget %2$s">',
+        'after_widget'  => '</div>',
+        'before_title'  => '<h2 class="screen-reader-text">',
+        'after_title'   => '</h2>',
+    ]);
+
+    // NEW: separate widget area for the password-protected / commercial footer
+    register_sidebar([
+        'name'          => 'Footer Commercial Widgets',
+        'id'            => 'footer-commercial-widgets',
+        'description'   => 'Icon widgets shown in the footer of the password-protected / commercial pages.',
         'before_widget' => '<div id="%1$s" class="footer-widget %2$s">',
         'after_widget'  => '</div>',
         'before_title'  => '<h2 class="screen-reader-text">',

@@ -21,7 +21,7 @@
 // }
 
 #list summary {
-    font-size: clamp(14px, 1.15vw, 22px);
+    font-size: max(14px, 1.15vw);
     line-height: 1.55;
     cursor: pointer;
     list-style: none;

@@ -38,8 +38,51 @@
 }
 
 .footer-eyes-link {
-  font-size: 30px;
+  position: relative;
+  font-size: 0; /* hides the emoji/text character */
+  transform: none;
+}
+
+/* the circle: never moves */
+.footer-eyes-link::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  border: 1.5px solid #000;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+/* the dot: orbits the circle's center */
+.footer-eyes-link::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: #000;
+  transform: rotate(225deg) translateX(6px); /* homepage default */
   transition: transform 0.3s ease;
+}
+
+.footer-eyes-link-wrap:hover .footer-eyes-link::after {
+  transform: rotate(335deg) translateX(6px); /* homepage hover */
+}
+
+/* Commercial / password page: reversed */
+.site-footer--commercial .footer-eyes-link::after {
+  transform: rotate(335deg) translateX(6px);
+}
+
+.site-footer--commercial .footer-eyes-link-wrap:hover .footer-eyes-link::after {
+  transform: rotate(225deg) translateX(6px);
 }
 
 /* default eyes widget: starts normal, flips on hover */

@@ -567,17 +567,6 @@
    * mobile infinite-loop scrolling), and the fixed "justin label" that
    * follows whichever item is hovered.
    * ===================================================================== */
-  // The vertical line the highlight should sit on: the center of the
-  // fixed "justin" label if it's visible, otherwise the screen's center.
-  function getFocusY() {
-    if (elements.justinLabel) {
-      var labelRect = elements.justinLabel.getBoundingClientRect();
-      if (labelRect.height > 0) {
-        return labelRect.top + labelRect.height / 2;
-      }
-    }
-    return window.innerHeight / 2;
-  }
 
   function updateScrollSpy() {
     if (!mobileQuery.matches) {
@@ -593,8 +582,7 @@
       return;
     }
 
-    // var viewportCenter = window.innerHeight / 2;
-    var viewportCenter = getFocusY();
+    var viewportCenter = window.innerHeight / 2;
     var closest = null;
     var closestDistance = Infinity;
 
@@ -812,38 +800,6 @@
     return li;
   }
 
-    var listAlignToken = 0;
-  var listUserTouched = false;
-
-  ['touchstart', 'wheel', 'mousedown'].forEach(function (evt) {
-    window.addEventListener(evt, function () {
-      listUserTouched = true;
-    }, { passive: true });
-  });
-
-  // Mobile: jump (instantly) so the FIRST project of the SECOND copy
-  // sits on the same line as the "justin" label.
-  function alignSecondSetToLabel() {
-    if (!mobileQuery.matches) {
-      return;
-    }
-
-    var firstOfSecondSet = elements.list.children[entries.length];
-    if (!firstOfSecondSet) {
-      return;
-    }
-
-    var summary = firstOfSecondSet.querySelector('summary') || firstOfSecondSet;
-    var rect = summary.getBoundingClientRect();
-    var itemCenterY = rect.top + window.scrollY + rect.height / 2;
-    var targetY = Math.max(0, itemCenterY - getFocusY());
-
-    // 'instant' overrides any CSS scroll-behavior: smooth
-    window.scrollTo({ top: targetY, left: 0, behavior: 'instant' });
-    lastLoopScrollY = window.scrollY;
-    updateScrollSpy();
-  }
-
   function renderList() {
     elements.list.innerHTML = '';
 
@@ -866,54 +822,8 @@
 
     if (loopSets > 1) {
       setupListLoop();
-
-      var myToken = ++listAlignToken;
-      listUserTouched = false;
-
-      alignSecondSetToLabel();
-
-      // Fonts/layout can change line heights after first paint, so
-      // re-align a couple of times, but never once the user has started
-      // scrolling.
-      var realign = function () {
-        if (myToken === listAlignToken && !listUserTouched) {
-          alignSecondSetToLabel();
-        }
-      };
-
-      window.setTimeout(realign, 150);
-      window.setTimeout(realign, 600);
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(realign);
-      }
-      window.addEventListener('load', realign, { once: true });
     }
   }
-
-  // function renderList() {
-  //   elements.list.innerHTML = '';
-
-  //   if (!entries.length) {
-  //     var empty = document.createElement('li');
-  //     empty.className = 'empty-state';
-  //     empty.textContent = 'No projects yet.';
-  //     elements.list.appendChild(empty);
-  //     return;
-  //   }
-
-  //   var loopSets = mobileQuery.matches ? LIST_LOOP_SETS : 1;
-
-  //   for (var setIndex = 0; setIndex < loopSets; setIndex += 1) {
-  //     entries.forEach(function (entry) {
-  //       var index = entries.indexOf(entry);
-  //       elements.list.appendChild(createListItem(entry, index));
-  //     });
-  //   }
-
-  //   if (loopSets > 1) {
-  //     setupListLoop();
-  //   }
-  // }
 
   function toggleBioSection() {
     var isOpen = elements.bioSection.classList.toggle('is-open');
@@ -2076,10 +1986,7 @@
    * Kicks everything off — must run last, after every function above is
    * defined. Keep this block in place at the end of the IIFE.
    * ===================================================================== */
-  if ('scrollRestoration' in window.history) {
-    window.history.scrollRestoration = 'manual';
-  }
-  
+
   renderNav();
   setBioText(siteBio);
   renderList();
