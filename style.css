@@ -952,7 +952,8 @@ Author URI: https://maisaimamovic.eu/
   }
   .gh-counter-wrap {
     width: 100%;
-    height: 100%;
+    height: 95%;
+    top: 1.5%;
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
@@ -1035,8 +1036,13 @@ Author URI: https://maisaimamovic.eu/
     color: white;
   }
   .gh-stage[data-variant=painting] .gh-grid.gh-grid-painting,
-  .gh-stage[data-variant=collage] .gh-grid {
+  .gh-stage[data-variant=collage] .gh-grid,
+  .gh-grid.gh-grid-photography,
+  .gh-grid.gh-grid-book-thumbs {
     display: none !important;
+  }
+  .gh-stage[data-variant=painting] .gh-preview img.gh-preview-img-landscape {
+    max-width: 100% !important;
   }
 }
 /* =====================================================================
