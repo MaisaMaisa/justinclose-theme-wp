@@ -1510,10 +1510,13 @@ class Justin_Eyes_Link_Widget extends WP_Widget {
             $emoji = self::DEFAULT_EMOJI;
         }
 
+        $new_tab = !empty($instance['new_tab']);
+
         echo $args['before_widget'];
         printf(
-        '<span class="footer-eyes-link-wrap"><a class="footer-eyes-link" href="%s" aria-label="%s">%s</a></span>',
+        '<span class="footer-eyes-link-wrap"><a class="footer-eyes-link" href="%s"%s aria-label="%s">%s</a></span>',
         esc_url($url),
+        $new_tab ? ' target="_blank" rel="noopener noreferrer"' : '',
         esc_attr($label),
         esc_html($emoji)
         );
@@ -1524,6 +1527,7 @@ class Justin_Eyes_Link_Widget extends WP_Widget {
         $page_id = absint($instance['page_id'] ?? 0);
         $emoji   = $instance['emoji'] ?? self::DEFAULT_EMOJI;
         $enabled = isset($instance['enabled']) ? (bool) $instance['enabled'] : true;
+        $new_tab = !empty($instance['new_tab']);   // <-- NEW
         ?>
         <p>
             <label>
@@ -1551,6 +1555,13 @@ class Justin_Eyes_Link_Widget extends WP_Widget {
                 'class'             => 'widefat',
             ]); ?>
         </p>
+        <?php /* NEW: checkbox below */ ?>
+        <p>
+            <label>
+                <input type="checkbox" name="<?php echo esc_attr($this->get_field_name('new_tab')); ?>" value="1" <?php checked($new_tab); ?> />
+                Open in a new tab
+            </label>
+        </p>
         <?php
     }
 
@@ -1560,6 +1571,7 @@ class Justin_Eyes_Link_Widget extends WP_Widget {
             'page_id' => absint($new_instance['page_id'] ?? 0),
             'emoji'   => $emoji !== '' ? $emoji : self::DEFAULT_EMOJI,
             'enabled' => !empty($new_instance['enabled']),
+            'new_tab' => !empty($new_instance['new_tab']),
         ];
     }
 }
