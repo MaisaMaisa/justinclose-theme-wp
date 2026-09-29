@@ -1659,7 +1659,8 @@ add_action('wp_enqueue_scripts', function () {
         $main_js_deps[] = 'stripe-js';
     }
 
-    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', $main_js_deps, '1.6', true);
+    // wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', [], '1.1', true);
+    wp_enqueue_script('justin-main', get_template_directory_uri() . '/assets/js/main.js', $main_js_deps, '1.5', true);
 
     // God Mode styling only — the channel logic itself lives in main.js,
     // reusing the existing #god-mode-overlay / #god-mode-btn / #god-mode-frame
@@ -1719,11 +1720,6 @@ add_action('wp_enqueue_scripts', function () {
         $gallery_ids = justin_get_attachment_ids(justin_get_meta($post->ID, 'gallery'));
         $images = justin_extract_image_urls($gallery_ids);
 
-        $thumbs = [];
-        foreach ($gallery_ids as $attachment_id) {
-            $thumbs[] = wp_get_attachment_image_url($attachment_id, 'medium_large') ?: '';
-        }
-
         $gallery_captions_raw = justin_get_meta($post->ID, 'gallery_image_captions', '{}');
         $gallery_captions_map = json_decode($gallery_captions_raw, true);
         if (!is_array($gallery_captions_map)) {
@@ -1773,7 +1769,6 @@ add_action('wp_enqueue_scripts', function () {
             'info' => wp_kses_post(justin_get_meta($post->ID, 'info_text')),
             'infoDisabled' => justin_parse_bool(justin_get_meta($post->ID, 'disable_info_text')),
             'images' => $images,
-            'thumbs' => $thumbs,
             'imageCaptions' => $image_captions,
             'bgImage' => $hover_only && $hover_bg_image ? justin_normalize_image_url($hover_bg_image) : '',
             'hoverLink' => $hover_only ? esc_url_raw(justin_get_meta($post->ID, 'hover_link_url')) : '',

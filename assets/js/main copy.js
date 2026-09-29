@@ -416,16 +416,6 @@
       return;
     }
 
-    if (typeof window.Stripe === 'undefined') {
-      var stripeScript = document.createElement('script');
-      stripeScript.src = 'https://js.stripe.com/v3/';
-      stripeScript.onload = function () {
-        openStripeModal(entry, source, sourceData);
-      };
-      document.head.appendChild(stripeScript);
-      return;
-    }
-
     buildStripeModal();
 
     if (!stripeState.stripe) {
@@ -1030,9 +1020,7 @@
 
     for (var i = 0; i < images.length; i += 1) {
       var thumb = document.createElement('img');
-      thumb.src = (entry.thumbs && entry.thumbs[i]) || images[i];
-      thumb.loading = 'lazy';
-      thumb.decoding = 'async';
+      thumb.src = images[i];
       thumb.alt = entry.text || '';
 
       if (i === 0) {
@@ -1660,9 +1648,7 @@
         }
 
         var thumbImg = document.createElement('img');
-        thumbImg.src = (!isBookTemplate && entry.thumbs && entry.thumbs[index]) || imageUrl;
-        thumbImg.loading = 'lazy';
-        thumbImg.decoding = 'async';
+        thumbImg.src = imageUrl;
         thumbImg.alt = entry.text || '';
         thumb.appendChild(thumbImg);
 
@@ -1769,8 +1755,6 @@
         var img = document.createElement('img');
         img.className = 'pg-media';
         img.src = image.url;
-        img.loading = 'lazy';
-        img.decoding = 'async';
         img.alt = entry.text || '';
         tile.appendChild(img);
 
