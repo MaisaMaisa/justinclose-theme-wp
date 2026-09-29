@@ -20,16 +20,30 @@
   transition: font-size 0.15s ease;
 }
 
-#list summary:hover {
-  color: #033ea5;
+@media (hover: hover) {
+  #list summary:hover {
+    color: #033ea5;
+  }
 }
-
 #list li.category-active summary,
 #list summary.category-active {
   color: #033ea5;
 }
 
 @media (max-width: 700px) {
+  #list,
+  #nav-line,
+  #justin-label {
+    -webkit-user-select: none;
+    /* iOS Safari */
+    -moz-user-select: none;
+         user-select: none;
+    /* everyone else */
+    -webkit-touch-callout: none;
+    /* no Copy / Look Up popup on long-press */
+    -webkit-tap-highlight-color: transparent;
+    /* no grey flash on tap */
+  }
   #list summary {
     font-size: 12px;
   }

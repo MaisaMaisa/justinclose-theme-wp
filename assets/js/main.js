@@ -579,11 +579,20 @@
     return window.innerHeight / 2;
   }
 
+  // Mobile: show the bg image of whichever item is lined up with
+  // "justin", clear it when the lined-up item has no image.
+  function syncMobileBackground(summary) {
+    var li = summary ? summary.closest('li') : null;
+    var entry = li ? entries[Number(li.dataset.entryIndex)] : null;
+    setBackground(entry && entry.bgImage ? entry.bgImage : '');
+  }
+
   function updateScrollSpy() {
     if (!mobileQuery.matches) {
       if (scrollActiveSummary) {
         scrollActiveSummary.classList.remove('scroll-active');
         scrollActiveSummary = null;
+        setBackground(''); // leaving mobile: clear the scroll-driven bg
       }
       return;
     }
@@ -593,7 +602,6 @@
       return;
     }
 
-    // var viewportCenter = window.innerHeight / 2;
     var viewportCenter = getFocusY();
     var closest = null;
     var closestDistance = Infinity;
@@ -617,6 +625,7 @@
         closest.classList.add('scroll-active');
       }
       scrollActiveSummary = closest;
+      syncMobileBackground(closest);
     }
   }
 
@@ -787,12 +796,18 @@
     });
 
     summary.addEventListener('mouseenter', function () {
+      if (mobileQuery.matches) {
+        return; // mobile is driven by scroll position instead
+      }
       setBackground(entry.bgImage);
       summary.classList.add('highlighted');
       moveJustinLabelToElement(summary);
     });
 
     summary.addEventListener('mouseleave', function () {
+      if (mobileQuery.matches) {
+        return;
+      }
       setBackground('');
       summary.classList.remove('highlighted');
       clearJustinLabelPosition();
