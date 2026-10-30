@@ -833,7 +833,6 @@ Author URI: https://maisaimamovic.eu/
 }
 
 .gh-stage[data-variant=painting] .gh-preview img.gh-preview-img-landscape {
-  max-width: 40% !important;
   height: auto !important;
 }
 
@@ -1551,20 +1550,6 @@ Author URI: https://maisaimamovic.eu/
   z-index: 1;
 }
 
-@media (max-width: 700px) {
-  html.bg-hover-active,
-  html.bg-hover-active body {
-    background: #000;
-    transition: background 0.3s ease;
-  }
-  #bg-hover-img {
-    top: 0;
-    bottom: auto;
-    height: 100lvh; /* "large" viewport = full screen incl. bar areas */
-    min-height: 100%;
-    background-position: center;
-  }
-}
 .collage-body {
   position: relative;
   /* background: #f5f0e8; */
